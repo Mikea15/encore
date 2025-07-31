@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\Debug\\imgui_impl_raylib.obj",
+            "outputs": [
+                "x64\\Debug\\imgui_impl_raylib.h_8BEBDCAD33744430.ifc.dt.module.json",
+                "x64\\Debug\\imgui_impl_raylib.h_8BEBDCAD33744430.ifc.dt.d.json",
+                "x64\\Debug\\imgui_impl_raylib.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "C:\\Work\\encore\\app\\imgui_impl_raylib.h",
+                    "source-path": "c:\\work\\encore\\app\\imgui_impl_raylib.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

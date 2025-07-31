@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    {
+      "name": "sdl2",
+      "version>=": "2.32.8"
+    },
+    { "name": "glew" }
+  ],
+  "builtin-baseline": "e140b1fde236eb682b0d47f905e65008a191800f"
+}

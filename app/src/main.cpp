@@ -20,6 +20,16 @@
 
 #include "debug/framerate_widget.h"
 #include "debug/memory_widget.h"
+#include "base_pool.h"
+
+struct GraphicsComponent {
+	DECLARE_POOL(GraphicsComponent);
+
+	u8 modelData[1024];
+	const char* name;
+	bool bActive;
+};
+IMPLEMENT_POOL(GraphicsComponent, 500);
 
 struct GameState {
 	Arena globalArena;
@@ -89,6 +99,9 @@ int main(int argc, char* argv[]) {
 	gamestate.componentsArena = arena_create(KB(30));
 	gamestate.enemiesArena = arena_create(KB(125));
 	gamestate.uiArena = arena_create(MB(2));
+
+	GraphicsComponent::Init(&gamestate.componentsArena);
+
 	FrameTimeTracker track(gamestate.globalArena);
 
 	float deltaTime = 0.0f;
@@ -126,6 +139,8 @@ int main(int argc, char* argv[]) {
 		// UPDATE
 		track.Update(deltaTime);
 
+		test_pool(&gamestate.enemiesArena);
+
 		// RENDER
 
 		SDL_GL_MakeCurrent(window, glContext);
@@ -149,10 +164,8 @@ int main(int argc, char* argv[]) {
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
+		
 		SDL_GL_SwapWindow(window);
-
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();

@@ -18,10 +18,15 @@ using f32 = float;
 using f64 = double;
 
 #define SecToMs(s) (f32)s * 1000
+#define MsToNs(s) (f32)s * 1000
 #define MsToSec(s) (f32)s / 1000
 
-#define Kilobyte(b) (f32) b * 1024
-#define Megabyte(b) Kilobyte(b) * 1024
-#define Gigabyte(b) Megabyte(b) * 1024
+#define BytesToKB(b) b / 1024.0f
+#define BytesToMB(b) BytesToKB(b) / 1024.0f
+#define BytesToMB(b) BytesToMB(b) / 1024.0f
+
+#define KB(n) n * 1024.0f
+#define MB(n) KB(n) * 1024.0f
+#define GB(n) MB(n) * 1024.0f
 
 #define BIT(b) (1 << b)

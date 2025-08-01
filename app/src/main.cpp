@@ -19,16 +19,14 @@
 #include <chrono>
 
 #include "debug/framerate_widget.h"
+#include "debug/memory_widget.h"
 
-extern "C" // Ensures C linkage - prevents C++ name mangling
-{
-	// Tells NVIDIA driver to use the dedicated GPU for this application
-	__declspec(dllexport) // Exports this symbol so the NVIDIA driver can see it
-		unsigned long NvOptimusEnablement = 0x00000001; // Setting to 1 enables dedicated GPU
-
-	__declspec(dllexport)
-		int AmdPowerXpressRequestHighPerformance = 1;
-}
+struct GameState {
+	Arena globalArena;
+	Arena componentsArena;
+	Arena enemiesArena;
+	Arena uiArena;
+};
 
 int main(int argc, char* argv[]) {
 	// Initialize SDL
@@ -42,8 +40,6 @@ int main(int argc, char* argv[]) {
 	SDL_Window* window = SDL_CreateWindow("Encore",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		1200, 800, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-
-	
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -72,7 +68,7 @@ int main(int argc, char* argv[]) {
 		SDL_SetWindowFullscreen(window, false);
 		SDL_SetWindowResizable(window, SDL_TRUE);
 
-		SDL_GL_SetSwapInterval(0);
+		SDL_GL_SetSwapInterval(1);
 	}
 
 	// have this by default
@@ -86,8 +82,14 @@ int main(int argc, char* argv[]) {
 
 	ImGui::StyleColorsDark();
 
+	GameState gamestate;
+
 	//
-	FrameTimeTracker track;
+	gamestate.globalArena = arena_create(KB(24));
+	gamestate.componentsArena = arena_create(KB(30));
+	gamestate.enemiesArena = arena_create(KB(125));
+	gamestate.uiArena = arena_create(MB(2));
+	FrameTimeTracker track(gamestate.globalArena);
 
 	float deltaTime = 0.0f;
 	float lastFrameNow = 0.0f;
@@ -98,8 +100,6 @@ int main(int argc, char* argv[]) {
 		const float frameNow = SDL_GetTicks() / 1000.0f;
 		deltaTime = frameNow - lastFrameNow;
 		lastFrameNow = frameNow;
-
-		
 
 		// INPUT
 		SDL_Event event;
@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
 		SDL_GL_MakeCurrent(window, glContext);
 
 		// render
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(sin(frameNow), cos(frameNow), 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// render ui
@@ -141,6 +141,11 @@ int main(int argc, char* argv[]) {
 
 		track.RenderCompactOverlay();
 		track.RenderImGuiWindow();
+
+		debug::DrawMemoryStats(gamestate.globalArena, "Global");
+		debug::DrawMemoryStats(gamestate.componentsArena, "Components");
+		debug::DrawMemoryStats(gamestate.enemiesArena, "Enemies");
+		debug::DrawMemoryStats(gamestate.uiArena, "UI");
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

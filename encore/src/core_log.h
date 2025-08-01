@@ -122,7 +122,7 @@ static void LogImpl(LogLevel level, const char* file, int line, const char* func
 
     // Add location for errors and asserts
     if (level >= LOG_LEVEL_ERROR && file && func) {
-        int written = _snprintf_s(pos, remaining, _TRUNCATE, "(%s:%d in %s) ",
+        int written = _snprintf_s(pos, remaining, _TRUNCATE, "\n\t >>> (%s:%d in %s)\n\t >>> ",
             strrchr(file, '\\') ? strrchr(file, '\\') + 1 : file,
             line, func);
         if (written > 0) {

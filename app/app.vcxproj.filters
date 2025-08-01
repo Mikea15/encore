@@ -71,5 +71,11 @@
     <ClInclude Include="src\debug\framerate_widget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\debug\memory_widget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\extension_imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -207,11 +207,11 @@ static inline void arena_print_stats(const Arena* arena, const char* name) {
     ArenaStats stats = arena_get_stats(arena);
     printf("Arena '%s':\n", name ? name : "Unknown");
     printf("  Total Size: %u bytes (%.2f KB)\n",
-        stats.total_size, Kilobyte(stats.total_size));
+        stats.total_size, BytesToKB(stats.total_size));
     printf("  Used:       %u bytes (%.2f KB)\n",
-        stats.used_bytes, Kilobyte(stats.used_bytes));
+        stats.used_bytes, BytesToKB(stats.used_bytes));
     printf("  Free:       %u bytes (%.2f KB)\n",
-        stats.free_bytes, Kilobyte(stats.free_bytes));
+        stats.free_bytes, BytesToKB(stats.free_bytes));
     printf("  Utilization: %.1f%%\n", stats.utilization);
 }
 

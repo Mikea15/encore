@@ -10,7 +10,7 @@
 class FrameTimeTracker
 {
 public:
-	FrameTimeTracker(Arena& arena) 
+	void Init(Arena& arena) 
 	{
 		m_pFrameTimes = arena_alloc_array(&arena, f32, m_sampleCount);
 		m_pFramesPerSecond = arena_alloc_array(&arena, f32, m_sampleCount);

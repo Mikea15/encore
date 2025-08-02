@@ -23,9 +23,9 @@ namespace debug
 				(f32) stats.free_bytes / (1024.f)
 			);
 
-			ImGui::UsageProgressBar(usageStr, stats.utilization / 100.0f, ImVec2(-1.0f, 25.0f));
+			ImGui::UsageProgressBar(usageStr, stats.utilization / 100.0f, ImVec2(-1.0f, 15.0f));
 
-			ImGui::End();
 		}
+		ImGui::End();
 	}
 }

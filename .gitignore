@@ -2,3 +2,4 @@
 .vs/*
 vcpkg_installed/*
 x64/*
+app/x64/*

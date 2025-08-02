@@ -36,31 +36,54 @@ struct GameState {
 	Arena componentsArena;
 	Arena enemiesArena;
 	Arena uiArena;
+
+	struct Window {
+		SDL_Window* pWindow;
+		SDL_GLContext pGLContext;
+	} window;
 };
 
 int main(int argc, char* argv[]) {
+
+	GameState gameState;
+	// Memory
+	gameState.globalArena = arena_create(KB(24));
+	gameState.componentsArena = arena_create(KB(30));
+	gameState.enemiesArena = arena_create(KB(125));
+	gameState.uiArena = arena_create(MB(2));
+
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
-		std::cerr << "SDL Init Error\n";
+		LOG_ERROR("Failed to SDL_Init");
 		return -1;
 	}
 
 	// Create window with SDL renderer
-	SDL_Window* window = SDL_CreateWindow("Encore",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		1200, 800, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	gameState.window.pWindow = SDL_CreateWindow("Encore", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1200, 800, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	if (!gameState.window.pWindow) {
+		LOG_ERROR("Could not Create Window");
+		return -1;
+	}
 
+	// Init IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
 
-	auto io = ImGui::GetIO();
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-	auto glContext = SDL_GL_CreateContext(window);
-
-	glewInit();
-
+	// Init OpenGL
+	// Create GL Context
+	gameState.window.pGLContext = SDL_GL_CreateContext(gameState.window.pWindow);
+	ImGui_ImplSDL2_InitForOpenGL(gameState.window.pWindow, &gameState.window.pGLContext);
+	ImGui_ImplOpenGL3_Init("#version 130");
 	{
+		glewInit();
+
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -75,8 +98,8 @@ int main(int argc, char* argv[]) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
-		SDL_SetWindowFullscreen(window, false);
-		SDL_SetWindowResizable(window, SDL_TRUE);
+		SDL_SetWindowFullscreen(gameState.window.pWindow, false);
+		SDL_SetWindowResizable(gameState.window.pWindow, SDL_TRUE);
 
 		SDL_GL_SetSwapInterval(1);
 	}
@@ -87,26 +110,15 @@ int main(int argc, char* argv[]) {
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
 
-	ImGui_ImplSDL2_InitForOpenGL(window, &glContext);
-	ImGui_ImplOpenGL3_Init("#version 130");
-
-	ImGui::StyleColorsDark();
-
-	GameState gamestate;
-
-	//
-	gamestate.globalArena = arena_create(KB(24));
-	gamestate.componentsArena = arena_create(KB(30));
-	gamestate.enemiesArena = arena_create(KB(125));
-	gamestate.uiArena = arena_create(MB(2));
-
-	GraphicsComponent::Init(&gamestate.componentsArena);
-
-	FrameTimeTracker track(gamestate.globalArena);
+	// Init Systems
+	GraphicsComponent::Init(&gameState.componentsArena);
+	test_pool(&gameState.uiArena);
+	FrameTimeTracker track(gameState.globalArena);
 
 	float deltaTime = 0.0f;
 	float lastFrameNow = 0.0f;
 
+	// Main Loop
 	bool bGameRunning = true;
 	while (bGameRunning) {
 		// Calculate delta time
@@ -125,9 +137,9 @@ int main(int argc, char* argv[]) {
 			{
 			case SDL_QUIT:
 				bGameRunning = false;
-					break;
+				break;
 			case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_ESCAPE)
+				if (event.key.keysym.sym == SDLK_ESCAPE)
 				{
 					bGameRunning = false;
 				}
@@ -135,45 +147,48 @@ int main(int argc, char* argv[]) {
 			default: break;
 			}
 		}
+		
+		//~INPUT
 
 		// UPDATE
 		track.Update(deltaTime);
-
-		test_pool(&gamestate.enemiesArena);
+		//~UPDATE
 
 		// RENDER
-
-		SDL_GL_MakeCurrent(window, glContext);
-
-		// render
+		SDL_GL_MakeCurrent(gameState.window.pWindow, gameState.window.pGLContext);
 		glClearColor(sin(frameNow), cos(frameNow), 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Render Passes Here.
 
 		// render ui
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
+		ImGui::ShowDemoWindow(); // Show demo window! :)
 		track.RenderCompactOverlay();
 		track.RenderImGuiWindow();
 
-		debug::DrawMemoryStats(gamestate.globalArena, "Global");
-		debug::DrawMemoryStats(gamestate.componentsArena, "Components");
-		debug::DrawMemoryStats(gamestate.enemiesArena, "Enemies");
-		debug::DrawMemoryStats(gamestate.uiArena, "UI");
+		debug::DrawMemoryStats(gameState.globalArena, "Global");
+		debug::DrawMemoryStats(gameState.componentsArena, "Components");
+		debug::DrawMemoryStats(gameState.enemiesArena, "Enemies");
+		debug::DrawMemoryStats(gameState.uiArena, "UI");
 
 		ImGui::Render();
+		//~render ui
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		
-		SDL_GL_SwapWindow(window);
+		SDL_GL_SwapWindow(gameState.window.pWindow);
+		//~RENDER
 	}
+
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
 
-	SDL_GL_DeleteContext(glContext);
-	SDL_DestroyWindow(window);
+	SDL_GL_DeleteContext(gameState.window.pGLContext);
+	SDL_DestroyWindow(gameState.window.pWindow);
 	SDL_Quit();
 
 	return 0;

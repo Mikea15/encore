@@ -53,22 +53,16 @@ public:
 
 			// Frame time graph
 			ImGui::Text("Frame Time Graph (ms):");
-			ImGui::PlotLines("##frametime",
-				m_pFrameTimes, m_sampleCount,
-				0, nullptr,
-				0.0f,
-				50.0f,  // Max ms scale 
-				ImVec2(0, 80));
+			ImGui::PlotLines("##frametime", m_pFrameTimes, m_sampleCount,
+				0, nullptr, 0.0f, 50.0f,  // Max ms scale 
+				ImVec2(-1, 80));
 
 			ImGui::Text("FPS Graph:");
 			ImGui::PlotLines("##fps",
 				m_pFramesPerSecond,
 				m_sampleCount,
-				0,
-				nullptr,
-				0.0f,
-				240.0f,  // Max FPS scale
-				ImVec2(0, 80));
+				0, nullptr, 0.0f, 240.0f,  // Max FPS scale
+				ImVec2(-1, 80));
 		}
 		ImGui::End();
 	}
@@ -107,7 +101,7 @@ public:
 				nullptr,
 				0.0f,
 				50.0f,
-				ImVec2(120, 30));
+				ImVec2(-1, 30));
 		}
 		ImGui::End();
 	}

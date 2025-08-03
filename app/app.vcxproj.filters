@@ -95,5 +95,8 @@
     <ClInclude Include="src\renderer\renderer_sprite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\debug\renderer_widget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

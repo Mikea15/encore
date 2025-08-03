@@ -24,6 +24,7 @@
 #include "debug/memory_widget.h"
 #include "base_pool.h"
 #include "renderer/renderer_sprite.h"
+#include "debug/renderer_widget.h"
 
 struct GraphicsComponent {
 	DECLARE_POOL(GraphicsComponent);
@@ -64,11 +65,7 @@ struct GameState {
 	bool bShowDemoWindow = false;
 };
 
-struct Render2D {
-	SpriteBatchRenderer renderer;
-	Camera2D camera;
-	std::vector<Sprite> sprites;
-};
+
 
 void CreateFramebuffer(GameState& gameState) {
 	// Delete existing framebuffer if it exists
@@ -272,7 +269,7 @@ void RenderScene(GameState& gameState, Render2D& render2D)
 	glViewport(0, 0, gameState.window.width, gameState.window.height);
 }
 
-void RenderImGui(GameState& gameState)
+void RenderImGui(GameState& gameState, Render2D& renderer)
 {
 	if (!gameState.bShowImgui) return;
 
@@ -347,6 +344,9 @@ void RenderImGui(GameState& gameState)
 	// PerfPanel
 	gameState.track.RenderImGuiWindow();
 
+	// Rendering
+	debug::DrawRendererStats(renderer);
+
 	// Central viewport window - this displays the 3D scene
 	ImGui::Begin("Scene Viewport");
 
@@ -397,7 +397,7 @@ i32 main(i32 argc, char* argv[]) {
 	// Memory
 	gameState.globalArena = arena_create(KB(24));
 	gameState.componentsArena = arena_create(KB(30));
-	gameState.enemiesArena = arena_create(KB(125));
+	gameState.enemiesArena = arena_create(MB(3));
 	gameState.uiArena = arena_create(MB(2));
 
 	gameState.window.width = 1280;
@@ -480,7 +480,7 @@ i32 main(i32 argc, char* argv[]) {
 	// Init Renderer
 	{
 		// Create some test sprites
-		for (int i = 0; i < 10000; ++i) {
+		for (int i = 0; i < 100000; ++i) {
 			Sprite sprite;
 			sprite.position = {
 				(rand() % 2000) - 1000.0f,  // Random X: -1000 to 1000
@@ -557,10 +557,10 @@ i32 main(i32 argc, char* argv[]) {
 		if (keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
 		if (keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
 		
-		if (keyboardState[SDL_SCANCODE_E]) {
+		if (keyboardState[SDL_SCANCODE_Q]) {
 			render2D.camera.zoom = std::min(100.0f, render2D.camera.zoom + 1.0f * deltaTime);
 		}
-		if (keyboardState[SDL_SCANCODE_Q]) {
+		if (keyboardState[SDL_SCANCODE_E]) {
 			render2D.camera.zoom = std::max(0.1f, render2D.camera.zoom - 1.0f * deltaTime);
 		}
 		
@@ -568,12 +568,11 @@ i32 main(i32 argc, char* argv[]) {
 			camMovementInput = glm::normalize(camMovementInput);
 		}
 
-			const float cameraSpeed = 500.0f; // pixels per second, adjust as needed
+		const float cameraSpeed = 500.0f; // pixels per second, adjust as needed
 			
-			Vec2 targetVelocity = camMovementInput * cameraSpeed;
-			render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity, render2D.camera.cameraDamping * deltaTime);
-			render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
-		
+		Vec2 targetVelocity = camMovementInput * cameraSpeed;
+		render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity, render2D.camera.cameraDamping * deltaTime);
+		render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
 
 		//~INPUT
 
@@ -598,7 +597,7 @@ i32 main(i32 argc, char* argv[]) {
 		if (gameState.bShowImgui)
 		{
 			// In editor mode: display the texture in ImGui
-			RenderImGui(gameState);
+			RenderImGui(gameState, render2D);
 		}
 		else 
 		{

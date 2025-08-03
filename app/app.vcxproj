@@ -160,6 +160,7 @@
     <ClInclude Include="src\debug\extension_imgui.h" />
     <ClInclude Include="src\debug\framerate_widget.h" />
     <ClInclude Include="src\debug\memory_widget.h" />
+    <ClInclude Include="src\debug\renderer_widget.h" />
     <ClInclude Include="src\renderer\renderer_sprite.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3_loader.h" />

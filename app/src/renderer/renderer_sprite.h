@@ -295,7 +295,7 @@ public:
 	const Stats& GetStats() const { return stats; }
 
 private:
-	static constexpr u32 MAX_SPRITES = 10000;
+	static constexpr u32 MAX_SPRITES = 100000;
 	static constexpr u32 MAX_VERTICES = MAX_SPRITES * 4;
 	static constexpr u32 MAX_INDICES = MAX_SPRITES * 6;
 	static constexpr u32 MAX_TEXTURES = 32; // Max texture slots
@@ -496,4 +496,10 @@ private:
 		texture_slots.push_back(white_texture); // Always keep white texture
 		current_texture_slot = 1;
 	}
+};
+
+struct Render2D {
+	SpriteBatchRenderer renderer;
+	Camera2D camera;
+	std::vector<Sprite> sprites;
 };

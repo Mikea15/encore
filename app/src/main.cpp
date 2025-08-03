@@ -3,6 +3,7 @@
 #include <SDL2/SDL_events.h>
 
 #include <GL/glew.h>
+#include <glm/common.hpp>
 
 #ifdef _DEBUG
 #pragma comment(lib, "SDL2maind")
@@ -11,6 +12,7 @@
 #endif
 
 #include "imgui/imgui.h"
+#include "imgui/implot.h"
 #include "imgui/backends/imgui_impl_sdl2.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
@@ -21,6 +23,7 @@
 #include "debug/framerate_widget.h"
 #include "debug/memory_widget.h"
 #include "base_pool.h"
+#include "renderer/renderer_sprite.h"
 
 struct GraphicsComponent {
 	DECLARE_POOL(GraphicsComponent);
@@ -59,6 +62,12 @@ struct GameState {
 
 	bool bShowImgui = true;
 	bool bShowDemoWindow = false;
+};
+
+struct Render2D {
+	SpriteBatchRenderer renderer;
+	Camera2D camera;
+	std::vector<Sprite> sprites;
 };
 
 void CreateFramebuffer(GameState& gameState) {
@@ -200,7 +209,7 @@ void ResizeFramebuffer(GameState& gameState, i32 width, i32 height)
 	}
 }
 
-void RenderScene(GameState& gameState) 
+void RenderScene(GameState& gameState, Render2D& render2D)
 {
 	// In fullscreen mode, determine the proper size for the framebuffer
 	if (!gameState.bShowImgui) 
@@ -213,27 +222,54 @@ void RenderScene(GameState& gameState)
 	glBindFramebuffer(GL_FRAMEBUFFER, gameState.framebuffer);
 	glViewport(0, 0, gameState.fb_width, gameState.fb_height);
 
-	// Clear
-	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Set up projection matrix
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	float aspect = (float)gameState.fb_width / (float)gameState.fb_height;
-	glFrustum(-aspect * 0.1f, aspect * 0.1f, -0.1f, 0.1f, 0.1f, 100.0f);
+	// 2D Rendering Setup
+	glDisable(GL_DEPTH_TEST); // Disable depth testing for 2D
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Set up modelview matrix
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -3.0f);
+	render2D.renderer.Begin(render2D.camera, gameState.fb_width, gameState.fb_height);
 
-	// Render the actual scene geometry
-	RenderSceneGeometry(gameState);
+	// Draw background
+	render2D.renderer.DrawSprite({ 0, 0 }, { 2000, 2000 }, 0, { 0.1f, 0.1f, 0.2f, 1.0f });
+
+	// Draw all sprites
+	for (const auto& sprite : render2D.sprites) {
+		render2D.renderer.DrawSprite(sprite);
+	}
+
+	// Draw UI elements (these don't move with camera)
+	// You'd set up a separate UI camera/projection for this
+
+	render2D.renderer.End();
+
+	// 3D
+	//// Clear
+	//glEnable(GL_DEPTH_TEST);
+	//glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//// Set up projection matrix
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//float aspect = (float)gameState.fb_width / (float)gameState.fb_height;
+	//glFrustum(-aspect * 0.1f, aspect * 0.1f, -0.1f, 0.1f, 0.1f, 100.0f);
+
+	//// Set up modelview matrix
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+	//glTranslatef(0.0f, 0.0f, -3.0f);
+
+	//// Render the actual scene geometry
+	//RenderSceneGeometry(gameState);
 
 	// Unbind framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Reset viewport to window size for final presentation
+	glViewport(0, 0, gameState.window.width, gameState.window.height);
 }
 
 void RenderImGui(GameState& gameState)
@@ -385,6 +421,7 @@ i32 main(i32 argc, char* argv[]) {
 	// Init IMGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
 	ImGui::StyleColorsDark();
@@ -438,9 +475,32 @@ i32 main(i32 argc, char* argv[]) {
 	// Init Systems
 	gameState.track.Init(gameState.globalArena);
 
+	Render2D render2D;
+
+	// Init Renderer
+	{
+		// Create some test sprites
+		for (int i = 0; i < 10000; ++i) {
+			Sprite sprite;
+			sprite.position = {
+				(rand() % 2000) - 1000.0f,  // Random X: -1000 to 1000
+				(rand() % 2000) - 1000.0f   // Random Y: -1000 to 1000
+			};
+			sprite.size = { (rand() % 32) + 1.0f, (rand() % 32) + 1.0f };
+			sprite.color = {
+				(rand() % 255) / 255.0f,    // Random color
+				(rand() % 255) / 255.0f,
+				(rand() % 255) / 255.0f,
+				1.0f
+			};
+			render2D.sprites.push_back(sprite);
+		}
+	}
+
 	float deltaTime = 0.0f;
 	float lastFrameNow = 0.0f;
 
+	
 
 	// Main Loop
 	bool bGameRunning = true;
@@ -451,6 +511,7 @@ i32 main(i32 argc, char* argv[]) {
 		lastFrameNow = frameNow;
 
 		// INPUT
+		// EVENT BASED INPUT
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -486,11 +547,43 @@ i32 main(i32 argc, char* argv[]) {
 			default: break;
 			}
 		}
+
+		// REALTIME INPUT
+		const u8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+		Vec2 camMovementInput = { 0.0f, 0.0f };
+		if (keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
+		if (keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
+		if (keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
+		if (keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
 		
+		if (keyboardState[SDL_SCANCODE_E]) {
+			render2D.camera.zoom = std::min(100.0f, render2D.camera.zoom + 1.0f * deltaTime);
+		}
+		if (keyboardState[SDL_SCANCODE_Q]) {
+			render2D.camera.zoom = std::max(0.1f, render2D.camera.zoom - 1.0f * deltaTime);
+		}
+		
+		if (camMovementInput != Vec2(0.0f, 0.0f)) {
+			camMovementInput = glm::normalize(camMovementInput);
+		}
+
+			const float cameraSpeed = 500.0f; // pixels per second, adjust as needed
+			
+			Vec2 targetVelocity = camMovementInput * cameraSpeed;
+			render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity, render2D.camera.cameraDamping * deltaTime);
+			render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
+		
+
 		//~INPUT
 
 		// UPDATE
 		gameState.track.Update(deltaTime);
+
+		// Rotate Sprites
+		for (u32 i = 0; i < render2D.sprites.size(); ++i) {
+			render2D.sprites[i].rotation += deltaTime * rand() * 0.03f;
+		}
 		//~UPDATE
 
 		// RENDER
@@ -500,7 +593,7 @@ i32 main(i32 argc, char* argv[]) {
 		ImGui::NewFrame();
 
 		// Always render the scene once to the framebuffer
-		RenderScene(gameState);
+		RenderScene(gameState, render2D);
 
 		if (gameState.bShowImgui)
 		{
@@ -552,10 +645,17 @@ i32 main(i32 argc, char* argv[]) {
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();
+	ImPlot::DestroyContext();
 	ImGui::DestroyContext();
 
 	SDL_GL_DeleteContext(gameState.window.pGLContext);
 	SDL_DestroyWindow(gameState.window.pWindow);
+
+	arena_destroy(&gameState.globalArena);
+	arena_destroy(&gameState.componentsArena);
+	arena_destroy(&gameState.enemiesArena);
+	arena_destroy(&gameState.uiArena);
+
 	SDL_Quit();
 
 	return 0;

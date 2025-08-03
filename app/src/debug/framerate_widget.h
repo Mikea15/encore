@@ -19,11 +19,15 @@ public:
 		AssertMsg(m_pFramesPerSecond, "Could not allocate, check arena usage. ");
 	}
 
+	u32 GetCurrentFrameIndex() const { return m_frameCount % m_sampleCount; }
+
 	void Update(float deltaTime) {
 		float current_fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
-
-		const u32 index = m_frameCount++ % m_sampleCount;
+		
+		m_frameCount++;
 		m_framesOneSec++;
+
+		const u32 index = GetCurrentFrameIndex();
 
 		// Add frametime sample
 		m_pFrameTimes[index] = deltaTime * 1000.0f;
@@ -51,18 +55,29 @@ public:
 
 			ImGui::Separator();
 
-			// Frame time graph
-			ImGui::Text("Frame Time Graph (ms):");
-			ImGui::PlotLines("##frametime", m_pFrameTimes, m_sampleCount,
-				0, nullptr, 0.0f, 50.0f,  // Max ms scale 
-				ImVec2(-1, 80));
+			const u32 index = GetCurrentFrameIndex();
 
-			ImGui::Text("FPS Graph:");
-			ImGui::PlotLines("##fps",
-				m_pFramesPerSecond,
-				m_sampleCount,
-				0, nullptr, 0.0f, 240.0f,  // Max FPS scale
-				ImVec2(-1, 80));
+			// Frame time graph
+			{
+				char buff[20];
+				sprintf_s(buff, "%.1f ms", m_pFrameTimes[index]);
+
+				ImGui::Text("Frame Time Graph (ms):");
+				ImGui::PlotLines("##frametime", m_pFrameTimes, m_sampleCount,
+					0, buff, 0.0f, 50.0f,  // Max ms scale 
+					ImVec2(-1, 80));
+			}
+			{
+				char buff[20];
+				sprintf_s(buff, "%.1f fps", m_pFramesPerSecond[index]);
+
+				ImGui::Text("FPS Graph:");
+				ImGui::PlotLines("##fps",
+					m_pFramesPerSecond,
+					m_sampleCount,
+					0, buff, 0.0f, 240.0f,  // Max FPS scale
+					ImVec2(-1, 80));
+			}
 		}
 		ImGui::End();
 	}

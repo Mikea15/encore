@@ -17,9 +17,9 @@ namespace debug
 			SpriteBatchRenderer::Stats stats = renderer.renderer.GetStats();
 
 			// AutoClear Arena, since Stack will be free at end of scope.
-			ImGui::Text("Draw Calls: %u", stats.draw_calls);
-			ImGui::Text("Sprites Drawn: %u", stats.sprites_drawn);
-			ImGui::Text("Vertices Drawn: %u", stats.vertices_drawn);
+			ImGui::Text("Draw Calls: %u", stats.drawCalls);
+			ImGui::Text("Sprites Drawn: %u", stats.spritesDrawn);
+			ImGui::Text("Vertices Drawn: %u", stats.verticesDrawn);
 
 		}
 		ImGui::End();

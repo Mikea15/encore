@@ -1,8 +1,9 @@
 #pragma once
 
-#include "imgui/imgui.h"
+#include "core/core_minimal.h"
 
-#include "base_arena.h"
+#include "imgui/imgui.h"
+#include "memory/base_arena.h"
 
 #include <vector>
 #include <algorithm>
@@ -12,37 +13,37 @@ class FrameTimeTracker
 public:
 	void Init(Arena& arena) 
 	{
-		m_pFrameTimes = arena_alloc_array(&arena, f32, m_sampleCount);
-		m_pFramesPerSecond = arena_alloc_array(&arena, f32, m_sampleCount);
+		pFrameTimes = arena_alloc_array(&arena, f32, sampleCount);
+		pFramesPerSecond = arena_alloc_array(&arena, f32, sampleCount);
 
-		AssertMsg(m_pFrameTimes, "Could not allocate, check arena usage. ");
-		AssertMsg(m_pFramesPerSecond, "Could not allocate, check arena usage. ");
+		AssertMsg(pFrameTimes, "Could not allocate, check arena usage. ");
+		AssertMsg(pFramesPerSecond, "Could not allocate, check arena usage. ");
 	}
 
-	u32 GetCurrentFrameIndex() const { return m_frameCount % m_sampleCount; }
+	u32 GetCurrentFrameIndex() const { return frameCount % sampleCount; }
 
 	void Update(float deltaTime) {
 		float current_fps = (deltaTime > 0.0f) ? (1.0f / deltaTime) : 0.0f;
 		
-		m_frameCount++;
-		m_framesOneSec++;
+		frameCount++;
+		framesOneSec++;
 
 		const u32 index = GetCurrentFrameIndex();
 
 		// Add frametime sample
-		m_pFrameTimes[index] = deltaTime * 1000.0f;
+		pFrameTimes[index] = deltaTime * 1000.0f;
 
 		// Add FPS sample
-		m_pFramesPerSecond[index] = current_fps;
+		pFramesPerSecond[index] = current_fps;
 
 		// Update statistics
-		m_oneSecond += deltaTime;
-		if (m_oneSecond >= 1.0f)
+		oneSecond += deltaTime;
+		if (oneSecond >= 1.0f)
 		{
-			m_averageFramesPerSecond = static_cast<float>(m_framesOneSec);
+			averageFramesPerSecond = static_cast<float>(framesOneSec);
 
-			m_oneSecond -= 1.0f;
-			m_framesOneSec = 0;
+			oneSecond -= 1.0f;
+			framesOneSec = 0;
 		}
 	}
 
@@ -50,8 +51,8 @@ public:
 		if (ImGui::Begin("Performance Monitor"))
 		{
 			// Current frame stats
-			ImGui::Text("Average FPS: %.1f", m_averageFramesPerSecond);
-			ImGui::Text("Average FrameTime: %.3f ms", 1000.0f / m_averageFramesPerSecond);
+			ImGui::Text("Average FPS: %.1f", averageFramesPerSecond);
+			ImGui::Text("Average FrameTime: %.3f ms", 1000.0f / averageFramesPerSecond);
 
 			ImGui::Separator();
 
@@ -60,21 +61,21 @@ public:
 			// Frame time graph
 			{
 				char buff[20];
-				sprintf_s(buff, "%.1f ms", m_pFrameTimes[index]);
+				sprintf_s(buff, "%.1f ms", pFrameTimes[index]);
 
 				ImGui::Text("Frame Time Graph (ms):");
-				ImGui::PlotLines("##frametime", m_pFrameTimes, m_sampleCount,
+				ImGui::PlotLines("##frametime", pFrameTimes, sampleCount,
 					0, buff, 0.0f, 50.0f,  // Max ms scale 
 					ImVec2(-1, 80));
 			}
 			{
 				char buff[20];
-				sprintf_s(buff, "%.1f fps", m_pFramesPerSecond[index]);
+				sprintf_s(buff, "%.1f fps", pFramesPerSecond[index]);
 
 				ImGui::Text("FPS Graph:");
 				ImGui::PlotLines("##fps",
-					m_pFramesPerSecond,
-					m_sampleCount,
+					pFramesPerSecond,
+					sampleCount,
 					0, buff, 0.0f, 240.0f,  // Max FPS scale
 					ImVec2(-1, 80));
 			}
@@ -106,12 +107,12 @@ public:
 		ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 
 		if (ImGui::Begin("Performance Overlay", nullptr, window_flags)) {
-			ImGui::Text("Avg FPS: %.1f", m_averageFramesPerSecond);
-			ImGui::Text("Avg FrameTime: %.3f ms", 1000.0f / m_averageFramesPerSecond);
+			ImGui::Text("Avg FPS: %.1f", averageFramesPerSecond);
+			ImGui::Text("Avg FrameTime: %.3f ms", 1000.0f / averageFramesPerSecond);
 
 			ImGui::PlotLines("##mini",
-				m_pFramesPerSecond,
-				m_sampleCount,
+				pFramesPerSecond,
+				sampleCount,
 				0,
 				nullptr,
 				0.0f,
@@ -122,12 +123,11 @@ public:
 	}
 
 private:
-	u32 m_sampleCount = 120;
-	f32* m_pFrameTimes = nullptr;
-	f32* m_pFramesPerSecond = nullptr;
-	u32 m_frameCount = 0;
-	f32 m_averageFramesPerSecond = 0.0f;
-	f32 m_oneSecond = 0.0f;
-
-	u32 m_framesOneSec = 0;
+	f32* pFrameTimes = nullptr;
+	f32* pFramesPerSecond = nullptr;
+	f32 averageFramesPerSecond = 0.0f;
+	f32 oneSecond = 0.0f;
+	u32 sampleCount = 120;
+	u32 frameCount = 0;
+	u32 framesOneSec = 0;
 };

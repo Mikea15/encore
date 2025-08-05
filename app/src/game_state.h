@@ -1,8 +1,10 @@
 #pragma once
-#include <imgui/imgui.h>
-#include <base_arena.h>
+
+#include "core/core_minimal.h"
+#include "memory/base_arena.h"
 
 #include <SDL2/SDL.h>
+#include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_sdl2.h>
 #include <GL/glew.h>
 
@@ -29,10 +31,10 @@ struct GameState
 
 	// Framebuffer for rendering the scene
 	GLuint framebuffer = 0;
-	GLuint color_texture = 0;
-	GLuint depth_texture = 0;
-	i32 fb_width = 800;
-	i32 fb_height = 600;
+	GLuint colorTexture = 0;
+	GLuint depthTexture = 0;
+	i32 framebufferWidth = 800;
+	i32 framebufferHeight = 600;
 
 #if ENC_DEBUG
 	FrameTimeTracker track;

@@ -451,7 +451,7 @@ void    ImGui_ImplOpenGL3_NewFrame()
             IM_ASSERT(0 && "ImGui_ImplOpenGL3_CreateDeviceObjects() failed!");
 }
 
-static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_width, int fb_height, GLuint vertex_array_object)
+static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int framebufferWidth, int framebufferHeight, GLuint vertex_array_object)
 {
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
 
@@ -485,7 +485,7 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_wid
 
     // Setup viewport, orthographic projection matrix
     // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayPos is (0,0) for single viewport apps.
-    GL_CALL(glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height));
+    GL_CALL(glViewport(0, 0, (GLsizei)framebufferWidth, (GLsizei)framebufferHeight));
     float L = draw_data->DisplayPos.x;
     float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
     float T = draw_data->DisplayPos.y;
@@ -531,9 +531,9 @@ static void ImGui_ImplOpenGL3_SetupRenderState(ImDrawData* draw_data, int fb_wid
 void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
 {
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-    int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
-    int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-    if (fb_width <= 0 || fb_height <= 0)
+    int framebufferWidth = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+    int framebufferHeight = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+    if (framebufferWidth <= 0 || framebufferHeight <= 0)
         return;
 
     ImGui_ImplOpenGL3_InitLoader(); // Lazily init loader if not already done for e.g. DLL boundaries.
@@ -593,7 +593,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
 #ifdef IMGUI_IMPL_OPENGL_USE_VERTEX_ARRAY
     GL_CALL(glGenVertexArrays(1, &vertex_array_object));
 #endif
-    ImGui_ImplOpenGL3_SetupRenderState(draw_data, fb_width, fb_height, vertex_array_object);
+    ImGui_ImplOpenGL3_SetupRenderState(draw_data, framebufferWidth, framebufferHeight, vertex_array_object);
 
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clip_off = draw_data->DisplayPos;         // (0,0) unless using multi-viewports
@@ -641,7 +641,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                 // User callback, registered via ImDrawList::AddCallback()
                 // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
-                    ImGui_ImplOpenGL3_SetupRenderState(draw_data, fb_width, fb_height, vertex_array_object);
+                    ImGui_ImplOpenGL3_SetupRenderState(draw_data, framebufferWidth, framebufferHeight, vertex_array_object);
                 else
                     pcmd->UserCallback(draw_list, pcmd);
             }
@@ -654,7 +654,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
                     continue;
 
                 // Apply scissor/clipping rectangle (Y is inverted in OpenGL)
-                GL_CALL(glScissor((int)clip_min.x, (int)((float)fb_height - clip_max.y), (int)(clip_max.x - clip_min.x), (int)(clip_max.y - clip_min.y)));
+                GL_CALL(glScissor((int)clip_min.x, (int)((float)framebufferHeight - clip_max.y), (int)(clip_max.x - clip_min.x), (int)(clip_max.y - clip_min.y)));
 
                 // Bind texture, Draw
                 GL_CALL(glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->GetTexID()));

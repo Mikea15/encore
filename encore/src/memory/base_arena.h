@@ -1,13 +1,13 @@
 #pragma once
 
-#include "core_minimal.h"
+#include "core/core_minimal.h"
 
 typedef struct Arena
 {
 	u8* memory;        // Pointer to the memory block
 	u32 size;          // Total size of the arena
 	u32 offset;        // Current offset (bytes used)
-	u32 prev_offset;   // Previous offset for temporary allocations
+	u32 prevOffset;    // Previous offset for temporary allocations
 } Arena;
 
 // Default alignment (8 bytes for 64-bit compatibility)
@@ -24,7 +24,7 @@ static inline Arena arena_init(void* memory, u32 size)
 	arena.memory = (u8*)memory;
 	arena.size = size;
 	arena.offset = 0;
-	arena.prev_offset = 0;
+	arena.prevOffset = 0;
 	return arena;
 }
 
@@ -56,7 +56,7 @@ static inline void arena_reset(Arena* arena)
 	if(arena)
 	{
 		arena->offset = 0;
-		arena->prev_offset = 0;
+		arena->prevOffset = 0;
 	}
 }
 
@@ -113,11 +113,11 @@ static inline void* arena_alloc(Arena* arena, u32 size)
 // Allocate and zero-initialize memory
 static inline void* arena_calloc(Arena* arena, u32 count, u32 size)
 {
-	u32 total_size = count * size;
-	void* ptr = arena_alloc(arena, total_size);
+	u32 totalSize = count * size;
+	void* ptr = arena_alloc(arena, totalSize);
 	if(ptr)
 	{
-		memset(ptr, 0, total_size);
+		memset(ptr, 0, totalSize);
 	}
 	return ptr;
 }
@@ -192,7 +192,7 @@ static inline char* arena_sprintf(Arena* arena, const char* format, ...)
 static inline u32 arena_save(Arena* arena)
 {
 	if(!arena) return 0;
-	arena->prev_offset = arena->offset;
+	arena->prevOffset = arena->offset;
 	return arena->offset;
 }
 
@@ -207,16 +207,16 @@ static inline void arena_restore(Arena* arena, u32 saved_offset)
 
 // Convenience macro for temporary allocations
 #define ARENA_TEMP_SCOPE(arena) \
-    for (u32 _temp_save = arena_save(arena), _temp_done = 0; \
-         !_temp_done; \
-         arena_restore(arena, _temp_save), _temp_done = 1)
+    for (u32 tempSave = arena_save(arena), tempDone = 0; \
+         !tempDone; \
+         arena_restore(arena, tempSave), tempDone = 1)
 
 typedef struct ArenaStats
 {
-	u32 total_size;
-	u32 used_bytes;
-	u32 free_bytes;
-	f32 utilization;
+	u32 totalSize;
+	u32 usedBytes;
+	u32 freeBytes;
+	f32 usageRatio;
 } ArenaStats;
 
 static inline ArenaStats arena_get_stats(const Arena* arena)
@@ -224,10 +224,10 @@ static inline ArenaStats arena_get_stats(const Arena* arena)
 	ArenaStats stats = { 0 };
 	if(arena_is_valid(arena))
 	{
-		stats.total_size = arena->size;
-		stats.used_bytes = arena->offset;
-		stats.free_bytes = arena->size - arena->offset;
-		stats.utilization = (f32)arena->offset / arena->size * 100.0f;
+		stats.totalSize = arena->size;
+		stats.usedBytes = arena->offset;
+		stats.freeBytes = arena->size - arena->offset;
+		stats.usageRatio = (f32)arena->offset / arena->size * 100.0f;
 	}
 	return stats;
 }
@@ -237,12 +237,12 @@ static inline void arena_print_stats(const Arena* arena, const char* name)
 	ArenaStats stats = arena_get_stats(arena);
 	printf("Arena '%s':\n", name ? name : "Unknown");
 	printf("  Total Size: %u bytes (%.1f KB)\n",
-		stats.total_size, (f32)BytesToKB(stats.total_size));
+		stats.totalSize, (f32)BytesToKB(stats.totalSize));
 	printf("  Used:       %u bytes (%.1f KB)\n",
-		stats.used_bytes, (f32)BytesToKB(stats.used_bytes));
+		stats.usedBytes, (f32)BytesToKB(stats.usedBytes));
 	printf("  Free:       %u bytes (%.1f KB)\n",
-		stats.free_bytes, (f32)BytesToKB(stats.free_bytes));
-	printf("  Utilization: %.1f%%\n", stats.utilization);
+		stats.freeBytes, (f32)BytesToKB(stats.freeBytes));
+	printf("  Utilization: %.1f%%\n", stats.usageRatio);
 }
 
 // Example structure

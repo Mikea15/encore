@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core_log.h"
+#include "core/core_minimal.h"
 
 #include <GL/glew.h>
 

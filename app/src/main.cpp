@@ -1,4 +1,6 @@
 
+#include "core/core_minimal.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 
@@ -15,20 +17,18 @@
 #include "imgui/backends/imgui_impl_sdl2.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
-#include <iostream>
-#include <string>
-#include <chrono>
-
+#if ENC_DEBUG
 #include "debug/framerate_widget.h"
 #include "debug/memory_widget.h"
-#include "base_pool.h"
+#include "debug/renderer_widget.h"
+#endif
+
+#include "memory/base_pool.h"
 #include "renderer/render2d_types.h"
+#include "renderer/renderer.h"
 #include "renderer/renderer_sprite.h"
 
-#include "debug/renderer_widget.h"
-
 #include "game_state.h"
-#include "renderer/renderer.h"
 
 struct GraphicsComponent
 {
@@ -160,152 +160,169 @@ i32 main(i32 argc, char* argv[])
 	bool bGameRunning = true;
 	while(bGameRunning)
 	{
+		g_profiler.clear();
+
 		// Calculate delta time
-		const float frameNow = SDL_GetTicks() / 1000.0f;
+		const float frameNow = SDL_GetTicks64() / 1000.0f;
 		deltaTime = frameNow - lastFrameNow;
 		lastFrameNow = frameNow;
 
 		// INPUT
-		// EVENT BASED INPUT
-		SDL_Event event;
-		while(SDL_PollEvent(&event))
-		{
-			// Handle Input
-			ImGui_ImplSDL2_ProcessEvent(&event);
+		Vec2 camMovementInput = { 0.0f, 0.0f };
 
-			switch(event.type)
+		// EVENT BASED INPUT
+		{
+			PROFILE_SCOPE("Input");
+
+			SDL_Event event;
+			while(SDL_PollEvent(&event))
 			{
-			case SDL_QUIT:
-				bGameRunning = false;
-				break;
-			case SDL_WINDOWEVENT:
-				if(event.window.event == SDL_WINDOWEVENT_CLOSE
-					&& event.window.windowID == SDL_GetWindowID(gameState.window.pWindow))
+				// Handle Input
+				ImGui_ImplSDL2_ProcessEvent(&event);
+
+				switch(event.type)
 				{
+				case SDL_QUIT:
 					bGameRunning = false;
+					break;
+				case SDL_WINDOWEVENT:
+					if(event.window.event == SDL_WINDOWEVENT_CLOSE
+						&& event.window.windowID == SDL_GetWindowID(gameState.window.pWindow))
+					{
+						bGameRunning = false;
+					}
+					if(event.window.event == SDL_WINDOWEVENT_RESIZED)
+					{
+						gameState.window.width = event.window.data1;
+						gameState.window.height = event.window.data2;
+					}
+					break;
+				case SDL_KEYDOWN:
+					if(event.key.keysym.sym == SDLK_TAB)
+					{
+						gameState.bShowImgui = !gameState.bShowImgui;
+					}
+					if(event.key.keysym.sym == SDLK_ESCAPE)
+					{
+						bGameRunning = false;
+					}
+					break;
+				default: break;
 				}
-				if(event.window.event == SDL_WINDOWEVENT_RESIZED)
-				{
-					gameState.window.width = event.window.data1;
-					gameState.window.height = event.window.data2;
-				}
-				break;
-			case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_TAB)
-				{
-					gameState.bShowImgui = !gameState.bShowImgui;
-				}
-				if(event.key.keysym.sym == SDLK_ESCAPE)
-				{
-					bGameRunning = false;
-				}
-				break;
-			default: break;
+			}
+
+			// REALTIME INPUT
+			const u8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+			if(keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
+			if(keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
+			if(keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
+			if(keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
+
+			if(keyboardState[SDL_SCANCODE_Q])
+			{
+				render2D.camera.zoom = std::min(100.0f, render2D.camera.zoom + 1.0f * deltaTime);
+			}
+			if(keyboardState[SDL_SCANCODE_E])
+			{
+				render2D.camera.zoom = std::max(0.1f, render2D.camera.zoom - 1.0f * deltaTime);
+			}
+
+			if(camMovementInput != Vec2(0.0f, 0.0f))
+			{
+				camMovementInput = glm::normalize(camMovementInput);
 			}
 		}
-
-		// REALTIME INPUT
-		const u8* keyboardState = SDL_GetKeyboardState(nullptr);
-
-		Vec2 camMovementInput = { 0.0f, 0.0f };
-		if(keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
-		if(keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
-		if(keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
-		if(keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
-
-		if(keyboardState[SDL_SCANCODE_Q])
-		{
-			render2D.camera.zoom = std::min(100.0f, render2D.camera.zoom + 1.0f * deltaTime);
-		}
-		if(keyboardState[SDL_SCANCODE_E])
-		{
-			render2D.camera.zoom = std::max(0.1f, render2D.camera.zoom - 1.0f * deltaTime);
-		}
-
-		if(camMovementInput != Vec2(0.0f, 0.0f))
-		{
-			camMovementInput = glm::normalize(camMovementInput);
-		}
-
 		const float cameraSpeed = 500.0f; // pixels per second, adjust as needed
-
-		Vec2 targetVelocity = camMovementInput * cameraSpeed;
-		render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity, render2D.camera.cameraDamping * deltaTime);
-		render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
 
 		//~INPUT
 
 		// UPDATE
-#if ENC_DEBUG
-		gameState.track.Update(deltaTime);
-#endif 
-
-		// Rotate Sprites
-		for(u32 i = 0; i < render2D.sprites.size(); ++i)
 		{
-			render2D.sprites[i].rotation += deltaTime * rand() * 0.03f;
+			PROFILE_SCOPE("Gameplay Update");
+#if ENC_DEBUG
+			gameState.track.Update(deltaTime);
+#endif 
+			
+			// Rotate Sprites
+			for(u32 i = 0; i < render2D.sprites.size(); ++i)
+			{
+				render2D.sprites[i].rotation += deltaTime * rand() * 0.03f;
+			}
+
+			{
+				PROFILE_SCOPE("Late Camera Update");
+
+				Vec2 targetVelocity = camMovementInput * cameraSpeed;
+				render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity, render2D.camera.cameraDamping * deltaTime);
+				render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
+			}
 		}
 		//~UPDATE
 
 		// RENDER
-		// render ui
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
-
-		// Always render the scene once to the framebuffer
-		renderer.RenderScene(gameState, render2D);
-
-		if(gameState.bShowImgui)
 		{
-			// In editor mode: display the texture in ImGui
-			renderer.RenderImGui(gameState, render2D);
-		}
-		else
-		{
+			PROFILE_SCOPE("Render");
+
+			// render ui
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplSDL2_NewFrame();
+			ImGui::NewFrame();
+
+			// Always render the scene once to the framebuffer
+			renderer.RenderScene(gameState, render2D);
+
+			if(gameState.bShowImgui)
+			{
+				// In editor mode: display the texture in ImGui
+				renderer.RenderImGui(gameState, render2D);
+			}
+			else
+			{
 #if ENC_DEBUG
-			gameState.track.RenderCompactOverlay();
+				gameState.track.RenderCompactOverlay();
 #endif
 
-			// In fullscreen mode: blit the framebuffer to screen
-			renderer.BlitFramebufferToScreen(gameState);
+				// In fullscreen mode: blit the framebuffer to screen
+				renderer.BlitFramebufferToScreen(gameState);
+			}
+
+			ImGui::Render();
+			//~render ui
+
+			if(gameState.bShowImgui)
+			{
+				// Clear the screen and render ImGui
+				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glViewport(0, 0, gameState.window.width, gameState.window.height);
+				glClearColor(sin(frameNow), cos(frameNow), 0.1f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+			}
+
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+			// Update and Render additional Platform Windows
+			ImGuiIO& io = ImGui::GetIO();
+			if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			{
+				SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+				SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+				ImGui::UpdatePlatformWindows();
+				ImGui::RenderPlatformWindowsDefault();
+				SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+			}
+
+			SDL_GL_SwapWindow(gameState.window.pWindow);
+			//~RENDER
 		}
-
-		ImGui::Render();
-		//~render ui
-
-		if(gameState.bShowImgui)
-		{
-			// Clear the screen and render ImGui
-			SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, gameState.window.width, gameState.window.height);
-			glClearColor(sin(frameNow), cos(frameNow), 0.1f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-		}
-
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		// Update and Render additional Platform Windows
-		ImGuiIO& io = ImGui::GetIO();
-		if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-			SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-		}
-
-		SDL_GL_SwapWindow(gameState.window.pWindow);
-		//~RENDER
 	}
 
 	if(gameState.framebuffer)
 	{
 		glDeleteFramebuffers(1, &gameState.framebuffer);
-		glDeleteTextures(1, &gameState.color_texture);
-		glDeleteTextures(1, &gameState.depth_texture);
+		glDeleteTextures(1, &gameState.colorTexture);
+		glDeleteTextures(1, &gameState.depthTexture);
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();

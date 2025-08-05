@@ -113,5 +113,11 @@
     <ClInclude Include="src\game_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\profiler\profiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\profiler_widget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

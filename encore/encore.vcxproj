@@ -98,11 +98,20 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(ProjectDir)src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
+    <IncludePath>$(ProjectDir)src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <IncludePath>$(ProjectDir)src;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <PropertyGroup Label="Vcpkg">
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
   </PropertyGroup>
@@ -190,14 +199,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\base_arena.h" />
-    <ClInclude Include="src\base_pool.h" />
-    <ClInclude Include="src\core_log.h" />
-    <ClInclude Include="src\core_minimal.h" />
-    <ClInclude Include="src\core_assert.h" />
-    <ClInclude Include="src\core_platform.h" />
-    <ClInclude Include="src\core_types.h" />
-    <ClInclude Include="src\windows_undef.h" />
+    <ClInclude Include="src\memory\base_arena.h" />
+    <ClInclude Include="src\memory\base_pool.h" />
+    <ClInclude Include="src\core\core_log.h" />
+    <ClInclude Include="src\core\core_minimal.h" />
+    <ClInclude Include="src\core\core_assert.h" />
+    <ClInclude Include="src\core\core_platform.h" />
+    <ClInclude Include="src\core\core_types.h" />
+    <ClInclude Include="src\core\windows_undef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,28 +18,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\core_minimal.h">
+    <ClInclude Include="src\core\core_minimal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core_assert.h">
+    <ClInclude Include="src\core\core_assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core_types.h">
+    <ClInclude Include="src\core\core_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core_log.h">
+    <ClInclude Include="src\core\core_log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\core_platform.h">
+    <ClInclude Include="src\core\core_platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\base_arena.h">
+    <ClInclude Include="src\memory\base_arena.h">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
-    <ClInclude Include="src\base_pool.h">
+    <ClInclude Include="src\memory\base_pool.h">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
-    <ClInclude Include="src\windows_undef.h">
+    <ClInclude Include="src\core\windows_undef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

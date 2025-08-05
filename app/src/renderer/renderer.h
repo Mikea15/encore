@@ -1,7 +1,12 @@
 #pragma once
 
-#include "../game_state.h"
+#include "core/core_minimal.h"
+
+#include "game_state.h"
 #include "renderer_sprite.h"
+#include "debug/profiler_widget.h"
+#include "debug/memory_widget.h"
+#include "debug/renderer_widget.h"
 
 class Renderer
 {
@@ -12,8 +17,8 @@ public:
 		if(gameState.framebuffer)
 		{
 			glDeleteFramebuffers(1, &gameState.framebuffer);
-			glDeleteTextures(1, &gameState.color_texture);
-			glDeleteTextures(1, &gameState.depth_texture);
+			glDeleteTextures(1, &gameState.colorTexture);
+			glDeleteTextures(1, &gameState.depthTexture);
 		}
 
 		// Create framebuffer
@@ -21,20 +26,20 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, gameState.framebuffer);
 
 		// Create color texture
-		glGenTextures(1, &gameState.color_texture);
-		glBindTexture(GL_TEXTURE_2D, gameState.color_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gameState.fb_width, gameState.fb_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glGenTextures(1, &gameState.colorTexture);
+		glBindTexture(GL_TEXTURE_2D, gameState.colorTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, gameState.framebufferWidth, gameState.framebufferHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameState.color_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gameState.colorTexture, 0);
 
 		// Create depth texture
-		glGenTextures(1, &gameState.depth_texture);
-		glBindTexture(GL_TEXTURE_2D, gameState.depth_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, gameState.fb_width, gameState.fb_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+		glGenTextures(1, &gameState.depthTexture);
+		glBindTexture(GL_TEXTURE_2D, gameState.depthTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, gameState.framebufferWidth, gameState.framebufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gameState.depth_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gameState.depthTexture, 0);
 
 		// Check framebuffer completeness
 		if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -47,10 +52,10 @@ public:
 
 	void ResizeFramebuffer(GameState& gameState, i32 width, i32 height)
 	{
-		if(width != gameState.fb_width || height != gameState.fb_height)
+		if(width != gameState.framebufferWidth || height != gameState.framebufferHeight)
 		{
-			gameState.fb_width = width;
-			gameState.fb_height = height;
+			gameState.framebufferWidth = width;
+			gameState.framebufferHeight = height;
 			CreateFramebuffer(gameState);
 		}
 	}
@@ -66,7 +71,7 @@ public:
 
 		// Always render to framebuffer first
 		glBindFramebuffer(GL_FRAMEBUFFER, gameState.framebuffer);
-		glViewport(0, 0, gameState.fb_width, gameState.fb_height);
+		glViewport(0, 0, gameState.framebufferWidth, gameState.framebufferHeight);
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,7 +81,7 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		render2D.renderer.Begin(render2D.camera, (f32)gameState.fb_width, (f32)gameState.fb_height);
+		render2D.renderer.Begin(render2D.camera, (f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight);
 
 		// Draw background
 		render2D.renderer.DrawSprite({ 0, 0 }, { 2000, 2000 }, 0, { 0.1f, 0.1f, 0.2f, 1.0f });
@@ -148,7 +153,7 @@ public:
 		// Left panel
 		ImGui::Begin("Properties");
 		ImGui::Text("Scene Properties");
-		ImGui::Text("Framebuffer Size: %d x %d", gameState.fb_width, gameState.fb_height);
+		ImGui::Text("Framebuffer Size: %d x %d", gameState.framebufferWidth, gameState.framebufferHeight);
 		ImGui::Text("Time: %.2f", time);
 		ImGui::Separator();
 		ImGui::Text("Controls:");
@@ -166,13 +171,15 @@ public:
 		debug::DrawMemoryStats(gameState.enemiesArena, "Enemies");
 		debug::DrawMemoryStats(gameState.uiArena, "UI");
 
+		debug::DrawProfiler();
+
 		// Bottom panel
 		ImGui::Begin("Console");
 		ImGui::Text("Console Output");
 		ImGui::Separator();
 		ImGui::Text("Application running...");
 		ImGui::Text("Viewport mode: %s", gameState.bShowImgui ? "Editor" : "Fullscreen");
-		ImGui::Text("Scene rendering to texture: %dx%d", gameState.fb_width, gameState.fb_height);
+		ImGui::Text("Scene rendering to texture: %dx%d", gameState.framebufferWidth, gameState.framebufferHeight);
 		ImGui::End();
 
 		// PerfPanel
@@ -199,8 +206,8 @@ public:
 		ResizeFramebuffer(gameState, new_width, new_height);
 
 		// Display the rendered scene texture
-		ImGui::Image((void*)(intptr_t)gameState.color_texture,
-			ImVec2((f32)gameState.fb_width, (f32)gameState.fb_height), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Image((void*)(intptr_t)gameState.colorTexture,
+			ImVec2((f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
 
 		ImGui::End();
 
@@ -220,7 +227,7 @@ public:
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 		glBlitFramebuffer(
-			0, 0, gameState.fb_width, gameState.fb_height,  // src rect
+			0, 0, gameState.framebufferWidth, gameState.framebufferHeight,  // src rect
 			0, 0, gameState.window.width, gameState.window.height,  // dst rect
 			GL_COLOR_BUFFER_BIT, GL_LINEAR
 		);

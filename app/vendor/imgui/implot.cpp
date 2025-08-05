@@ -731,7 +731,7 @@ void Locator_Default(ImPlotTicker& ticker, const ImPlotRange& range, float pixel
     bool first_major_set    = false;
     int  first_major_idx    = 0;
     const int idx0 = ticker.TickCount(); // ticker may have user custom ticks
-    ImVec2 total_size(0,0);
+    ImVec2 totalSize(0,0);
     for (double major = graphmin; major < graphmax + 0.5 * interval; major += interval) {
         // is this zero? combat zero formatting issues
         if (major-interval < 0 && major+interval > 0)
@@ -741,17 +741,17 @@ void Locator_Default(ImPlotTicker& ticker, const ImPlotRange& range, float pixel
                 first_major_idx = ticker.TickCount();
                 first_major_set = true;
             }
-            total_size += ticker.AddTick(major, true, 0, true, formatter, formatter_data).LabelSize;
+            totalSize += ticker.AddTick(major, true, 0, true, formatter, formatter_data).LabelSize;
         }
         for (int i = 1; i < nMinor; ++i) {
             double minor = major + i * interval / nMinor;
             if (range.Contains(minor)) {
-                total_size += ticker.AddTick(minor, false, 0, true, formatter, formatter_data).LabelSize;
+                totalSize += ticker.AddTick(minor, false, 0, true, formatter, formatter_data).LabelSize;
             }
         }
     }
     // prune if necessary
-    if ((!vertical && total_size.x > pixels*TICK_FILL_X) || (vertical && total_size.y > pixels*TICK_FILL_Y)) {
+    if ((!vertical && totalSize.x > pixels*TICK_FILL_X) || (vertical && totalSize.y > pixels*TICK_FILL_Y)) {
         for (int i = first_major_idx-1; i >= idx0; i -= 2)
             ticker.Ticks[i].ShowLabel = false;
         for (int i = first_major_idx+1; i < ticker.TickCount(); i += 2)

@@ -99,19 +99,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|Win32'">
     <IncludePath>$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <IncludePath>$(SolutionDir)encore\src;$(ProjectDir)vendor;$(IncludePath)</IncludePath>
@@ -226,8 +226,10 @@
     <ClInclude Include="src\debug\extension_imgui.h" />
     <ClInclude Include="src\debug\framerate_widget.h" />
     <ClInclude Include="src\debug\memory_widget.h" />
+    <ClInclude Include="src\debug\profiler_widget.h" />
     <ClInclude Include="src\debug\renderer_widget.h" />
     <ClInclude Include="src\game_state.h" />
+    <ClInclude Include="src\profiler\profiler.h" />
     <ClInclude Include="src\renderer\render2d_camera.h" />
     <ClInclude Include="src\renderer\render2d_types.h" />
     <ClInclude Include="src\renderer\renderer.h" />

@@ -23,20 +23,20 @@ typedef enum
 // Configuration
 static struct
 {
-	LogLevel min_level;
-	bool output_to_console;
-	bool output_to_debugger;
-	bool output_to_file;
-	FILE* log_file;
-	bool include_timestamp;
+	LogLevel minLevel;
+	bool bOutputToConsole;
+	bool bOutputToDebugger;
+	bool bOutputToFile;
+	FILE* pLogFile;
+	bool bIncludeTimestamp;
 	bool include_level;
-} g_log_config = {
-	.min_level = LOG_LEVEL_TRACE,
-	.output_to_console = true,
-	.output_to_debugger = true,
-	.output_to_file = false,
-	.log_file = NULL,
-	.include_timestamp = true,
+} g_logConfig = {
+	.minLevel = LOG_LEVEL_TRACE,
+	.bOutputToConsole = true,
+	.bOutputToDebugger = true,
+	.bOutputToFile = false,
+	.pLogFile = NULL,
+	.bIncludeTimestamp = true,
 	.include_level = true
 };
 
@@ -49,7 +49,7 @@ static void GetLogTime(char* buffer, size_t buffer_size)
 	GetLocalTime(&st);
 
 	_snprintf_s(buffer, buffer_size, _TRUNCATE,
-		"[%04d-%02d-%02d %02d:%02d:%02d.%03d]",
+		"%04d-%02d-%02d %02d:%02d:%02d.%03d",
 		st.wYear, st.wMonth, st.wDay,
 		st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
 }
@@ -89,31 +89,31 @@ static const char* GetLevelColor(LogLevel level)
 static void LogImpl(LogLevel level, const char* file, int line, const char* func,
 	const char* format, va_list args)
 {
-	if(level < g_log_config.min_level)
+	if(level < g_logConfig.minLevel)
 	{
 		return;
 	}
 
 	static const size_t BUFFER_SIZE = 2048;
-	char formatted_message[BUFFER_SIZE];
-	char final_message[BUFFER_SIZE];
+	char formatedMessage[BUFFER_SIZE];
+	char finalMessage[BUFFER_SIZE];
 	char timestamp[64] = { 0 };
 
 	// Format the user message
-	_vsnprintf_s(formatted_message, BUFFER_SIZE, _TRUNCATE, format, args);
+	_vsnprintf_s(formatedMessage, BUFFER_SIZE, _TRUNCATE, format, args);
 
 	// Get timestamp if needed
-	if(g_log_config.include_timestamp)
+	if(g_logConfig.bIncludeTimestamp)
 	{
 		GetLogTime(timestamp, sizeof(timestamp));
 	}
 
 	// Build final message
-	char* pos = final_message;
+	char* pos = finalMessage;
 	size_t remaining = BUFFER_SIZE;
 
 	// Add timestamp
-	if(g_log_config.include_timestamp && timestamp[0])
+	if(g_logConfig.bIncludeTimestamp && timestamp[0])
 	{
 		int written = _snprintf_s(pos, remaining, _TRUNCATE, "[%s] ", timestamp);
 		if(written > 0)
@@ -124,7 +124,7 @@ static void LogImpl(LogLevel level, const char* file, int line, const char* func
 	}
 
 	// Add level
-	if(g_log_config.include_level)
+	if(g_logConfig.include_level)
 	{
 		int written = _snprintf_s(pos, remaining, _TRUNCATE, "%-8s ", GetLevelString(level));
 		if(written > 0)
@@ -148,34 +148,34 @@ static void LogImpl(LogLevel level, const char* file, int line, const char* func
 	}
 
 	// Add the actual message
-	_snprintf_s(pos, remaining, _TRUNCATE, "%s\n", formatted_message);
+	_snprintf_s(pos, remaining, _TRUNCATE, "%s\n", formatedMessage);
 
 	// Output to console
-	if(g_log_config.output_to_console)
+	if(g_logConfig.bOutputToConsole)
 	{
 		// Use colors for console output if it's an assert or error
 		if(level >= LOG_LEVEL_WARNING)
 		{
-			printf("%s%s\033[0m", GetLevelColor(level), final_message);
+			printf("%s%s\033[0m", GetLevelColor(level), finalMessage);
 		}
 		else
 		{
-			printf("%s", final_message);
+			printf("%s", finalMessage);
 		}
 		fflush(stdout);
 	}
 
 	// Output to debugger
-	if(g_log_config.output_to_debugger)
+	if(g_logConfig.bOutputToDebugger)
 	{
-		OutputDebugStringA(final_message);
+		OutputDebugStringA(finalMessage);
 	}
 
 	// Output to file
-	if(g_log_config.output_to_file && g_log_config.log_file)
+	if(g_logConfig.bOutputToFile && g_logConfig.pLogFile)
 	{
-		fprintf(g_log_config.log_file, "%s", final_message);
-		fflush(g_log_config.log_file);
+		fprintf(g_logConfig.pLogFile, "%s", finalMessage);
+		fflush(g_logConfig.pLogFile);
 	}
 }
 
@@ -192,27 +192,27 @@ static void Log(LogLevel level, const char* file, int line, const char* func,
 // Configuration functions
 static void LogSetMinLevel(LogLevel level)
 {
-	g_log_config.min_level = level;
+	g_logConfig.minLevel = level;
 }
 
 static void LogSetOutputs(bool console, bool debugger, bool file)
 {
-	g_log_config.output_to_console = console;
-	g_log_config.output_to_debugger = debugger;
-	g_log_config.output_to_file = file;
+	g_logConfig.bOutputToConsole = console;
+	g_logConfig.bOutputToDebugger = debugger;
+	g_logConfig.bOutputToFile = file;
 }
 
 static bool LogOpenFile(const char* filename)
 {
-	if(g_log_config.log_file)
+	if(g_logConfig.pLogFile)
 	{
-		fclose(g_log_config.log_file);
+		fclose(g_logConfig.pLogFile);
 	}
 
-	errno_t err = fopen_s(&g_log_config.log_file, filename, "a");
-	if(err == 0 && g_log_config.log_file)
+	errno_t err = fopen_s(&g_logConfig.pLogFile, filename, "a");
+	if(err == 0 && g_logConfig.pLogFile)
 	{
-		g_log_config.output_to_file = true;
+		g_logConfig.bOutputToFile = true;
 		return true;
 	}
 	return false;
@@ -220,12 +220,12 @@ static bool LogOpenFile(const char* filename)
 
 static void LogCloseFile(void)
 {
-	if(g_log_config.log_file)
+	if(g_logConfig.pLogFile)
 	{
-		fclose(g_log_config.log_file);
-		g_log_config.log_file = NULL;
+		fclose(g_logConfig.pLogFile);
+		g_logConfig.pLogFile = NULL;
 	}
-	g_log_config.output_to_file = false;
+	g_logConfig.bOutputToFile = false;
 }
 
 // Convenience macros

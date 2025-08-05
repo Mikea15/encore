@@ -1,9 +1,9 @@
 #pragma once
 
-#include "imgui/imgui.h"
+#include "core/core_minimal.h"
+
 #include "extension_imgui.h"
-#include "core_minimal.h"
-#include "base_arena.h"
+#include "memory/base_arena.h"
 
 namespace debug 
 {
@@ -18,12 +18,12 @@ namespace debug
 			Arena scratch = arena_init(buffer, sizeof(buffer));
 			const char* usageStr = arena_sprintf(&scratch, "\"%s\" >> %.1f%% ( Used: %.2f KB | Free: %.2f KB )", 
 				name,
-				stats.utilization,
-				(f32) stats.used_bytes / (1024.f),
-				(f32) stats.free_bytes / (1024.f)
+				stats.usageRatio,
+				(f32) stats.usedBytes / (1024.f),
+				(f32) stats.freeBytes / (1024.f)
 			);
 
-			ImGui::UsageProgressBar(usageStr, stats.utilization / 100.0f, ImVec2(-1.0f, 15.0f));
+			ImGui::UsageProgressBar(usageStr, stats.usageRatio / 100.0f, ImVec2(-1.0f, 15.0f));
 
 		}
 		ImGui::End();

@@ -437,11 +437,11 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
     const char* text_begin, *text_end;
     ImFormatStringToTempBufferV(&text_begin, &text_end, fmt, args);
     const ImVec2 label_size = CalcTextSize(text_begin, text_end, false);
-    const ImVec2 total_size = ImVec2(g.FontSize + (label_size.x > 0.0f ? (label_size.x + style.FramePadding.x * 2) : 0.0f), label_size.y);  // Empty text doesn't add padding
+    const ImVec2 totalSize = ImVec2(g.FontSize + (label_size.x > 0.0f ? (label_size.x + style.FramePadding.x * 2) : 0.0f), label_size.y);  // Empty text doesn't add padding
     ImVec2 pos = window->DC.CursorPos;
     pos.y += window->DC.CurrLineTextBaseOffset;
-    ItemSize(total_size, 0.0f);
-    const ImRect bb(pos, pos + total_size);
+    ItemSize(totalSize, 0.0f);
+    const ImRect bb(pos, pos + totalSize);
     if (!ItemAdd(bb, 0))
         return;
 
@@ -4542,10 +4542,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     const ImGuiID id = window->GetID(label);
     const ImVec2 label_size = CalcTextSize(label, NULL, true);
     const ImVec2 frame_size = CalcItemSize(size_arg, CalcItemWidth(), (is_multiline ? g.FontSize * 8.0f : label_size.y) + style.FramePadding.y * 2.0f); // Arbitrary default of 8 lines high for multi-line
-    const ImVec2 total_size = ImVec2(frame_size.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), frame_size.y);
+    const ImVec2 totalSize = ImVec2(frame_size.x + (label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f), frame_size.y);
 
     const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + frame_size);
-    const ImRect total_bb(frame_bb.Min, frame_bb.Min + total_size);
+    const ImRect total_bb(frame_bb.Min, frame_bb.Min + totalSize);
 
     ImGuiWindow* draw_window = window;
     ImVec2 inner_size = frame_size;

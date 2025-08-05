@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core_types.h"
+#include "core/core_types.h"
 
 #include "render2d_types.h"
 #include "render2d_camera.h"

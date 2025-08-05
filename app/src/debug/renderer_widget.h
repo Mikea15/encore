@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "imgui/imgui.h"
-#include "extension_imgui.h"
-#include "core_minimal.h"
-#include "base_arena.h"
+#include "core/core_minimal.h"
 
-#include "../renderer/renderer_sprite.h"
+#include "extension_imgui.h"
+
+#include "memory/base_arena.h"
+#include "renderer/renderer_sprite.h"
 
 namespace debug 
 {

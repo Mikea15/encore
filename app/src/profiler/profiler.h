@@ -14,19 +14,20 @@ public:
 	struct Entry
 	{
 		std::string section;
-		u64 start_time;
+		u64 timestamp;
 		u64 duration;
+		u32 depth;
 
-		Entry(const std::string& name, u64 start, u64 dur)
-			: section(name), start_time(start), duration(dur)
+		Entry(const std::string& name, u64 inTimestamp, u64 inDuration, u32 inDepth)
+			: section(name), timestamp(inTimestamp), duration(inDuration), depth(inDepth)
 		{}
 	};
 
 	std::vector<Entry> entries;
+	u32 depth = 0;
 private:
 
-	// Get current time in microseconds
-	static u64 get_time_us()
+	static u64 GetTimeUs()
 	{
 		auto now = std::chrono::high_resolution_clock::now();
 		auto duration = now.time_since_epoch();
@@ -34,80 +35,52 @@ private:
 	}
 
 public:
-	// Start timing a section and return a timer ID
-	size_t begin_section(const std::string& section_name)
+	u32 BeginSection(const std::string& section_name)
 	{
-		entries.emplace_back(section_name, get_time_us(), 0);
+		entries.emplace_back(section_name, GetTimeUs(), 0, depth++);
 		return entries.size() - 1;
 	}
 
-	// End timing for a specific section
-	void end_section(size_t timer_id)
+	void EndSection(u32 timerId)
 	{
-		if(timer_id < entries.size())
+		if(timerId < entries.size())
 		{
-			u64 end_time = get_time_us();
-			entries[timer_id].duration = end_time - entries[timer_id].start_time;
+			depth--;
+			entries[timerId].duration = GetTimeUs() - entries[timerId].timestamp;
 		}
 	}
 
-	// Clear all entries (call at start of each frame)
 	void clear()
 	{
+		depth = 0;
 		entries.clear();
 	}
-
-	// Print profiling results
-	void print_results() const
-	{
-		std::cout << "\n=== Profiling Results ===\n";
-		std::cout << std::left << std::setw(20) << "Section"
-			<< std::right << std::setw(15) << "Duration (us)" << "\n";
-		std::cout << std::string(35, '-') << "\n";
-
-		for(const auto& entry : entries)
-		{
-			std::cout << std::left << std::setw(20) << entry.section
-				<< std::right << std::setw(15) << entry.duration << "\n";
-		}
-		std::cout << std::string(35, '=') << "\n";
-	}
-
-	// Get all entries (for custom processing)
-	const std::vector<Entry>& get_entries() const { return entries; }
 };
 
 // Global profiler instance
 static Profiler g_profiler;
 
-// RAII helper class for automatic timing
-class ScopedTimer
+class ProfileSection
 {
-private:
-	size_t timer_id;
-
 public:
-	ScopedTimer(const std::string& section_name)
-		: timer_id(g_profiler.begin_section(section_name))
+	ProfileSection(const std::string& sectionName)
+		: timerId(g_profiler.BeginSection(sectionName))
 	{}
 
-	~ScopedTimer()
+	~ProfileSection()
 	{
-		g_profiler.end_section(timer_id);
+		g_profiler.EndSection(timerId);
 	}
 
-	// Non-copyable, non-movable to avoid issues
-	ScopedTimer(const ScopedTimer&) = delete;
-	ScopedTimer& operator=(const ScopedTimer&) = delete;
-	ScopedTimer(ScopedTimer&&) = delete;
-	ScopedTimer& operator=(ScopedTimer&&) = delete;
+	NO_COPY(ProfileSection);
+	NO_MOVE(ProfileSection);
+
+private:
+	u32 timerId;
 };
 
 // Convenience macros
-#define PROFILE_SCOPE(name) ScopedTimer _timer(name)
-#define PROFILE_FUNCTION() ScopedTimer _timer(__FUNCTION__)
-
-// Manual profiling functions
-inline void profile_frame_start() { g_profiler.clear(); }
-inline void profile_print() { g_profiler.print_results(); }
+#define PROFILE_FRAME_START() g_profiler.clear();
+#define PROFILE_SCOPE(name) ProfileSection _timer(name)
+#define PROFILE() ProfileSection _timer(__FUNCTION__)
 

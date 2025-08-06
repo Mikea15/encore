@@ -13,6 +13,7 @@ class Renderer
 public:
 	void CreateFramebuffer(GameState& gameState)
 	{
+		PROFILE();
 		// Delete existing framebuffer if it exists
 		if(gameState.framebuffer)
 		{
@@ -62,6 +63,8 @@ public:
 
 	void RenderScene(GameState& gameState, Render2D& render2D)
 	{
+		PROFILE();
+
 		// In full screen mode, determine the proper size for the framebuffer
 		if(!gameState.bShowImgui)
 		{
@@ -72,6 +75,7 @@ public:
 		// Always render to framebuffer first
 		glBindFramebuffer(GL_FRAMEBUFFER, gameState.framebuffer);
 		glViewport(0, 0, gameState.framebufferWidth, gameState.framebufferHeight);
+
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -106,6 +110,7 @@ public:
 
 	void RenderImGui(GameState& gameState, Render2D& renderer)
 	{
+		PROFILE();
 		if(!gameState.bShowImgui) return;
 
 		// Create a fullscreen dockspace
@@ -220,6 +225,7 @@ public:
 
 	void BlitFramebufferToScreen(GameState& gameState)
 	{
+		PROFILE();
 		// Blit the framebuffer to the screen in fullscreen mode
 		SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
 

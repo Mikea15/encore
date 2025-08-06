@@ -160,7 +160,7 @@ i32 main(i32 argc, char* argv[])
 	bool bGameRunning = true;
 	while(bGameRunning)
 	{
-		g_profiler.clear();
+		PROFILE_FRAME_START();
 
 		// Calculate delta time
 		const float frameNow = SDL_GetTicks64() / 1000.0f;
@@ -262,7 +262,7 @@ i32 main(i32 argc, char* argv[])
 
 		// RENDER
 		{
-			PROFILE_SCOPE("Render");
+			PROFILE_SCOPE("Render Frame");
 
 			// render ui
 			ImGui_ImplOpenGL3_NewFrame();

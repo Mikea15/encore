@@ -228,6 +228,7 @@
     <ClInclude Include="src\debug\memory_widget.h" />
     <ClInclude Include="src\debug\profiler_widget.h" />
     <ClInclude Include="src\debug\renderer_widget.h" />
+    <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\game_state.h" />
     <ClInclude Include="src\profiler\profiler.h" />
     <ClInclude Include="src\renderer\render2d_camera.h" />
@@ -235,6 +236,9 @@
     <ClInclude Include="src\renderer\renderer.h" />
     <ClInclude Include="src\renderer\renderer_shader.h" />
     <ClInclude Include="src\renderer\renderer_sprite.h" />
+    <ClInclude Include="src\tasks\task_node.h" />
+    <ClInclude Include="src\tasks\thread_pool.h" />
+    <ClInclude Include="src\tasks\task_system.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_sdl2.h" />
@@ -246,6 +250,9 @@
     <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
     <ClInclude Include="vendor\imgui\imstb_textedit.h" />
     <ClInclude Include="vendor\imgui\imstb_truetype.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="todo.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

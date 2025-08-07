@@ -8,6 +8,14 @@
 #include <iostream>
 #include <iomanip>
 
+enum class FrameCategory
+{
+	UPDATE,
+	INPUT,
+	CAMERA,
+	RENDER
+};
+
 class Profiler
 {
 public:
@@ -24,6 +32,8 @@ public:
 	};
 
 	std::vector<Entry> entries;
+	std::vector<Entry> lastEntries;
+
 	u32 depth = 0;
 private:
 
@@ -38,7 +48,7 @@ public:
 	u32 BeginSection(const std::string& section_name)
 	{
 		entries.emplace_back(section_name, GetTimeUs(), 0, depth++);
-		return entries.size() - 1;
+		return (u32)(entries.size() - 1);
 	}
 
 	void EndSection(u32 timerId)
@@ -53,6 +63,8 @@ public:
 	void clear()
 	{
 		depth = 0;
+		lastEntries = entries;
+
 		entries.clear();
 	}
 };

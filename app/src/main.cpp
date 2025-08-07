@@ -29,6 +29,7 @@
 #include "renderer/renderer_sprite.h"
 
 #include "game_state.h"
+#include <tasks/task_system.h>
 
 struct GraphicsComponent
 {
@@ -131,6 +132,17 @@ i32 main(i32 argc, char* argv[])
 
 	Render2D render2D;
 	render2D.renderer.Init();
+
+	task::TaskSystem taskSystem;
+
+	auto t1 = taskSystem.CreateTask("Task1", []() { LOG_INFO("Task1"); std::this_thread::sleep_for(std::chrono::milliseconds(15)); });
+	auto t2 = taskSystem.CreateTask("Task2", []() { LOG_INFO("Task2"); std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
+	auto t3 = taskSystem.CreateTask("Task3", []() { LOG_INFO("Task3"); std::this_thread::sleep_for(std::chrono::milliseconds(30)); });
+	auto task = taskSystem.CreateTask("FinalTask", []() {LOG_INFO("FinalTask");  });
+
+	t2->AddDependency(t3);
+	task->AddDependency(t1); 
+	task->AddDependency(t2);
 
 	// Init Renderer
 	{
@@ -237,6 +249,12 @@ i32 main(i32 argc, char* argv[])
 
 		//~INPUT
 
+		{
+			// TASK_GRAPH
+			PROFILE_SCOPE("Task Graph");
+			taskSystem.ExecuteTaskGraph();
+		}
+
 		// UPDATE
 		{
 			PROFILE_SCOPE("Gameplay Update");
@@ -317,6 +335,8 @@ i32 main(i32 argc, char* argv[])
 			//~RENDER
 		}
 	}
+
+	taskSystem.ClearTasks();
 
 	if(gameState.framebuffer)
 	{

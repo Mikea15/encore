@@ -228,9 +228,10 @@
     <ClInclude Include="src\debug\memory_widget.h" />
     <ClInclude Include="src\debug\profiler_widget.h" />
     <ClInclude Include="src\debug\renderer_widget.h" />
-    <ClInclude Include="src\entity\entity.h" />
+    <ClInclude Include="src\entity\CEntity.h" />
     <ClInclude Include="src\game_state.h" />
     <ClInclude Include="src\profiler\profiler.h" />
+    <ClInclude Include="src\renderer\frame_stats.h" />
     <ClInclude Include="src\renderer\render2d_camera.h" />
     <ClInclude Include="src\renderer\render2d_types.h" />
     <ClInclude Include="src\renderer\renderer.h" />

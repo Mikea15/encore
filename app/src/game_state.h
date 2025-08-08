@@ -5,12 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_sdl2.h>
 #include <GL/glew.h>
-
-#if ENC_DEBUG
-#include "debug/framerate_widget.h"
-#endif
 
 struct GameState
 {
@@ -35,10 +30,6 @@ struct GameState
 	GLuint depthTexture = 0;
 	i32 framebufferWidth = 800;
 	i32 framebufferHeight = 600;
-
-#if ENC_DEBUG
-	FrameTimeTracker track;
-#endif
 
 	float time = 0.0f;
 

@@ -177,6 +177,7 @@ public:
 		debug::DrawMemoryStats(gameState.uiArena, "UI");
 
 		debug::DrawProfiler();
+		debug::DrawProfilerFlameGraph();
 
 		// Bottom panel
 		ImGui::Begin("Console");
@@ -189,7 +190,7 @@ public:
 
 		// PerfPanel
 #if ENC_DEBUG
-		gameState.track.RenderImGuiWindow();
+		debug::DrawFrameStats(g_frameStats);
 #endif
 
 		// Rendering

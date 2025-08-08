@@ -3,9 +3,10 @@
 #include "core/core_minimal.h"
 #include "renderer/render2d_types.h"
 
-class Entity
+class CEntity
 {
 public:
+
 
 private:
 	Vec2 position;

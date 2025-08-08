@@ -23,16 +23,21 @@ namespace task {
 
 		void ExecuteTaskGraph()
 		{
-			for(auto& task : m_taskNodes)
+			PROFILE();
 			{
-				task->Reset();
+				PROFILE_SCOPE("Reset");
+				for(auto& task : m_taskNodes)
+				{
+					task->Reset();
+				}
 			}
-
+			
 			while(true)
 			{
+				PROFILE_SCOPE("Prepare Tasks");
+
 				bool bAllComplete = true;
 				std::vector<std::shared_ptr<TaskNode>> tasksReady;
-
 				for(auto& task : m_taskNodes)
 				{
 					if(!task->IsComplete())

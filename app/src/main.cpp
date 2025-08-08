@@ -1,4 +1,3 @@
-
 #include "core/core_minimal.h"
 
 #include <SDL2/SDL.h>
@@ -39,6 +38,7 @@ struct GraphicsComponent
 	const char* name;
 	bool bActive;
 };
+
 IMPLEMENT_POOL(GraphicsComponent, 500);
 
 i32 main(i32 argc, char* argv[])
@@ -54,7 +54,7 @@ i32 main(i32 argc, char* argv[])
 	gameState.window.height = 720;
 
 	// Initialize SDL
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
 		LOG_ERROR("Failed to SDL_Init");
 		return -1;
@@ -62,8 +62,9 @@ i32 main(i32 argc, char* argv[])
 
 	// Create window with SDL renderer
 	gameState.window.pWindow = SDL_CreateWindow("Encore", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		gameState.window.width, gameState.window.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-	if(!gameState.window.pWindow)
+	                                            gameState.window.width, gameState.window.height,
+	                                            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	if (!gameState.window.pWindow)
 	{
 		LOG_ERROR("Could not Create Window");
 		return -1;
@@ -78,14 +79,14 @@ i32 main(i32 argc, char* argv[])
 	ImGui::StyleColorsDark();
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
 
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// Init OpenGL
@@ -127,7 +128,7 @@ i32 main(i32 argc, char* argv[])
 
 	// Init Systems
 #if ENC_DEBUG
-	gameState.track.Init(gameState.globalArena);
+	frame_stats_init(g_frameStats, gameState.globalArena);
 #endif
 
 	Render2D render2D;
@@ -135,28 +136,40 @@ i32 main(i32 argc, char* argv[])
 
 	task::TaskSystem taskSystem;
 
-	auto t1 = taskSystem.CreateTask("Task1", []() { LOG_INFO("Task1"); std::this_thread::sleep_for(std::chrono::milliseconds(15)); });
-	auto t2 = taskSystem.CreateTask("Task2", []() { LOG_INFO("Task2"); std::this_thread::sleep_for(std::chrono::milliseconds(20)); });
-	auto t3 = taskSystem.CreateTask("Task3", []() { LOG_INFO("Task3"); std::this_thread::sleep_for(std::chrono::milliseconds(30)); });
-	auto task = taskSystem.CreateTask("FinalTask", []() {LOG_INFO("FinalTask");  });
+	auto t1 = taskSystem.CreateTask("Task1", []()
+	{
+		LOG_INFO("Task1");
+		std::this_thread::sleep_for(std::chrono::milliseconds(15));
+	});
+	auto t2 = taskSystem.CreateTask("Task2", []()
+	{
+		LOG_INFO("Task2");
+		std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	});
+	auto t3 = taskSystem.CreateTask("Task3", []()
+	{
+		LOG_INFO("Task3");
+		std::this_thread::sleep_for(std::chrono::milliseconds(30));
+	});
+	auto task = taskSystem.CreateTask("FinalTask", []() { LOG_INFO("FinalTask"); });
 
 	t2->AddDependency(t3);
-	task->AddDependency(t1); 
+	task->AddDependency(t1);
 	task->AddDependency(t2);
 
 	// Init Renderer
 	{
 		// Create some test sprites
-		for(int i = 0; i < 100000; ++i)
+		for (int i = 0; i < 100000; ++i)
 		{
 			Sprite sprite;
 			sprite.position = {
-				(rand() % 2000) - 1000.0f,  // Random X: -1000 to 1000
-				(rand() % 2000) - 1000.0f   // Random Y: -1000 to 1000
+				(rand() % 2000) - 1000.0f, // Random X: -1000 to 1000
+				(rand() % 2000) - 1000.0f // Random Y: -1000 to 1000
 			};
-			sprite.size = { (rand() % 32) + 1.0f, (rand() % 32) + 1.0f };
+			sprite.size = {(rand() % 32) + 1.0f, (rand() % 32) + 1.0f};
 			sprite.color = {
-				(rand() % 255) / 255.0f,    // Random color
+				(rand() % 255) / 255.0f, // Random color
 				(rand() % 255) / 255.0f,
 				(rand() % 255) / 255.0f,
 				1.0f
@@ -165,56 +178,56 @@ i32 main(i32 argc, char* argv[])
 		}
 	}
 
-	float deltaTime = 0.0f;
-	float lastFrameNow = 0.0f;
+	f32 deltaTime = 0.0f;
+	u64 lastUpdateMs = 0u;
 
 	// Main Loop
 	bool bGameRunning = true;
-	while(bGameRunning)
+	while (bGameRunning)
 	{
 		PROFILE_FRAME_START();
 
 		// Calculate delta time
-		const float frameNow = SDL_GetTicks64() / 1000.0f;
-		deltaTime = frameNow - lastFrameNow;
-		lastFrameNow = frameNow;
+		const u64 updateMs = SDL_GetTicks64();
+		deltaTime = static_cast<f32>(MsToSeconds(updateMs - lastUpdateMs));
+		lastUpdateMs = updateMs;
 
 		// INPUT
-		Vec2 camMovementInput = { 0.0f, 0.0f };
+		Vec2 camMovementInput = {0.0f, 0.0f};
 
 		// EVENT BASED INPUT
 		{
 			PROFILE_SCOPE("Input");
 
 			SDL_Event event;
-			while(SDL_PollEvent(&event))
+			while (SDL_PollEvent(&event))
 			{
 				// Handle Input
 				ImGui_ImplSDL2_ProcessEvent(&event);
 
-				switch(event.type)
+				switch (event.type)
 				{
 				case SDL_QUIT:
 					bGameRunning = false;
 					break;
 				case SDL_WINDOWEVENT:
-					if(event.window.event == SDL_WINDOWEVENT_CLOSE
+					if (event.window.event == SDL_WINDOWEVENT_CLOSE
 						&& event.window.windowID == SDL_GetWindowID(gameState.window.pWindow))
 					{
 						bGameRunning = false;
 					}
-					if(event.window.event == SDL_WINDOWEVENT_RESIZED)
+					if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 					{
 						gameState.window.width = event.window.data1;
 						gameState.window.height = event.window.data2;
 					}
 					break;
 				case SDL_KEYDOWN:
-					if(event.key.keysym.sym == SDLK_TAB)
+					if (event.key.keysym.sym == SDLK_TAB)
 					{
 						gameState.bShowImgui = !gameState.bShowImgui;
 					}
-					if(event.key.keysym.sym == SDLK_ESCAPE)
+					if (event.key.keysym.sym == SDLK_ESCAPE)
 					{
 						bGameRunning = false;
 					}
@@ -226,21 +239,21 @@ i32 main(i32 argc, char* argv[])
 			// REALTIME INPUT
 			const u8* keyboardState = SDL_GetKeyboardState(nullptr);
 
-			if(keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
-			if(keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
-			if(keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
-			if(keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
+			if (keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
+			if (keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
+			if (keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
+			if (keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
 
-			if(keyboardState[SDL_SCANCODE_Q])
+			if (keyboardState[SDL_SCANCODE_Q])
 			{
 				render2D.camera.zoom = std::min(100.0f, render2D.camera.zoom + 1.0f * deltaTime);
 			}
-			if(keyboardState[SDL_SCANCODE_E])
+			if (keyboardState[SDL_SCANCODE_E])
 			{
 				render2D.camera.zoom = std::max(0.1f, render2D.camera.zoom - 1.0f * deltaTime);
 			}
 
-			if(camMovementInput != Vec2(0.0f, 0.0f))
+			if (camMovementInput != Vec2(0.0f, 0.0f))
 			{
 				camMovementInput = glm::normalize(camMovementInput);
 			}
@@ -259,11 +272,11 @@ i32 main(i32 argc, char* argv[])
 		{
 			PROFILE_SCOPE("Gameplay Update");
 #if ENC_DEBUG
-			gameState.track.Update(deltaTime);
-#endif 
-			
+			frame_stats_update(g_frameStats, deltaTime);
+#endif
+
 			// Rotate Sprites
-			for(u32 i = 0; i < render2D.sprites.size(); ++i)
+			for (u32 i = 0; i < render2D.sprites.size(); ++i)
 			{
 				render2D.sprites[i].rotation += deltaTime * rand() * 0.03f;
 			}
@@ -272,7 +285,8 @@ i32 main(i32 argc, char* argv[])
 				PROFILE_SCOPE("Late Camera Update");
 
 				Vec2 targetVelocity = camMovementInput * cameraSpeed;
-				render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity, render2D.camera.cameraDamping * deltaTime);
+				render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity,
+				                                          render2D.camera.cameraDamping * deltaTime);
 				render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
 			}
 		}
@@ -290,7 +304,7 @@ i32 main(i32 argc, char* argv[])
 			// Always render the scene once to the framebuffer
 			renderer.RenderScene(gameState, render2D);
 
-			if(gameState.bShowImgui)
+			if (gameState.bShowImgui)
 			{
 				// In editor mode: display the texture in ImGui
 				renderer.RenderImGui(gameState, render2D);
@@ -298,7 +312,7 @@ i32 main(i32 argc, char* argv[])
 			else
 			{
 #if ENC_DEBUG
-				gameState.track.RenderCompactOverlay();
+				debug::DrawFrameStatsCompact(g_frameStats);
 #endif
 
 				// In fullscreen mode: blit the framebuffer to screen
@@ -308,21 +322,20 @@ i32 main(i32 argc, char* argv[])
 			ImGui::Render();
 			//~render ui
 
-			if(gameState.bShowImgui)
+			if (gameState.bShowImgui)
 			{
 				// Clear the screen and render ImGui
 				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				glViewport(0, 0, gameState.window.width, gameState.window.height);
-				glClearColor(sin(frameNow), cos(frameNow), 0.1f, 1.0f);
+				glClearColor(sin(updateMs), cos(updateMs), 0.3f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
 			}
 
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			// Update and Render additional Platform Windows
-			ImGuiIO& io = ImGui::GetIO();
-			if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 			{
 				SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
 				SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
@@ -338,7 +351,7 @@ i32 main(i32 argc, char* argv[])
 
 	taskSystem.ClearTasks();
 
-	if(gameState.framebuffer)
+	if (gameState.framebuffer)
 	{
 		glDeleteFramebuffers(1, &gameState.framebuffer);
 		glDeleteTextures(1, &gameState.colorTexture);

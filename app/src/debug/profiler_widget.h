@@ -62,7 +62,7 @@ namespace debug
 			else if(duration >= 1000) // >= 1 ms
 				return std::to_string(duration / 1000.0f) + " ms";
 			else
-				return std::to_string(duration) + " μs";
+				return std::to_string(duration) + " us";
 		}
 		else
 		{
@@ -156,7 +156,7 @@ namespace debug
 		float barHeight = 20.0f;
 		float barSpacing = 2.0f;
 		float leftMargin = 10.0f;
-		float topMargin = 40.0f; // Increased to make room for header line
+		float topMargin = 30.0f; // Increased to make room for header line
 
 		// Reserve space for the flame graph
 		float graphHeight = (maxDepth + 1) * 25.0f + 50.0f; // 25px per depth level + padding
@@ -166,8 +166,9 @@ namespace debug
 
 		// Draw background
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-		draw_list->AddRectFilled(canvas_p0, canvas_p1, IM_COL32(50, 50, 50, 50));
-		draw_list->AddRect(canvas_p0, canvas_p1, IM_COL32(255, 255, 255, 160));
+		ImU32 bgColor = ImGui::WithAlpha(ImGui::PASTEL_LIGHT_BLUE, 20);
+		draw_list->AddRectFilled(canvas_p0, canvas_p1, bgColor);
+		// draw_list->AddRect(canvas_p0, canvas_p1, ImGui::PASTEL_LIGHT_BLUE);
 
 		// Calculate virtual canvas size and visible viewport
 		float virtualCanvasWidth = (canvas_sz.x - leftMargin * 2) * zoomLevel; // Virtual area gets bigger when zoomed
@@ -206,18 +207,18 @@ namespace debug
 		draw_list->AddLine(
 			ImVec2(canvas_p0.x + leftMargin, lineY - 7),
 			ImVec2(canvas_p0.x + leftMargin + lineLength, lineY - 7),
-			IM_COL32(255, 255, 255, 255), 1.0f
+			ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 80), 1.0f
 		);
 
 		// Text in the middle
 		float textX = canvas_p0.x + leftMargin + lineLength + 10;
-		draw_list->AddText(ImVec2(textX, headerY), IM_COL32(255, 255, 255, 50), headerText);
+		draw_list->AddText(ImVec2(textX, headerY), ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 80), headerText);
 
 		// Right line
 		draw_list->AddLine(
 			ImVec2(textX + headerTextWidth + 10, lineY - 7),
 			ImVec2(canvas_p0.x + canvas_sz.x - leftMargin, lineY - 7),
-			IM_COL32(255, 255, 255, 255), 1.0f
+			ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 80), 1.0f
 		);
 
 		// Handle mouse interactions for panning and zooming
@@ -310,7 +311,7 @@ namespace debug
 			ImVec2 rectMax(endX, y + barHeight);
 
 			// Color based on duration percentage  
-			ImU32 color = ImGui::GetPastelColor(entry.depth, 128);
+			ImU32 color = ImGui::GetPastelColor(entry.depth, 80);
 
 			// Draw rectangle
 			draw_list->AddRectFilled(rectMin, rectMax, color);
@@ -330,7 +331,7 @@ namespace debug
 				}
 
 				ImVec2 textPos(startX + 2.0f, y + (barHeight - textSize.y) * 0.5f);
-				draw_list->AddText(textPos, IM_COL32(0, 0, 0, 255), text.c_str());
+				draw_list->AddText(textPos, IM_COL32(255, 255, 255, 255), text.c_str());
 			}
 
 			// Check for mouse hover
@@ -353,8 +354,6 @@ namespace debug
 			ImGui::Text("Start: %llu", hoveredEntry->timestamp);
 			ImGui::EndTooltip();
 		}
-
-
 
 		// Reserve the space we used
 		ImGui::Dummy(ImVec2(canvas_sz.x, graphHeight));

@@ -131,36 +131,51 @@ i32 main(i32 argc, char* argv[])
 	frame_stats_init(g_frameStats, gameState.globalArena);
 #endif
 
+	PROFILE_SET_THREAD_NAME("MainThread");
+
 	Render2D render2D;
 	render2D.renderer.Init();
 
-	task::TaskSystem taskSystem;
+	constexpr u8 taskNumThreads = 3;
+	task::OptimizedTaskSystem opTaskSystem2;
+	{
+		auto t1 = opTaskSystem2.CreateTask("Task1", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(15));
+			});
+		auto t2 = opTaskSystem2.CreateTask("Task2", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(20));
+			});
+		auto t3 = opTaskSystem2.CreateTask("Task3", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(30));
+			});
+		opTaskSystem2.CreateTask("Task3.1", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(30));
+			});
+		opTaskSystem2.CreateTask("Task4", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(30));
+			});
+		opTaskSystem2.CreateTask("Task5", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(30));
+			});
+		auto t6 = opTaskSystem2.CreateTask("Task6", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(30));
+			});
+		t3->AddDependency(t6);
+		opTaskSystem2.CreateTask("Task7", []() {
+			std::this_thread::sleep_for(std::chrono::microseconds(30));
+			});
+		auto task = opTaskSystem2.CreateTask("FinalTask", []() { LOG_INFO("FinalTask"); });
+		t2->AddDependency(t3);
+		task->AddDependency(t1);
+		task->AddDependency(t2);
 
-	auto t1 = taskSystem.CreateTask("Task1", []()
-	{
-		LOG_INFO("Task1");
-		std::this_thread::sleep_for(std::chrono::milliseconds(15));
-	});
-	auto t2 = taskSystem.CreateTask("Task2", []()
-	{
-		LOG_INFO("Task2");
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-	});
-	auto t3 = taskSystem.CreateTask("Task3", []()
-	{
-		LOG_INFO("Task3");
-		std::this_thread::sleep_for(std::chrono::milliseconds(30));
-	});
-	auto task = taskSystem.CreateTask("FinalTask", []() { LOG_INFO("FinalTask"); });
-
-	t2->AddDependency(t3);
-	task->AddDependency(t1);
-	task->AddDependency(t2);
+		opTaskSystem2.CreateExecutionPlan();
+	}
 
 	// Init Renderer
 	{
 		// Create some test sprites
-		for (int i = 0; i < 100000; ++i)
+		for (int i = 0; i < 10000; ++i)
 		{
 			Sprite sprite;
 			sprite.position = {
@@ -179,18 +194,18 @@ i32 main(i32 argc, char* argv[])
 	}
 
 	f32 deltaTime = 0.0f;
-	u64 lastUpdateMs = 0u;
+	f32 lastUpdate = 0u;
 
 	// Main Loop
 	bool bGameRunning = true;
 	while (bGameRunning)
 	{
-		PROFILE_FRAME_START();
+		PROFILE_FRAME_START_ALL_THREADS();
 
 		// Calculate delta time
-		const u64 updateMs = SDL_GetTicks64();
-		deltaTime = static_cast<f32>(MsToSeconds(updateMs - lastUpdateMs));
-		lastUpdateMs = updateMs;
+		const f32 timeNow = SDL_GetTicks64() / 1000.0f;
+		deltaTime = static_cast<f32>(timeNow - lastUpdate);
+		lastUpdate = timeNow;
 
 		// INPUT
 		Vec2 camMovementInput = {0.0f, 0.0f};
@@ -265,7 +280,7 @@ i32 main(i32 argc, char* argv[])
 		{
 			// TASK_GRAPH
 			PROFILE_SCOPE("Task Graph");
-			taskSystem.ExecuteTaskGraph();
+			opTaskSystem2.ExecuteTaskGraph();
 		}
 
 		// UPDATE
@@ -328,7 +343,7 @@ i32 main(i32 argc, char* argv[])
 				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				glViewport(0, 0, gameState.window.width, gameState.window.height);
-				glClearColor(sin(updateMs), cos(updateMs), 0.3f, 1.0f);
+				glClearColor(sin(timeNow), cos(timeNow), 0.3f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
 			}
 
@@ -348,8 +363,6 @@ i32 main(i32 argc, char* argv[])
 			//~RENDER
 		}
 	}
-
-	taskSystem.ClearTasks();
 
 	if (gameState.framebuffer)
 	{

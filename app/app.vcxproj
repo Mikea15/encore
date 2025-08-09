@@ -213,6 +213,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\components\move_component.cpp" />
+    <ClCompile Include="src\components\move_component.h" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_sdl2.cpp" />
@@ -233,7 +235,7 @@
     <ClInclude Include="src\debug\renderer_widget.h" />
     <ClInclude Include="src\editor\editor.h" />
     <ClInclude Include="src\editor\editor_profiler.h" />
-    <ClInclude Include="src\entity\CEntity.h" />
+    <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\game_state.h" />
     <ClInclude Include="src\globals.h" />
     <ClInclude Include="src\integrations\livepp_handler.h" />

@@ -17,6 +17,8 @@
 #include "imgui/backends/imgui_impl_sdl2.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
+#include "components/move_component.h"
+
 #if ENC_DEBUG
 #include "debug/framerate_widget.h"
 #include "debug/memory_widget.h"
@@ -84,14 +86,27 @@ i32 main(i32 argc, char* argv[])
 	PROFILE_SET_THREAD_NAME("MainThread");
 
 	task::TaskSchedulerSystem taskScheduler;
-	for(int i = 0; i < 1000; i++)
-	{
-		const char* str = StringFactory::Format("Task %d", i);
-		taskScheduler.CreateTask(str, []() {
-			const u32 randWorkLoad = (rand() % 5000) + 250;
-			StubWorkload::math_workload(randWorkLoad); });
-	}
+	//for(int i = 0; i < 1000; i++)
+	//{
+	//	const char* str = StringFactory::Format("Task %d", i);
+	//	taskScheduler.CreateTask(str, [](float deltaTime) {
+	//		const u32 randWorkLoad = (rand() % 5000) + 250;
+	//		StubWorkload::math_workload(randWorkLoad); });
+	//}
+
+	taskScheduler.CreateTask("MoveComponent Pool", [](float deltaTime) {
+		// Rotate Sprites
+		Pool<MoveComponent>* pMovePool = MoveComponent::GetPool();
+		AssertMsg(pMovePool, "Call MoveComponent::InitPool() first");
+		for(MoveComponent& moveComp : *pMovePool)
+		{
+			moveComp.Update(deltaTime);
+		}}
+	);
 	taskScheduler.CreateExecutionPlan();
+
+	// Init Pools
+	MoveComponent::Init(&gameState.arenas[AT_COMPONENTS]);
 
 	// Create some test sprites
 	for(int i = 0; i < 10000; ++i)
@@ -108,7 +123,10 @@ i32 main(i32 argc, char* argv[])
 			(rand() % 255) / 255.0f,
 			1.0f
 		};
-		renderInfo.sprites.push_back(sprite);
+
+		Entity ent;
+		ent.Init(sprite);
+		renderInfo.entities.push_back(ent);
 	}
 
 	f32 deltaTime = 0.0f;
@@ -208,7 +226,7 @@ i32 main(i32 argc, char* argv[])
 		{
 			// TASK_GRAPH
 			PROFILE_SCOPE("Task Graph");
-			taskScheduler.ExecuteTaskGraph();
+			taskScheduler.ExecuteTaskGraph(deltaTime);
 		}
 
 		// UPDATE
@@ -218,11 +236,7 @@ i32 main(i32 argc, char* argv[])
 			frame_stats_update(g_frameStats, deltaTime);
 #endif
 
-			// Rotate Sprites
-			for(u32 i = 0; i < renderInfo.sprites.size(); ++i)
-			{
-				renderInfo.sprites[i].rotation += deltaTime * rand() * 0.03f;
-			}
+			
 
 			{
 				PROFILE_SCOPE("Late Camera Update");

@@ -9,7 +9,7 @@
 
 namespace task 
 {
-	using TaskFunction = std::function<void()>;
+	using TaskFunction = std::function<void(float dt)>;
 
 	class TaskNode
 	{
@@ -23,11 +23,11 @@ namespace task
 			m_dependencies.push_back(dependency);
 		}
 
-		void Execute()
+		void Execute(float dt)
 		{
 			if(!m_completed.load())
 			{
-				m_func();
+				m_func(dt);
 				m_completed.store(true);
 			}
 		}

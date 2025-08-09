@@ -19,6 +19,12 @@
 
 namespace task
 {
+	struct TaskPayload
+	{
+		TaskFunction func;
+		float deltaTime;
+	};
+
 	class ThreadPool
 	{
 	public:
@@ -27,14 +33,14 @@ namespace task
 		{
 			for(u32 i = 0; i < numThreads; i++)
 			{
-				m_workerThreads.emplace_back([this, i] {
+				m_workerThreads.emplace_back([this, i] () {
 					// Set thread name
 					SetThreadName(m_threadNamePrefix + "_" + std::to_string(i));
 					PROFILE_SET_THREAD_NAME(m_threadNamePrefix + "_" + std::to_string(i));
 
 					while(true)
 					{
-						TaskFunction func;
+						TaskPayload payload;
 						{
 							std::unique_lock<std::mutex> lock(m_queueMutex);
 							m_cv.wait(lock, [this]() { return m_bStop || !m_taskQueue.empty(); });
@@ -44,10 +50,10 @@ namespace task
 								return;
 							}
 
-							func = std::move(m_taskQueue.front());
+							payload = std::move(m_taskQueue.front());
 							m_taskQueue.pop();
 						}
-						func();
+						payload.func(payload.deltaTime);
 					}
 					});
 			}
@@ -67,11 +73,11 @@ namespace task
 			}
 		}
 
-		void Enqueue(TaskFunction task)
+		void Enqueue(TaskPayload payload)
 		{
 			if(m_bStop) { return; }
 			std::unique_lock<std::mutex> lock(m_queueMutex);
-			m_taskQueue.push(task);
+			m_taskQueue.push(payload);
 			m_cv.notify_one();
 		}
 
@@ -100,7 +106,7 @@ namespace task
 
 	private:
 		std::vector<std::thread> m_workerThreads;
-		std::queue<TaskFunction> m_taskQueue;
+		std::queue<TaskPayload> m_taskQueue;
 		std::mutex m_queueMutex;
 		std::condition_variable m_cv;
 		bool m_bStop;

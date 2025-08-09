@@ -48,6 +48,12 @@
     <ClCompile Include="vendor\imgui\implot_demo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\components\move_component.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\components\move_component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h">
@@ -128,7 +134,7 @@
     <ClInclude Include="src\tasks\task_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\entity\CEntity.h">
+    <ClInclude Include="src\entity\entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\frame_stats.h">

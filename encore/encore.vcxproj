@@ -208,6 +208,9 @@
     <ClInclude Include="src\core\core_types.h" />
     <ClInclude Include="src\core\windows_undef.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\core\core_platform.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

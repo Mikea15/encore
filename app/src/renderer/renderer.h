@@ -2,11 +2,12 @@
 
 #include "core/core_minimal.h"
 
+#include "debug/memory_widget.h"
+#include "debug/profiler_widget.h"
+#include "debug/renderer_widget.h"
+#include "editor/editor_profiler.h"
 #include "game_state.h"
 #include "renderer_sprite.h"
-#include "debug/profiler_widget.h"
-#include "debug/memory_widget.h"
-#include "debug/renderer_widget.h"
 
 class Renderer
 {
@@ -177,7 +178,8 @@ public:
 		debug::DrawMemoryStats(gameState.uiArena, "UI");
 
 		// debug::DrawProfiler();
-		debug::DrawProfilerFlameGraph();
+		m_profilerWindow.DrawProfilerFlameGraph();
+		// debug::DrawProfilerFlameGraph();
 
 		// Bottom panel
 		ImGui::Begin("Console");
@@ -241,4 +243,8 @@ public:
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
+
+private:
+	editor::ProfilerWindow m_profilerWindow;
+
 };

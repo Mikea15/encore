@@ -78,7 +78,7 @@ private:
 	lpp::LppDefaultAgent m_defaultAgent;
 	lpp::LppSynchronizedAgent m_synchedAgent;
 
-	enum class AgentType : u8
+	enum class AgentType : i8
 	{
 		Invalid = -1,
 		Default,

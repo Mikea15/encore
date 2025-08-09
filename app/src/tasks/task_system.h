@@ -68,7 +68,7 @@ namespace task {
 			std::unordered_map<std::shared_ptr<TaskNode>, u32> inDegree;
 			for(auto& task : m_taskNodes)
 			{
-				inDegree[task] = task->GetDependencies().size();
+				inDegree[task] = (u32) task->GetDependencies().size();
 			}
 
 			// Find all tasks with no dependencies (in-degree 0)
@@ -86,9 +86,9 @@ namespace task {
 			{
 				// Current layer: all tasks that are ready now
 				std::vector<std::shared_ptr<TaskNode>> currentLayer;
-				u32 layerSize = ready.size();
+				u64 layerSize = ready.size();
 
-				for(u32 i = 0; i < layerSize; i++)
+				for(u64 i = 0; i < layerSize; i++)
 				{
 					auto task = ready.front();
 					ready.pop();
@@ -134,7 +134,7 @@ namespace task {
 			if(layer.empty()) return;
 
 			std::atomic<u32> completedTasks{ 0 };
-			const u32 totalTasks = layer.size();
+			const u64 totalTasks = layer.size();
 
 			// Submit all tasks in this layer
 			for(auto& task : layer)
@@ -232,7 +232,7 @@ namespace task {
 			std::vector<std::vector<std::shared_ptr<TaskNode>>> layers;
 
 			// Calculate in-degrees for each task
-			std::unordered_map<std::shared_ptr<TaskNode>, u32> inDegree;
+			std::unordered_map<std::shared_ptr<TaskNode>, u64> inDegree;
 			for(auto& task : m_taskNodes)
 			{
 				inDegree[task] = task->GetDependencies().size();
@@ -253,9 +253,9 @@ namespace task {
 			{
 				// Current layer: all tasks that are ready now
 				std::vector<std::shared_ptr<TaskNode>> currentLayer;
-				u32 layerSize = ready.size();
+				u64 layerSize = ready.size();
 
-				for(u32 i = 0; i < layerSize; i++)
+				for(u64 i = 0; i < layerSize; i++)
 				{
 					auto task = ready.front();
 					ready.pop();
@@ -282,8 +282,8 @@ namespace task {
 		{
 			if(layer.empty()) return;
 
-			std::atomic<u32> completedTasks{ 0 };
-			const u32 totalTasks = layer.size();
+			std::atomic<u64> completedTasks{ 0 };
+			const u64 totalTasks = layer.size();
 
 			// Submit all tasks in this layer
 			for(auto& task : layer)

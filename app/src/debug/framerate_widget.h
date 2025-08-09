@@ -73,7 +73,7 @@ namespace debug
 		if (ImGui::Begin("Performance Overlay", nullptr, window_flags))
 		{
 			ImGui::Text("Avg FPS: %.1f", stats.avgFps);
-			ImGui::Text("Avg FrameTime: %.3f ms", Milliseconds(1.0f) / stats.avgFps);
+			ImGui::Text("Avg FrameTime: %.3f ms", SEC_TO_MS(1.0f) / stats.avgFps);
 
 			ImGui::PlotLines("##mini", stats.pFramesPerSecond, static_cast<i32>(stats.sampleCount),
 			                 0, nullptr, 0.0f, 240.0f, ImVec2(-1, 30));

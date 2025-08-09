@@ -34,7 +34,6 @@ namespace task
 
 					while(true)
 					{
-						PROFILE_SCOPE("Worker running");
 						TaskFunction func;
 						{
 							std::unique_lock<std::mutex> lock(m_queueMutex);

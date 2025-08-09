@@ -72,14 +72,14 @@ namespace StubWorkload
 	void string_workload(int string_count)
 	{
 		char temp[256];
-		volatile int total_len = 0;
+		volatile u64 total_len = 0;
 
 		for(int i = 0; i < string_count; i++)
 		{
 			snprintf(temp, sizeof(temp), "Processing string number %d with data", i);
 
 			// Simulate string operations
-			int len = strlen(temp);
+			u64 len = strlen(temp);
 			for(int j = 0; j < len; j++)
 			{
 				temp[j] = (temp[j] >= 'a' && temp[j] <= 'z') ? temp[j] - 32 : temp[j];

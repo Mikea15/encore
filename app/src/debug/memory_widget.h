@@ -4,6 +4,7 @@
 
 #include "extension_imgui.h"
 #include "memory/base_arena.h"
+#include "utils/string_factory.h"
 
 namespace debug 
 {

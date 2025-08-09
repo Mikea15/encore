@@ -135,14 +135,18 @@ public:
 		// Menu bar
 		if(ImGui::BeginMenuBar())
 		{
-			if(ImGui::BeginMenu("View"))
+			if(ImGui::BeginMenu("Window"))
 			{
-				ImGui::MenuItem("Toggle ImGui", "TAB", &gameState.bShowImgui);
-				ImGui::MenuItem("Demo Window", nullptr, &gameState.bShowDemoWindow);
+				ImGui::MenuItem("Profiler", nullptr, &gameState.editor.bOpenProfiler);
+				ImGui::MenuItem("Performance Monitor", nullptr, &gameState.editor.bOpenPerformanceMonitor);
+
 				ImGui::EndMenu();
 			}
 			if(ImGui::BeginMenu("Help"))
 			{
+				ImGui::MenuItem("Toggle ImGui", "TAB", &gameState.bShowImgui);
+				ImGui::MenuItem("Demo Window", nullptr, &gameState.bShowDemoWindow);
+
 				ImGui::Text("TAB: Toggle Editor Mode");
 				ImGui::Text("ESC: Exit application");
 				ImGui::EndMenu();
@@ -178,7 +182,10 @@ public:
 		debug::DrawMemoryStats(gameState.uiArena, "UI");
 
 		// debug::DrawProfiler();
-		m_profilerWindow.DrawProfilerFlameGraph();
+		if(gameState.editor.bOpenProfiler)
+		{
+			m_profilerWindow.DrawProfilerFlameGraph();
+		}
 		// debug::DrawProfilerFlameGraph();
 
 		// Bottom panel
@@ -192,7 +199,10 @@ public:
 
 		// PerfPanel
 #if ENC_DEBUG
-		debug::DrawFrameStats(g_frameStats);
+		if(gameState.editor.bOpenPerformanceMonitor)
+		{
+			debug::DrawFrameStats(g_frameStats);
+		}
 #endif
 
 		// Rendering

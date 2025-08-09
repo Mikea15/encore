@@ -24,6 +24,12 @@ struct GameState
 		i32 height;
 	} window;
 
+	struct Editor
+	{
+		bool bOpenProfiler = true;
+		bool bOpenPerformanceMonitor = true;
+	} editor;
+
 	// Framebuffer for rendering the scene
 	GLuint framebuffer = 0;
 	GLuint colorTexture = 0;

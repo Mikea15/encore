@@ -9,7 +9,8 @@
 #include <thread>
 #include <algorithm>
 
-namespace editor {
+namespace editor 
+{
 	class ProfilerWindow
 	{
 	public:

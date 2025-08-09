@@ -388,7 +388,7 @@ private:
 	Stats stats;
 };
 
-struct Render2D
+struct Render2DInfo
 {
 	SpriteBatchRenderer renderer;
 	Camera2D camera;

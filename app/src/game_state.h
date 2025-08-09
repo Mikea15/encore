@@ -7,14 +7,20 @@
 #include <imgui/imgui.h>
 #include <GL/glew.h>
 
+enum eArenaTypes
+{
+	AT_GLOBAL = 0,
+	AT_COMPONENTS,
+	AT_FRAME,
+
+	AT_COUNT
+};
+
+
 struct GameState
 {
 	// Memory Arenas
-	Arena globalArena;
-	Arena componentsArena;
-	Arena enemiesArena;
-	Arena uiArena;
-	Arena frame;
+	Arena arenas[AT_COUNT];
 
 	// Window Handling
 	struct Window
@@ -47,3 +53,25 @@ struct GameState
 	// Global
 	bool bShowInGameImGui = true;
 };
+
+GameState CreateDefaultGameState()
+{
+	GameState gameState;
+	// Memory
+	gameState.arenas[AT_GLOBAL] = arena_create(KILOBYTES(24));
+	gameState.arenas[AT_COMPONENTS] = arena_create(KILOBYTES(30));
+	gameState.arenas[AT_FRAME] = arena_create(MEGABYTES(1));
+
+	// Default window settings.
+	gameState.window.width = 1280;
+	gameState.window.height = 720;
+	return gameState;
+}
+
+void ClearGameState(GameState& gameState)
+{
+	for(int i = 0; i < AT_COUNT; i++)
+	{
+		arena_destroy(&gameState.arenas[i]);
+	}
+}

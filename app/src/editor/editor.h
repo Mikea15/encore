@@ -20,7 +20,7 @@ namespace editor
 			: m_rGameState(rGameState)
 		{}
 
-		void Render(Render2D& render2D)
+		void Render(Render2DInfo& render2D)
 		{
 			PROFILE();
 

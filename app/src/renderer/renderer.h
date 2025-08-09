@@ -9,7 +9,7 @@
 #include "game_state.h"
 #include "renderer_sprite.h"
 
-class Renderer
+class RenderingEngine
 {
 public:
 	void CreateFramebuffer(GameState& gameState)
@@ -62,7 +62,7 @@ public:
 		}
 	}
 
-	void RenderFrame(GameState& gameState, Render2D& render2D)
+	void RenderFrame(GameState& gameState, Render2DInfo& render2D)
 	{
 		// Always render the scene once to the framebuffer
 		RenderScene(gameState, render2D);
@@ -108,7 +108,7 @@ public:
 		SDL_GL_SwapWindow(gameState.window.pWindow);
 	}
 
-	void RenderScene(GameState& gameState, Render2D& render2D)
+	void RenderScene(GameState& gameState, Render2DInfo& render2D)
 	{
 		PROFILE();
 
@@ -162,7 +162,7 @@ public:
 		ImGui::NewFrame();
 	}
 
-	void RenderImGui(GameState& gameState, Render2D& renderer)
+	void RenderImGui(GameState& gameState, Render2DInfo& renderer)
 	{
 		PROFILE();
 		if(!gameState.editor.bShowImGui) return;
@@ -192,11 +192,13 @@ public:
 			{
 				ImGui::MenuItem("Profiler", nullptr, &gameState.editor.bOpenProfiler);
 				ImGui::MenuItem("Performance Monitor", nullptr, &gameState.editor.bOpenPerformanceMonitor);
+				ImGui::MenuItem("Memory Monitor", nullptr, &gameState.editor.bOpenMemoryMonitor);
 
 				ImGui::EndMenu();
 			}
 			if(ImGui::BeginMenu("Help"))
 			{
+				ImGui::MenuItem("Toggle In-Game ImGui", nullptr, &gameState.bShowInGameImGui);
 				ImGui::MenuItem("Toggle ImGui", "TAB", &gameState.editor.bShowImGui);
 				ImGui::MenuItem("Demo Window", nullptr, &gameState.editor.bShowDemoWindow);
 
@@ -225,10 +227,12 @@ public:
 		ImGui::End();
 
 		// Right panel
-		debug::DrawMemoryStats(gameState.globalArena, "Global");
-		debug::DrawMemoryStats(gameState.componentsArena, "Components");
-		debug::DrawMemoryStats(gameState.enemiesArena, "Enemies");
-		debug::DrawMemoryStats(gameState.uiArena, "UI");
+		if(gameState.editor.bOpenMemoryMonitor)
+		{
+			debug::DrawMemoryStats(gameState.arenas[AT_GLOBAL], "Global");
+			debug::DrawMemoryStats(gameState.arenas[AT_COMPONENTS], "Components");
+			debug::DrawMemoryStats(gameState.arenas[AT_FRAME], "Frame");
+		}
 
 		// debug::DrawProfiler();
 		if(gameState.editor.bOpenProfiler)
@@ -303,6 +307,15 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	void ClearFramebuffer(GameState& gameState)
+	{
+		if(gameState.framebuffer)
+		{
+			glDeleteFramebuffers(1, &gameState.framebuffer);
+			glDeleteTextures(1, &gameState.colorTexture);
+			glDeleteTextures(1, &gameState.depthTexture);
+		}
+	}
 private:
 	editor::ProfilerWindow m_profilerWindow;
 

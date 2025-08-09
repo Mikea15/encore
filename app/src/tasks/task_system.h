@@ -157,10 +157,10 @@ namespace task {
 		std::vector<std::shared_ptr<TaskNode>> m_taskNodes;
 	};
 
-	class OptimizedTaskSystem
+	class TaskSchedulerSystem
 	{
 	public:
-		OptimizedTaskSystem(u32 numThreads = std::thread::hardware_concurrency())
+		TaskSchedulerSystem(u32 numThreads = std::thread::hardware_concurrency())
 			: m_threadPool(numThreads, "TaskWorker")
 		{}
 

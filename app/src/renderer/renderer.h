@@ -176,7 +176,7 @@ public:
 		debug::DrawMemoryStats(gameState.enemiesArena, "Enemies");
 		debug::DrawMemoryStats(gameState.uiArena, "UI");
 
-		debug::DrawProfiler();
+		// debug::DrawProfiler();
 		debug::DrawProfilerFlameGraph();
 
 		// Bottom panel

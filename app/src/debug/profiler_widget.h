@@ -132,7 +132,7 @@ namespace debug
 				std::vector<ThreadSafeProfiler::Entry> sortedEntries = entries;
 				std::sort(sortedEntries.begin(), sortedEntries.end(),
 					[](const ThreadSafeProfiler::Entry& a, const ThreadSafeProfiler::Entry& b) {
-						return a.duration > b.duration;
+						return a.threadId > b.threadId;
 					});
 
 				if(groupByThread && showAllThreads && threadGroups.size() > 1)
@@ -348,7 +348,7 @@ namespace debug
 		static std::thread::id selectedThreadId;
 		static bool hasSelectedThread = false;
 
-		if(!ImGui::Begin("Flame Graph"))
+		if(!ImGui::Begin("Profiler - FlameGraph"))
 		{
 			ImGui::End();
 			return;

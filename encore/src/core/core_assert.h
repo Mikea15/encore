@@ -6,6 +6,14 @@
 
 #include <crtdbg.h>
 
+#define COMPILE_DEMO 0
+
+#ifdef _MSC_VER
+#define ENC_FUNC_NAME __FUNCTION__
+#else
+#define ENC_FUNC_NAME __func__
+#endif
+
 #if ENC_DEBUG
 
 // Internal assert logging function
@@ -65,38 +73,38 @@ static bool _verify_impl(bool condition, const char* condition_str, const char* 
 
 // Public function interfaces
 #define Assert(condition) \
-    _assert_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+    _assert_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define AssertMsg(condition, message) \
-    _assert_impl(!!(condition), #condition, message, __FILE__, __LINE__, __FUNCTION__)
+    _assert_impl(!!(condition), #condition, message, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define Ensure(condition) \
-    _ensure_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+    _ensure_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define EnsureMsg(condition, message) \
-    _ensure_impl(!!(condition), #condition, message, __FILE__, __LINE__, __FUNCTION__)
+    _ensure_impl(!!(condition), #condition, message, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define Verify(condition) \
-    _verify_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+    _verify_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define VerifyMsg(condition, message) \
-    _verify_impl(!!(condition), #condition, message, __FILE__, __LINE__, __FUNCTION__)
+    _verify_impl(!!(condition), #condition, message, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 // Expression versions
 #define AssertExpr(condition) \
-    _assert_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+    _assert_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define EnsureExpr(condition) \
-    _ensure_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+    _ensure_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 #define VerifyExpr(condition) \
-    _verify_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+    _verify_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, ENC_FUNC_NAME)
 
 // Utility functions that return values for early returns
 #define AssertReturn(condition, return_value) \
     do { \
         if (!_assert_impl(!!(condition), #condition, "Returning: " #return_value, \
-                         __FILE__, __LINE__, __FUNCTION__)) { \
+                         __FILE__, __LINE__, ENC_FUNC_NAME)) { \
             return (return_value); \
         } \
     } while(0)
@@ -104,7 +112,7 @@ static bool _verify_impl(bool condition, const char* condition_str, const char* 
 #define EnsureReturn(condition, return_value) \
     do { \
         if (!_ensure_impl(!!(condition), #condition, "Returning: " #return_value, \
-                         __FILE__, __LINE__, __FUNCTION__)) { \
+                         __FILE__, __LINE__, ENC_FUNC_NAME)) { \
             return (return_value); \
         } \
     } while(0)
@@ -112,20 +120,38 @@ static bool _verify_impl(bool condition, const char* condition_str, const char* 
 #define VerifyReturn(condition, return_value) \
     do { \
         if (!_verify_impl(!!(condition), #condition, "Returning: " #return_value, \
-                         __FILE__, __LINE__, __FUNCTION__)) { \
+                         __FILE__, __LINE__, ENC_FUNC_NAME)) { \
             return (return_value); \
         } \
     } while(0)
 
-// Pure function versions (can be used in expressions)
-#define AssertExpr(condition) \
-    _assert_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
 
-#define EnsureExpr(condition) \
-    _ensure_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+#else // Release build - all functions become no-ops or pass-through
 
-#define VerifyExpr(condition) \
-    _verify_impl(!!(condition), #condition, NULL, __FILE__, __LINE__, __FUNCTION__)
+// Release versions that compile to nothing
+static inline bool _noop_true(bool condition, ...) { return true; }
+static inline bool _noop_condition(bool condition, ...) { return condition; }
+
+#define Assert(condition)               _noop_true(!!(condition))
+#define AssertMsg(condition, message)   _noop_true(!!(condition))
+#define Ensure(condition)               _noop_condition(!!(condition))
+#define EnsureMsg(condition, message)   _noop_condition(!!(condition))
+#define Verify(condition)               _noop_condition(!!(condition))
+#define VerifyMsg(condition, message)   _noop_condition(!!(condition))
+
+#define AssertReturn(condition, return_value) \
+    do { if (!(condition)) return (return_value); } while(0)
+#define EnsureReturn(condition, return_value) \
+    do { if (!(condition)) return (return_value); } while(0)
+#define VerifyReturn(condition, return_value) ((void)0)
+
+#define AssertExpr(condition) _noop_condition(!!(condition))
+#define EnsureExpr(condition) _noop_condition(!!(condition))
+#define VerifyExpr(condition) _noop_condition(!!(condition))
+
+#endif // ENC_DEBUG
+
+#if COMPILE_DEMO
 
 static void test_assert_system()
 {
@@ -163,33 +189,8 @@ static void test_assert_system()
 	AssertMsg(x > y, "This will break into debugger");  // Uncomment to test break
 }
 
-#else // Release build - all functions become no-ops or pass-through
-
-// Release versions that compile to nothing
-static inline bool _noop_true(bool condition, ...) { return true; }
-static inline bool _noop_condition(bool condition, ...) { return condition; }
-
-#define Assert(condition)               _noop_true(!!(condition))
-#define AssertMsg(condition, message)   _noop_true(!!(condition))
-#define Ensure(condition)               _noop_condition(!!(condition))
-#define EnsureMsg(condition, message)   _noop_condition(!!(condition))
-#define Verify(condition)               _noop_condition(!!(condition))
-#define VerifyMsg(condition, message)   _noop_condition(!!(condition))
-
-#define AssertReturn(condition, return_value) \
-    do { if (!(condition)) return (return_value); } while(0)
-#define EnsureReturn(condition, return_value) \
-    do { if (!(condition)) return (return_value); } while(0)
-#define VerifyReturn(condition, return_value) ((void)0)
-
-#define AssertExpr(condition) _noop_condition(!!(condition))
-#define EnsureExpr(condition) _noop_condition(!!(condition))
-#define VerifyExpr(condition) _noop_condition(!!(condition))
-
-#endif // ENC_DEBUG
-
 // Example function demonstrating usage
-int divide_safe(int numerator, int denominator)
+int DivideSafe(int numerator, int denominator)
 {
 	// ASSERT: Critical condition that should never happen
 	AssertMsg(denominator != 0, "Division by zero is not allowed");
@@ -202,3 +203,4 @@ int divide_safe(int numerator, int denominator)
 
 	return numerator / denominator;
 }
+#endif

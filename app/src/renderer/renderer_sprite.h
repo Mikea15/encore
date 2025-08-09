@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <entity/entity.h>
 
 class SpriteBatchRenderer
 {
@@ -392,5 +393,5 @@ struct Render2DInfo
 {
 	SpriteBatchRenderer renderer;
 	Camera2D camera;
-	std::vector<Sprite> sprites;
+	std::vector<Entity> entities;
 };

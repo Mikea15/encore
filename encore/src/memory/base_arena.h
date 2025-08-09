@@ -2,6 +2,8 @@
 
 #include "core/core_minimal.h"
 
+#include <stdlib.h>
+
 #define INC_DEMO 0
 
 typedef struct Arena

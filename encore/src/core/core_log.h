@@ -229,11 +229,11 @@ static void LogCloseFile(void)
 }
 
 // Convenience macros
-#define LOG_TRACE(format, ...)   Log(LOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
-#define LOG_INFO(format, ...)    Log(LOG_LEVEL_INFO, __FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
-#define LOG_WARNING(format, ...) Log(LOG_LEVEL_WARNING, __FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
-#define LOG_ERROR(format, ...)   Log(LOG_LEVEL_ERROR, __FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
-#define LOG_FATAL(format, ...)   Log(LOG_LEVEL_FATAL, __FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
+#define LOG_TRACE(format, ...)   Log(LOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__)
+#define LOG_INFO(format, ...)    Log(LOG_LEVEL_INFO, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__)
+#define LOG_WARNING(format, ...) Log(LOG_LEVEL_WARNING, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__)
+#define LOG_ERROR(format, ...)   Log(LOG_LEVEL_ERROR, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__)
+#define LOG_FATAL(format, ...)   Log(LOG_LEVEL_FATAL, __FILE__, __LINE__, __FUNCTION__, format, ##__VA_ARGS__)
 
 // Macros without variadic arguments (for single string messages)
 #define LOG_TRACE_STR(message)   Log(LOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, "%s", message)

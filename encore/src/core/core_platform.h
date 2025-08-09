@@ -12,12 +12,8 @@
 #define ENC_RELEASE 0
 #endif
 
-extern "C" // Ensures C linkage - prevents C++ name mangling
+extern "C"
 {
-	// Tells NVIDIA driver to use the dedicated GPU for this application
-	__declspec(dllexport) // Exports this symbol so the NVIDIA driver can see it
-		unsigned long NvOptimusEnablement = 0x00000001; // Setting to 1 enables dedicated GPU
-
-	__declspec(dllexport)
-		int AmdPowerXpressRequestHighPerformance = 1;
+	__declspec(dllexport) extern unsigned long NvOptimusEnablement;
+	__declspec(dllexport) extern int AmdPowerXpressRequestHighPerformance;
 }

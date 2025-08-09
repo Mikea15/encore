@@ -3,6 +3,8 @@
 #include "core/core_minimal.h"
 #include "base_arena.h"
 
+#define COMPILE_DEMO 0
+
 template<typename T>
 class Pool
 {
@@ -129,6 +131,7 @@ private:
     void Type::Free(Type* item) { pool.Free(item); } \
     bool Type::Init(Arena* arena) { return pool.Init(arena, Cap); }
 
+#if COMPILE_DEMO
 // Example usage
 struct Particle
 {
@@ -188,3 +191,5 @@ void test_pool(Arena* arena)
 		printf("Particle at x=%.0f, lifetime=%.1f\n", particle.x, particle.lifetime);
 	}
 }
+
+#endif

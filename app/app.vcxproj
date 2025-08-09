@@ -171,11 +171,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <CreateHotPatchableImage>Enabled</CreateHotPatchableImage>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -230,6 +233,8 @@
     <ClInclude Include="src\debug\renderer_widget.h" />
     <ClInclude Include="src\entity\CEntity.h" />
     <ClInclude Include="src\game_state.h" />
+    <ClInclude Include="src\globals.h" />
+    <ClInclude Include="src\integrations\livepp_handler.h" />
     <ClInclude Include="src\profiler\profiler.h" />
     <ClInclude Include="src\renderer\frame_stats.h" />
     <ClInclude Include="src\renderer\render2d_camera.h" />

@@ -1,4 +1,5 @@
 #include "core/core_minimal.h"
+#include "globals.h"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
@@ -28,7 +29,116 @@
 #include "renderer/renderer_sprite.h"
 
 #include "game_state.h"
-#include <tasks/task_system.h>
+#include "tasks/task_system.h"
+
+#include "integrations/livepp_handler.h"
+
+namespace StubWorkload 
+{
+	void math_workload(int iterations)
+	{
+		volatile double result = 1.0;
+		for(int i = 0; i < iterations; i++)
+		{
+			result = sin(result) * cos(result) + sqrt(fabs(result));
+			result = fmod(result, 100.0) + 1.0; // Keep result bounded
+		}
+	}
+
+	// 2. Memory allocation and manipulation
+	void memory_workload(int size_kb)
+	{
+		char* buffer = (char*)malloc(size_kb * 1024);
+		if(!buffer) return;
+
+		// Write pattern to memory
+		for(int i = 0; i < size_kb * 1024; i++)
+		{
+			buffer[i] = (char)(i % 256);
+		}
+
+		// Read back and modify
+		volatile int checksum = 0;
+		for(int i = 0; i < size_kb * 1024; i++)
+		{
+			checksum += buffer[i];
+			buffer[i] ^= 0xAA;
+		}
+
+		free(buffer);
+	}
+
+	// 3. String processing workload
+	void string_workload(int string_count)
+	{
+		char temp[256];
+		volatile int total_len = 0;
+
+		for(int i = 0; i < string_count; i++)
+		{
+			snprintf(temp, sizeof(temp), "Processing string number %d with data", i);
+
+			// Simulate string operations
+			int len = strlen(temp);
+			for(int j = 0; j < len; j++)
+			{
+				temp[j] = (temp[j] >= 'a' && temp[j] <= 'z') ? temp[j] - 32 : temp[j];
+			}
+			total_len += len;
+		}
+	}
+
+	// 4. Array sorting workload
+	void sorting_workload(int array_size)
+	{
+		int* arr = (int*)malloc(array_size * sizeof(int));
+		if(!arr) return;
+
+		// Fill with random-ish data
+		for(int i = 0; i < array_size; i++)
+		{
+			arr[i] = (i * 17 + 23) % 1000;
+		}
+
+		// Simple bubble sort (intentionally inefficient for CPU load)
+		for(int i = 0; i < array_size - 1; i++)
+		{
+			for(int j = 0; j < array_size - i - 1; j++)
+			{
+				if(arr[j] > arr[j + 1])
+				{
+					int temp = arr[j];
+					arr[j] = arr[j + 1];
+					arr[j + 1] = temp;
+				}
+			}
+		}
+
+		free(arr);
+	}
+
+	// 5. Hash computation workload
+	void hash_workload(int iterations)
+	{
+		volatile unsigned int hash = 5381;
+		char data[64];
+
+		for(int i = 0; i < iterations; i++)
+		{
+			snprintf(data, sizeof(data), "hash_data_%d_iteration", i);
+
+			// Simple hash computation (djb2 algorithm)
+			hash = 5381;
+			for(int j = 0; data[j]; j++)
+			{
+				hash = ((hash << 5) + hash) + data[j];
+			}
+
+			// Use hash to prevent optimization
+			hash = hash ^ (hash >> 16);
+		}
+	}
+}
 
 struct GraphicsComponent
 {
@@ -43,6 +153,11 @@ IMPLEMENT_POOL(GraphicsComponent, 500);
 
 i32 main(i32 argc, char* argv[])
 {
+#ifdef USE_LPP
+	LivePPHandler lppHandler;
+	lppHandler.InitSynchedAgent();
+#endif
+
 	GameState gameState;
 	// Memory
 	gameState.globalArena = arena_create(KB(24));
@@ -136,38 +251,16 @@ i32 main(i32 argc, char* argv[])
 	Render2D render2D;
 	render2D.renderer.Init();
 
-	constexpr u8 taskNumThreads = 3;
 	task::OptimizedTaskSystem opTaskSystem2;
 	{
-		auto t1 = opTaskSystem2.CreateTask("Task1", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(15));
-			});
-		auto t2 = opTaskSystem2.CreateTask("Task2", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(20));
-			});
-		auto t3 = opTaskSystem2.CreateTask("Task3", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(30));
-			});
-		opTaskSystem2.CreateTask("Task3.1", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(30));
-			});
-		opTaskSystem2.CreateTask("Task4", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(30));
-			});
-		opTaskSystem2.CreateTask("Task5", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(30));
-			});
-		auto t6 = opTaskSystem2.CreateTask("Task6", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(30));
-			});
-		t3->AddDependency(t6);
-		opTaskSystem2.CreateTask("Task7", []() {
-			std::this_thread::sleep_for(std::chrono::microseconds(30));
-			});
-		auto task = opTaskSystem2.CreateTask("FinalTask", []() { LOG_INFO("FinalTask"); });
-		t2->AddDependency(t3);
-		task->AddDependency(t1);
-		task->AddDependency(t2);
+		for(int i = 0; i < 1000; i++)
+		{
+			char buff[40];
+			sprintf_s(buff, "Task %d", i);;
+			opTaskSystem2.CreateTask(buff, []() { 
+				const u32 randWorkLoad = (rand() % 5000) + 250;
+				StubWorkload::math_workload(randWorkLoad); });
+		}
 
 		opTaskSystem2.CreateExecutionPlan();
 	}
@@ -200,6 +293,13 @@ i32 main(i32 argc, char* argv[])
 	bool bGameRunning = true;
 	while (bGameRunning)
 	{
+#ifdef USE_LPP
+		{
+			PROFILE_SCOPE("LPP_SyncPoint");
+			lppHandler.SyncPoint();
+		}
+#endif
+
 		PROFILE_FRAME_START_ALL_THREADS();
 
 		// Calculate delta time
@@ -212,7 +312,7 @@ i32 main(i32 argc, char* argv[])
 
 		// EVENT BASED INPUT
 		{
-			PROFILE_SCOPE("Input");
+			PROFILE_SCOPE("Input3");
 
 			SDL_Event event;
 			while (SDL_PollEvent(&event))
@@ -370,6 +470,10 @@ i32 main(i32 argc, char* argv[])
 		glDeleteTextures(1, &gameState.colorTexture);
 		glDeleteTextures(1, &gameState.depthTexture);
 	}
+
+#ifdef USE_LPP
+	lppHandler.Clear();
+#endif
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplSDL2_Shutdown();

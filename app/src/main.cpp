@@ -414,58 +414,9 @@ i32 main(i32 argc, char* argv[])
 		// RENDER
 		{
 			PROFILE_SCOPE("Render Frame");
-
-			// render ui
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplSDL2_NewFrame();
-			ImGui::NewFrame();
-
-			// Always render the scene once to the framebuffer
-			renderer.RenderScene(gameState, render2D);
-
-			if (gameState.editor.bShowImGui)
-			{
-				// In editor mode: display the texture in ImGui
-				renderer.RenderImGui(gameState, render2D);
-			}
-			else
-			{
-#if ENC_DEBUG
-				debug::DrawFrameStatsCompact(g_frameStats);
-#endif
-
-				// In fullscreen mode: blit the framebuffer to screen
-				renderer.BlitFramebufferToScreen(gameState);
-			}
-
-			ImGui::Render();
-			//~render ui
-
-			if (gameState.editor.bShowImGui)
-			{
-				// Clear the screen and render ImGui
-				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(0, 0, gameState.window.width, gameState.window.height);
-				glClearColor(sin(timeNow), cos(timeNow), 0.3f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT);
-			}
-
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-			// Update and Render additional Platform Windows
-			if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-			{
-				SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-				SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-				ImGui::UpdatePlatformWindows();
-				ImGui::RenderPlatformWindowsDefault();
-				SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
-			}
-
-			SDL_GL_SwapWindow(gameState.window.pWindow);
-			//~RENDER
+			renderer.RenderFrame(gameState, render2D);
 		}
+		//~RENDER
 
 		ARENA_RESET(&gameState.frame);
 	}

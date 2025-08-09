@@ -1,23 +1,23 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include <string>
+#include "utils/string_factory.h"
 
 namespace utils
 {
-	static std::string FormatDuration(u64 duration, bool bShowMicroseconds)
+	static const char* FormatDuration(u64 duration, bool bShowMicroseconds)
 	{
 		if(bShowMicroseconds)
 		{
 			if(duration >= SEC_TO_US(1)) // >= 1 second
-				return std::to_string(US_TO_SEC(duration)) + " s";
+				return StringFactory::Format("%d s", (US_TO_SEC(duration)));
 			
 			if(duration >= SEC_TO_MS(1)) // >= 1 ms
-				return std::to_string(US_TO_MS(duration)) + " ms";
+				return StringFactory::Format("%d ms", (US_TO_MS(duration)));
 			
-			return std::to_string(duration) + " us";
+			return StringFactory::Format("%d us", (duration));
 		}
 
-		return std::to_string(US_TO_MS(duration)) + " ms";
+		return StringFactory::Format("%d ms", (US_TO_MS(duration)));
 	}
 }

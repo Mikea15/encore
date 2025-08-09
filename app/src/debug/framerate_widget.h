@@ -2,6 +2,9 @@
 
 #include "core/core_minimal.h"
 #include "imgui/imgui.h"
+#include "utils/string_factory.h"
+
+#include "game_state.h"
 
 #include <algorithm>
 
@@ -9,7 +12,7 @@
 
 namespace debug
 {
-	inline void DrawFrameStats(FrameStats& stats)
+	inline void DrawFrameStats(GameState& gameState, FrameStats& stats)
 	{
 		if (ImGui::Begin("Performance Monitor"))
 		{
@@ -23,24 +26,18 @@ namespace debug
 
 			// Frame time graph
 			{
-				char buff[20];
-				sprintf_s(buff, "%.1f ms", stats.pFrameTimes[index]);
-
+				const char* str = StringFactory::Format("%.1f ms", stats.pFrameTimes[index]);
 				ImGui::Text("Frame Time Graph (ms):");
-				ImGui::PlotLines("##frametime", stats.pFrameTimes, stats.sampleCount,
-				                 0, buff, 0.0f, 50.0f, // Max ms scale
-				                 ImVec2(-1, 80));
+				ImGui::PlotLines("##frametime", stats.pFrameTimes, stats.sampleCount, 0, 
+					str, 0.0f, 50.0f, // Max ms scale
+					ImVec2(-1, 80));
 			}
 			{
-				char buff[20];
-				(void)sprintf_s(buff, "%.1f fps", stats.pFramesPerSecond[index]);
-
+				const char* str = StringFactory::Format("%.1f fps", stats.pFramesPerSecond[index]);
 				ImGui::Text("FPS Graph:");
-				ImGui::PlotLines("##fps",
-				                 stats.pFramesPerSecond,
-				                 static_cast<i32>(stats.sampleCount),
-				                 0, buff, 0.0f, 240.0f, // Max FPS scale
-				                 ImVec2(-1, 80));
+				ImGui::PlotLines("##fps", stats.pFramesPerSecond, static_cast<i32>(stats.sampleCount), 0, 
+					str, 0.0f, 240.0f, // Max FPS scale
+					ImVec2(-1, 80));
 			}
 		}
 		ImGui::End();

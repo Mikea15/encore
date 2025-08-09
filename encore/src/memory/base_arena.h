@@ -2,6 +2,8 @@
 
 #include "core/core_minimal.h"
 
+#define INC_DEMO 0
+
 typedef struct Arena
 {
 	u8* memory;        // Pointer to the memory block
@@ -87,6 +89,7 @@ static inline void* arena_alloc_aligned(Arena* arena, u32 size, u32 alignment)
 {
 	if(!arena_is_valid(arena) || size == 0)
 	{
+		LOG_ERROR("Arena not valid");
 		return nullptr;
 	}
 
@@ -96,6 +99,7 @@ static inline void* arena_alloc_aligned(Arena* arena, u32 size, u32 alignment)
 	// Check if we have enough space
 	if(aligned_offset + size > arena->size)
 	{
+		LOG_ERROR("Arena full - Check Allocation. Used: %u - Free: %u", arena_used(arena), arena_remaining(arena));
 		return nullptr; // Out of memory
 	}
 
@@ -174,11 +178,13 @@ static inline char* arena_sprintf(Arena* arena, const char* format, ...)
 	i32 size = vsnprintf(nullptr, 0, format, args);
 	va_end(args);
 
-	if(size < 0) return nullptr;
+	if(size < 0) 
+		return nullptr;
 
 	// Allocate memory
 	char* buffer = (char*)arena_alloc(arena, size + 1);
-	if(!buffer) return nullptr;
+	if(!buffer) 
+		return nullptr;
 
 	// Second pass: format the string
 	va_start(args, format);
@@ -186,6 +192,24 @@ static inline char* arena_sprintf(Arena* arena, const char* format, ...)
 	va_end(args);
 
 	return buffer;
+}
+
+static inline char* arena_vsprintf(Arena* arena, const char* format, va_list args)
+{
+	va_list argsCopy;
+	va_copy(argsCopy, args);
+	i32 size = vsnprintf(nullptr, 0, format, argsCopy);
+	va_end(argsCopy);
+
+	if(size < 0) 
+		return nullptr;
+
+	char* pBuffer = (char*)arena_alloc(arena, size + 1);
+	if(!pBuffer) 
+		return nullptr;
+
+	vsnprintf(pBuffer, size + 1, format, args);
+	return pBuffer;
 }
 
 // Save current arena state for temporary allocations
@@ -204,6 +228,12 @@ static inline void arena_restore(Arena* arena, u32 saved_offset)
 		arena->offset = saved_offset;
 	}
 }
+
+#define ARENA_SAVE(arena) \
+	const u32 __arena_save_offset = arena_save(arena)
+
+#define ARENA_RESET(arena) \
+	arena_restore(arena, __arena_save_offset)
 
 // Convenience macro for temporary allocations
 #define ARENA_TEMP_SCOPE(arena) \
@@ -244,6 +274,8 @@ static inline void arena_print_stats(const Arena* arena, const char* name)
 		stats.freeBytes, (f32)BYTES_TO_KB(stats.freeBytes));
 	printf("  Utilization: %.1f%%\n", stats.usageRatio);
 }
+
+#ifdef INC_DEMO
 
 // Example structure
 typedef struct Person
@@ -376,3 +408,5 @@ static void example_stack_arena(void)
 
 	// No need to call arena_destroy() for stack-based arenas
 }
+
+#endif // INC_DEMO

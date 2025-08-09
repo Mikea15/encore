@@ -9,11 +9,14 @@
 
 struct GameState
 {
+	// Memory Arenas
 	Arena globalArena;
 	Arena componentsArena;
 	Arena enemiesArena;
 	Arena uiArena;
+	Arena frame;
 
+	// Window Handling
 	struct Window
 	{
 		SDL_Window* pWindow;
@@ -24,21 +27,23 @@ struct GameState
 		i32 height;
 	} window;
 
+	// Editor Tools
 	struct Editor
 	{
 		bool bOpenProfiler = true;
 		bool bOpenPerformanceMonitor = true;
+		bool bOpenMemoryMonitor = true;
+		bool bShowImGui = true;
+		bool bShowDemoWindow = false;
 	} editor;
 
-	// Framebuffer for rendering the scene
+	// Rendering
 	GLuint framebuffer = 0;
 	GLuint colorTexture = 0;
 	GLuint depthTexture = 0;
 	i32 framebufferWidth = 800;
 	i32 framebufferHeight = 600;
 
-	float time = 0.0f;
-
-	bool bShowImgui = true;
-	bool bShowDemoWindow = false;
+	// Global
+	bool bShowInGameImGui = true;
 };

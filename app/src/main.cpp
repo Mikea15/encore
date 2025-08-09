@@ -33,8 +33,7 @@
 
 #include "integrations/livepp_handler.h"
 
-namespace StubWorkload 
-{
+namespace StubWorkload {
 	void math_workload(int iterations)
 	{
 		volatile double result = 1.0;
@@ -160,16 +159,19 @@ i32 main(i32 argc, char* argv[])
 
 	GameState gameState;
 	// Memory
-	gameState.globalArena = arena_create(KB(24));
-	gameState.componentsArena = arena_create(KB(30));
-	gameState.enemiesArena = arena_create(MB(3));
-	gameState.uiArena = arena_create(MB(2));
+	gameState.globalArena = arena_create(KILOBYTES(24));
+	gameState.componentsArena = arena_create(KILOBYTES(30));
+	gameState.enemiesArena = arena_create(MEGABYTES(3));
+	gameState.uiArena = arena_create(MEGABYTES(2));
+	gameState.frame = arena_create(MEGABYTES(1));
+
+	StringFactory::Init(&gameState.frame);
 
 	gameState.window.width = 1280;
 	gameState.window.height = 720;
 
 	// Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
 	{
 		LOG_ERROR("Failed to SDL_Init");
 		return -1;
@@ -177,9 +179,9 @@ i32 main(i32 argc, char* argv[])
 
 	// Create window with SDL renderer
 	gameState.window.pWindow = SDL_CreateWindow("Encore", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-	                                            gameState.window.width, gameState.window.height,
-	                                            SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-	if (!gameState.window.pWindow)
+		gameState.window.width, gameState.window.height,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	if(!gameState.window.pWindow)
 	{
 		LOG_ERROR("Could not Create Window");
 		return -1;
@@ -194,7 +196,7 @@ i32 main(i32 argc, char* argv[])
 	ImGui::StyleColorsDark();
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
@@ -255,9 +257,8 @@ i32 main(i32 argc, char* argv[])
 	{
 		for(int i = 0; i < 1000; i++)
 		{
-			char buff[40];
-			sprintf_s(buff, "Task %d", i);;
-			opTaskSystem2.CreateTask(buff, []() { 
+			const char* str = StringFactory::Format("Task %d", i);
+			opTaskSystem2.CreateTask(str, []() {
 				const u32 randWorkLoad = (rand() % 5000) + 250;
 				StubWorkload::math_workload(randWorkLoad); });
 		}
@@ -268,14 +269,14 @@ i32 main(i32 argc, char* argv[])
 	// Init Renderer
 	{
 		// Create some test sprites
-		for (int i = 0; i < 10000; ++i)
+		for(int i = 0; i < 10000; ++i)
 		{
 			Sprite sprite;
 			sprite.position = {
 				(rand() % 2000) - 1000.0f, // Random X: -1000 to 1000
 				(rand() % 2000) - 1000.0f // Random Y: -1000 to 1000
 			};
-			sprite.size = {(rand() % 32) + 1.0f, (rand() % 32) + 1.0f};
+			sprite.size = { (rand() % 32) + 1.0f, (rand() % 32) + 1.0f };
 			sprite.color = {
 				(rand() % 255) / 255.0f, // Random color
 				(rand() % 255) / 255.0f,
@@ -291,7 +292,7 @@ i32 main(i32 argc, char* argv[])
 
 	// Main Loop
 	bool bGameRunning = true;
-	while (bGameRunning)
+	while(bGameRunning)
 	{
 #ifdef USE_LPP
 		{
@@ -302,47 +303,50 @@ i32 main(i32 argc, char* argv[])
 
 		PROFILE_FRAME_START_ALL_THREADS();
 
+		// Reset Frame Arena
+		ARENA_SAVE(&gameState.frame);
+
 		// Calculate delta time
 		const f32 timeNow = SDL_GetTicks64() / 1000.0f;
 		deltaTime = static_cast<f32>(timeNow - lastUpdate);
 		lastUpdate = timeNow;
 
 		// INPUT
-		Vec2 camMovementInput = {0.0f, 0.0f};
+		Vec2 camMovementInput = { 0.0f, 0.0f };
 
 		// EVENT BASED INPUT
 		{
 			PROFILE_SCOPE("Input3");
 
 			SDL_Event event;
-			while (SDL_PollEvent(&event))
+			while(SDL_PollEvent(&event))
 			{
 				// Handle Input
 				ImGui_ImplSDL2_ProcessEvent(&event);
 
-				switch (event.type)
+				switch(event.type)
 				{
 				case SDL_QUIT:
 					bGameRunning = false;
 					break;
 				case SDL_WINDOWEVENT:
-					if (event.window.event == SDL_WINDOWEVENT_CLOSE
+					if(event.window.event == SDL_WINDOWEVENT_CLOSE
 						&& event.window.windowID == SDL_GetWindowID(gameState.window.pWindow))
 					{
 						bGameRunning = false;
 					}
-					if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+					if(event.window.event == SDL_WINDOWEVENT_RESIZED)
 					{
 						gameState.window.width = event.window.data1;
 						gameState.window.height = event.window.data2;
 					}
 					break;
 				case SDL_KEYDOWN:
-					if (event.key.keysym.sym == SDLK_TAB)
+					if(event.key.keysym.sym == SDLK_TAB)
 					{
-						gameState.bShowImgui = !gameState.bShowImgui;
+						gameState.editor.bShowImGui = !gameState.editor.bShowImGui;
 					}
-					if (event.key.keysym.sym == SDLK_ESCAPE)
+					if(event.key.keysym.sym == SDLK_ESCAPE)
 					{
 						bGameRunning = false;
 					}
@@ -354,21 +358,21 @@ i32 main(i32 argc, char* argv[])
 			// REALTIME INPUT
 			const u8* keyboardState = SDL_GetKeyboardState(nullptr);
 
-			if (keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
-			if (keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
-			if (keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
-			if (keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
+			if(keyboardState[SDL_SCANCODE_A]) { camMovementInput.x = 1.0f; }
+			if(keyboardState[SDL_SCANCODE_D]) { camMovementInput.x = -1.0f; }
+			if(keyboardState[SDL_SCANCODE_S]) { camMovementInput.y = 1.0f; }
+			if(keyboardState[SDL_SCANCODE_W]) { camMovementInput.y = -1.0f; }
 
-			if (keyboardState[SDL_SCANCODE_Q])
+			if(keyboardState[SDL_SCANCODE_Q])
 			{
 				render2D.camera.zoom = std::min(100.0f, render2D.camera.zoom + 1.0f * deltaTime);
 			}
-			if (keyboardState[SDL_SCANCODE_E])
+			if(keyboardState[SDL_SCANCODE_E])
 			{
 				render2D.camera.zoom = std::max(0.1f, render2D.camera.zoom - 1.0f * deltaTime);
 			}
 
-			if (camMovementInput != Vec2(0.0f, 0.0f))
+			if(camMovementInput != Vec2(0.0f, 0.0f))
 			{
 				camMovementInput = glm::normalize(camMovementInput);
 			}
@@ -391,7 +395,7 @@ i32 main(i32 argc, char* argv[])
 #endif
 
 			// Rotate Sprites
-			for (u32 i = 0; i < render2D.sprites.size(); ++i)
+			for(u32 i = 0; i < render2D.sprites.size(); ++i)
 			{
 				render2D.sprites[i].rotation += deltaTime * rand() * 0.03f;
 			}
@@ -401,7 +405,7 @@ i32 main(i32 argc, char* argv[])
 
 				Vec2 targetVelocity = camMovementInput * cameraSpeed;
 				render2D.camera.cameraVelocity = glm::mix(render2D.camera.cameraVelocity, targetVelocity,
-				                                          render2D.camera.cameraDamping * deltaTime);
+					render2D.camera.cameraDamping * deltaTime);
 				render2D.camera.position += render2D.camera.cameraVelocity * deltaTime;
 			}
 		}
@@ -450,7 +454,7 @@ i32 main(i32 argc, char* argv[])
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			// Update and Render additional Platform Windows
-			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+			if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 			{
 				SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
 				SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
@@ -462,9 +466,11 @@ i32 main(i32 argc, char* argv[])
 			SDL_GL_SwapWindow(gameState.window.pWindow);
 			//~RENDER
 		}
+
+		ARENA_RESET(&gameState.frame);
 	}
 
-	if (gameState.framebuffer)
+	if(gameState.framebuffer)
 	{
 		glDeleteFramebuffers(1, &gameState.framebuffer);
 		glDeleteTextures(1, &gameState.colorTexture);
@@ -489,6 +495,7 @@ i32 main(i32 argc, char* argv[])
 	arena_destroy(&gameState.componentsArena);
 	arena_destroy(&gameState.enemiesArena);
 	arena_destroy(&gameState.uiArena);
+	arena_destroy(&gameState.frame);
 
 	SDL_Quit();
 

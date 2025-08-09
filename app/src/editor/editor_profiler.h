@@ -4,6 +4,7 @@
 #include "debug/extension_imgui.h"
 #include "imgui/imgui.h"
 #include "profiler/profiler.h"
+#include "utils/string_factory.h"
 #include "utils/utils_time.h"
 
 #include <thread>
@@ -14,7 +15,7 @@ namespace editor
 	class ProfilerWindow
 	{
 	public:
-		void DrawProfilerFlameGraph()
+		void DrawProfilerFlameGraph(const GameState& gameState)
 		{
 			if(ImGui::Begin("Profiler - FlameGraph"))
 			{
@@ -188,11 +189,10 @@ namespace editor
 						const u64 threadDuration = threadDurations[threadId];
 						std::string threadLabel = g_profiler.GetThreadName(threadId);
 
-						char buff[80];
-						sprintf_s(buff, "T: %s - Duration: %s", threadLabel.c_str(), utils::FormatDuration(threadDuration, true).c_str());
+						const char* threadInfoStr = StringFactory::Format("T: %s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
 
 						ImU32 threadLabelColor = ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 160);
-						pDrawList->AddText(ImVec2(canvas_p0.x + m_Options.sideMargin, currentY), threadLabelColor, buff);
+						pDrawList->AddText(ImVec2(canvas_p0.x + m_Options.sideMargin, currentY), threadLabelColor, threadInfoStr);
 						currentY += 20.0f;
 
 						for(auto& entry : entries)
@@ -385,7 +385,7 @@ namespace editor
 			ImGui::Text("Thread: %s", g_profiler.GetThreadName(pEntry->threadId).c_str());
 			ImGui::Text("Task: %s", pEntry->section.c_str());
 			ImGui::Text("Duration: %s | %.2f%%", 
-				utils::FormatDuration(pEntry->duration, bShowMicroseconds).c_str(),
+				utils::FormatDuration(pEntry->duration, bShowMicroseconds),
 				totalDuration > 0 ? (float)pEntry->duration / totalDuration * 100.0f : 0.0f);
 			ImGui::EndTooltip();
 		}

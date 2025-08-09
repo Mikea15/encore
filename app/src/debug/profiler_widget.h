@@ -176,11 +176,9 @@ namespace debug
 							ImGui::Text("%s", g_profiler.GetThreadName(entry.threadId).c_str());
 
 							ImGui::TableNextColumn();
-							char buff[32];
-							sprintf_s(buff, "%.3f ms", NS_TO_MS((f32)entry.duration));
-
-							float percentage = totalTime > 0 ? (float)entry.duration / totalTime : 0.0f;
-							ImGui::UsageProgressBar(buff, percentage, ImVec2(-1.0f, 15.0f));
+							const char* str = StringFactory::Format("%.3f ms", NS_TO_MS((f32)entry.duration));
+							const float percentage = totalTime > 0 ? (float)entry.duration / totalTime : 0.0f;
+							ImGui::UsageProgressBar(str, percentage, ImVec2(-1.0f, 15.0f));
 						}
 					}
 				}
@@ -203,11 +201,10 @@ namespace debug
 						}
 
 						ImGui::TableNextColumn();
-						char buff[32];
-						sprintf_s(buff, "%.3f ms", NS_TO_MS((f32)entry.duration));
 
-						float percentage = totalTime > 0 ? (float)entry.duration / totalTime : 0.0f;
-						ImGui::UsageProgressBar(buff, percentage, ImVec2(-1.0f, 15.0f));
+						const char* str = StringFactory::Format("%.3f ms", NS_TO_MS((f32)entry.duration));
+						const float percentage = totalTime > 0 ? (float)entry.duration / totalTime : 0.0f;
+						ImGui::UsageProgressBar(str, percentage, ImVec2(-1.0f, 15.0f));
 					}
 				}
 

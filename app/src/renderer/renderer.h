@@ -64,31 +64,27 @@ public:
 
 	void RenderFrame(GameState& gameState, Render2D& render2D)
 	{
-		// render ui
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
-
 		// Always render the scene once to the framebuffer
 		RenderScene(gameState, render2D);
+
+		// Setup ImGui Rendering Frame
+		RenderImGuiStart();
 
 		if(gameState.editor.bShowImGui)
 		{
 			// In editor mode: display the texture in ImGui
 			RenderImGui(gameState, render2D);
 		}
-		else
+		
+		if(gameState.bShowInGameImGui)
 		{
 #if ENC_DEBUG
 			debug::DrawFrameStatsCompact(g_frameStats);
 #endif
-
-			// In fullscreen mode: blit the framebuffer to screen
-			BlitFramebufferToScreen(gameState);
 		}
-
+		
+		// Prepare ImGui for Rendering
 		ImGui::Render();
-		//~render ui
 
 		if(gameState.editor.bShowImGui)
 		{
@@ -99,19 +95,16 @@ public:
 			glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
-
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		// Update and Render additional Platform Windows
-		if(ImGuiIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		else
 		{
-			SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
-			SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+			// In fullscreen mode: blit the framebuffer to screen
+			BlitFramebufferToScreen(gameState);
 		}
 
+		// Draw ImGui on Top
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		// Swap Buffers
 		SDL_GL_SwapWindow(gameState.window.pWindow);
 	}
 
@@ -160,6 +153,13 @@ public:
 
 		// Reset viewport to window size for final presentation
 		glViewport(0, 0, gameState.window.width, gameState.window.height);
+	}
+
+	inline void RenderImGuiStart()
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
 	}
 
 	void RenderImGui(GameState& gameState, Render2D& renderer)

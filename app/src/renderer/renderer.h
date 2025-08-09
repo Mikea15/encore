@@ -67,7 +67,7 @@ public:
 		PROFILE();
 
 		// In full screen mode, determine the proper size for the framebuffer
-		if(!gameState.bShowImgui)
+		if(!gameState.editor.bShowImGui)
 		{
 			SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
 			ResizeFramebuffer(gameState, gameState.window.width, gameState.window.height);
@@ -112,7 +112,7 @@ public:
 	void RenderImGui(GameState& gameState, Render2D& renderer)
 	{
 		PROFILE();
-		if(!gameState.bShowImgui) return;
+		if(!gameState.editor.bShowImGui) return;
 
 		// Create a fullscreen dockspace
 		ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -144,8 +144,8 @@ public:
 			}
 			if(ImGui::BeginMenu("Help"))
 			{
-				ImGui::MenuItem("Toggle ImGui", "TAB", &gameState.bShowImgui);
-				ImGui::MenuItem("Demo Window", nullptr, &gameState.bShowDemoWindow);
+				ImGui::MenuItem("Toggle ImGui", "TAB", &gameState.editor.bShowImGui);
+				ImGui::MenuItem("Demo Window", nullptr, &gameState.editor.bShowDemoWindow);
 
 				ImGui::Text("TAB: Toggle Editor Mode");
 				ImGui::Text("ESC: Exit application");
@@ -169,10 +169,6 @@ public:
 		ImGui::Text("Controls:");
 		ImGui::BulletText("F1: Toggle UI");
 		ImGui::BulletText("ESC: Exit");
-		if(ImGui::Button("Reset Time"))
-		{
-			gameState.time = 0.0f;
-		}
 		ImGui::End();
 
 		// Right panel
@@ -184,7 +180,7 @@ public:
 		// debug::DrawProfiler();
 		if(gameState.editor.bOpenProfiler)
 		{
-			m_profilerWindow.DrawProfilerFlameGraph();
+			m_profilerWindow.DrawProfilerFlameGraph(gameState);
 		}
 		// debug::DrawProfilerFlameGraph();
 
@@ -193,7 +189,7 @@ public:
 		ImGui::Text("Console Output");
 		ImGui::Separator();
 		ImGui::Text("Application running...");
-		ImGui::Text("Viewport mode: %s", gameState.bShowImgui ? "Editor" : "Fullscreen");
+		ImGui::Text("Viewport mode: %s", gameState.editor.bShowImGui ? "Editor" : "Fullscreen");
 		ImGui::Text("Scene rendering to texture: %dx%d", gameState.framebufferWidth, gameState.framebufferHeight);
 		ImGui::End();
 
@@ -201,7 +197,7 @@ public:
 #if ENC_DEBUG
 		if(gameState.editor.bOpenPerformanceMonitor)
 		{
-			debug::DrawFrameStats(g_frameStats);
+			debug::DrawFrameStats(gameState, g_frameStats);
 		}
 #endif
 
@@ -230,9 +226,9 @@ public:
 		ImGui::End();
 
 		// Demo window
-		if(gameState.bShowDemoWindow)
+		if(gameState.editor.bShowDemoWindow)
 		{
-			ImGui::ShowDemoWindow(&gameState.bShowDemoWindow);
+			ImGui::ShowDemoWindow(&gameState.editor.bShowDemoWindow);
 		}
 	}
 

@@ -231,6 +231,7 @@
     <ClInclude Include="src\debug\memory_widget.h" />
     <ClInclude Include="src\debug\profiler_widget.h" />
     <ClInclude Include="src\debug\renderer_widget.h" />
+    <ClInclude Include="src\editor\editor.h" />
     <ClInclude Include="src\editor\editor_profiler.h" />
     <ClInclude Include="src\entity\CEntity.h" />
     <ClInclude Include="src\game_state.h" />
@@ -246,6 +247,7 @@
     <ClInclude Include="src\tasks\task_node.h" />
     <ClInclude Include="src\tasks\thread_pool.h" />
     <ClInclude Include="src\tasks\task_system.h" />
+    <ClInclude Include="src\utils\string_factory.h" />
     <ClInclude Include="src\utils\utils_math.h" />
     <ClInclude Include="src\utils\utils_rand.h" />
     <ClInclude Include="src\utils\utils_time.h" />

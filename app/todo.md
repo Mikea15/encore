@@ -3,6 +3,10 @@
 
 ## list of work going in, in no particular order
 
+- [ ] Game Engine split up
+    - [ ] Split Init
+    - [ ] Split Render
+    - [ ] Structure Phases
 
 - [x] More profiler work
 - [ ] Entity
@@ -13,7 +17,6 @@
 - [x] Task Scheduler
 - [ ] Keep Multiple Profiler Frames, have
 	- [ ] Have a graph plot of (selectable ?) frames on top
-- [ ] Game Engine split up
 - [ ] Renderer with Multiple passes
 - [ ] Renderer on Separate Thread
 - [ ] Convert Sprites to Entities with Sprite Component

@@ -423,7 +423,7 @@ i32 main(i32 argc, char* argv[])
 			// Always render the scene once to the framebuffer
 			renderer.RenderScene(gameState, render2D);
 
-			if (gameState.bShowImgui)
+			if (gameState.editor.bShowImGui)
 			{
 				// In editor mode: display the texture in ImGui
 				renderer.RenderImGui(gameState, render2D);
@@ -441,7 +441,7 @@ i32 main(i32 argc, char* argv[])
 			ImGui::Render();
 			//~render ui
 
-			if (gameState.bShowImgui)
+			if (gameState.editor.bShowImGui)
 			{
 				// Clear the screen and render ImGui
 				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);

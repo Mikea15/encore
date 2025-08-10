@@ -205,9 +205,6 @@ private:
 	std::unordered_map<std::thread::id, std::string> m_threadNames;
 };
 
-// Define the thread_local static member
-thread_local ThreadSafeProfiler::ThreadData* ThreadSafeProfiler::tl_threadData = nullptr;
-
 // Global profiler instance
 static ThreadSafeProfiler g_profiler;
 

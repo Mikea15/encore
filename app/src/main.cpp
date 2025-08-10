@@ -1,4 +1,5 @@
 #include "core/core_minimal.h"
+
 #include "globals.h"
 
 #include <SDL2/SDL.h>
@@ -54,11 +55,11 @@ i32 main(i32 argc, char* argv[])
 	LivePPHandler lppHandler;
 	lppHandler.InitSynchedAgent();
 #endif
-	
+
 	GameState gameState = CreateDefaultGameState();
 	// TODO: Load GameState settings from serialized file
 
-	StringFactory::Init(&gameState.arenas[AT_FRAME]);
+	StringFactory::Init(&gameState.arenas[AT_GLOBAL], &gameState.arenas[AT_FRAME]);
 
 	WindowHandler window;
 	if(!window.InitWindow(gameState))
@@ -86,13 +87,13 @@ i32 main(i32 argc, char* argv[])
 	PROFILE_SET_THREAD_NAME("MainThread");
 
 	task::TaskSchedulerSystem taskScheduler;
-	//for(int i = 0; i < 1000; i++)
-	//{
-	//	const char* str = StringFactory::Format("Task %d", i);
-	//	taskScheduler.CreateTask(str, [](float deltaTime) {
-	//		const u32 randWorkLoad = (rand() % 5000) + 250;
-	//		StubWorkload::math_workload(randWorkLoad); });
-	//}
+	for(int i = 0; i < 1000; i++)
+	{
+		const char* str = StringFactory::TempFormat("TaskWorker", i);
+		taskScheduler.CreateTask(str, [](float deltaTime) {
+			const u32 randWorkLoad = (rand() % 5000) + 250;
+			StubWorkload::math_workload(randWorkLoad); });
+	}
 
 	taskScheduler.CreateTask("MoveComponent Pool", [](float deltaTime) {
 		// Rotate Sprites
@@ -101,8 +102,8 @@ i32 main(i32 argc, char* argv[])
 		for(MoveComponent& moveComp : *pMovePool)
 		{
 			moveComp.Update(deltaTime);
-		}}
-	);
+		}
+		});
 	taskScheduler.CreateExecutionPlan();
 
 	// Init Pools

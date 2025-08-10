@@ -190,7 +190,7 @@ namespace editor
 						const u64 threadDuration = threadDurations[threadId];
 						std::string threadLabel = g_profiler.GetThreadName(threadId);
 
-						const char* threadInfoStr = StringFactory::Format("T: %s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
+						const char* threadInfoStr = StringFactory::TempFormat("%s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
 
 						ImU32 threadLabelColor = ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 160);
 						pDrawList->AddText(ImVec2(canvas_p0.x + m_Options.sideMargin, currentY), threadLabelColor, threadInfoStr);
@@ -383,7 +383,7 @@ namespace editor
 
 			constexpr bool bShowMicroseconds = true;
 			ImGui::BeginTooltip();
-			ImGui::Text("Thread: %s", g_profiler.GetThreadName(pEntry->threadId).c_str());
+			ImGui::Text("%s", g_profiler.GetThreadName(pEntry->threadId).c_str());
 			ImGui::Text("Task: %s", pEntry->section.c_str());
 			ImGui::Text("Duration: %s | %.2f%%", 
 				utils::FormatDuration(pEntry->duration, bShowMicroseconds),

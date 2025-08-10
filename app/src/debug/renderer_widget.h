@@ -10,7 +10,7 @@
 
 namespace debug 
 {
-	void DrawRendererStats(Render2DInfo& renderer)
+	static void DrawRendererStats(Render2DInfo& renderer)
 	{
 		if (ImGui::Begin("Renderer Stats"))
 		{

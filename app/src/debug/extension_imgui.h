@@ -118,7 +118,7 @@ namespace ImGui
 		return (color & 0x00FFFFFF) | (alpha << 24);
 	}
 
-	void UsageProgressBar(const char* label, float fraction, ImVec2 size = ImVec2(-1.0f, 0.0f))
+	static void UsageProgressBar(const char* label, float fraction, ImVec2 size = ImVec2(-1.0f, 0.0f))
 	{
 		// Determine color based on fraction
 		ImVec4 color;

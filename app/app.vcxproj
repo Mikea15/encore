@@ -215,7 +215,10 @@
   <ItemGroup>
     <ClCompile Include="src\components\move_component.cpp" />
     <ClCompile Include="src\components\move_component.h" />
+    <ClCompile Include="src\game_state.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\profiler\profiler.cpp" />
+    <ClCompile Include="src\utils\string_factory.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_sdl2.cpp" />
     <ClCompile Include="vendor\imgui\imgui.cpp" />
@@ -253,6 +256,7 @@
     <ClInclude Include="src\utils\string_factory.h" />
     <ClInclude Include="src\utils\utils_math.h" />
     <ClInclude Include="src\utils\utils_rand.h" />
+    <ClInclude Include="src\utils\utils_thread.h" />
     <ClInclude Include="src\utils\utils_time.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3_loader.h" />

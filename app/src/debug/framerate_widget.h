@@ -12,7 +12,7 @@
 
 namespace debug
 {
-	inline void DrawFrameStats(GameState& gameState, FrameStats& stats)
+	static void DrawFrameStats(GameState& gameState, FrameStats& stats)
 	{
 		if (ImGui::Begin("Performance Monitor"))
 		{
@@ -26,14 +26,14 @@ namespace debug
 
 			// Frame time graph
 			{
-				const char* str = StringFactory::Format("%.1f ms", stats.pFrameTimes[index]);
+				const char* str = StringFactory::TempFormat("%.1f ms", stats.pFrameTimes[index]);
 				ImGui::Text("Frame Time Graph (ms):");
 				ImGui::PlotLines("##frametime", stats.pFrameTimes, stats.sampleCount, 0, 
 					str, 0.0f, 50.0f, // Max ms scale
 					ImVec2(-1, 80));
 			}
 			{
-				const char* str = StringFactory::Format("%.1f fps", stats.pFramesPerSecond[index]);
+				const char* str = StringFactory::TempFormat("%.1f fps", stats.pFramesPerSecond[index]);
 				ImGui::Text("FPS Graph:");
 				ImGui::PlotLines("##fps", stats.pFramesPerSecond, static_cast<i32>(stats.sampleCount), 0, 
 					str, 0.0f, 240.0f, // Max FPS scale
@@ -43,7 +43,7 @@ namespace debug
 		ImGui::End();
 	}
 
-	inline void DrawFrameStatsCompact(FrameStats& stats)
+	static void DrawFrameStatsCompact(FrameStats& stats)
 	{
 		// Compact overlay in corner
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration |

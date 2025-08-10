@@ -8,13 +8,13 @@
 
 namespace debug 
 {
-	void DrawMemoryStats(Arena& arena, const char* name) 
+	static void DrawMemoryStats(Arena& arena, const char* name) 
 	{
 		if (ImGui::Begin("Memory Stats")) 
 		{
 			ArenaStats stats = arena_get_stats(&arena);
 			
-			const char* str = StringFactory::Format(
+			const char* str = StringFactory::TempFormat(
 				"\"%s\">> %.1f%% ( Used: %.2f KB | Free: %.2f KB )",
 				name, 
 				stats.usageRatio, 

@@ -64,11 +64,10 @@ public:
 
 	void RenderFrame(GameState& gameState, Render2DInfo& render2D)
 	{
-		// Always render the scene once to the framebuffer
-		RenderScene(gameState, render2D);
-
 		// Setup ImGui Rendering Frame
-		RenderImGuiStart();
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
 
 		if(gameState.editor.bShowImGui)
 		{
@@ -76,7 +75,7 @@ public:
 			RenderImGui(gameState, render2D);
 		}
 		
-		if(gameState.bShowInGameImGui)
+		if(!gameState.editor.bShowImGui && gameState.bShowInGameImGui)
 		{
 #if ENC_DEBUG
 			debug::DrawFrameStatsCompact(g_frameStats);
@@ -86,6 +85,9 @@ public:
 		// Prepare ImGui for Rendering
 		ImGui::Render();
 
+		// Always render the scene once to the framebuffer
+		RenderScene(gameState, render2D);
+		
 		if(gameState.editor.bShowImGui)
 		{
 			// Clear the screen and render ImGui
@@ -123,7 +125,6 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, gameState.framebuffer);
 		glViewport(0, 0, gameState.framebufferWidth, gameState.framebufferHeight);
 
-
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -153,13 +154,6 @@ public:
 
 		// Reset viewport to window size for final presentation
 		glViewport(0, 0, gameState.window.width, gameState.window.height);
-	}
-
-	inline void RenderImGuiStart()
-	{
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
-		ImGui::NewFrame();
 	}
 
 	void RenderImGui(GameState& gameState, Render2DInfo& renderer)

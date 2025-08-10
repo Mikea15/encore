@@ -179,6 +179,9 @@
     <ClInclude Include="src\utils\utils_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\renderer\render_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="todo.md" />

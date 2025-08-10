@@ -36,11 +36,14 @@ namespace task
 		~ThreadPool()
 		{
 			m_bStop = true;
-			m_cv.notify_one();
+			m_cv.notify_all();
 			
 			for(std::thread& thread : m_workerThreads)
 			{
-				thread.join();
+				if(thread.joinable())
+				{
+					thread.join();
+				}
 			}
 		}
 
@@ -84,8 +87,6 @@ namespace task
 				payload.func(payload.deltaTime);
 			}
 		}
-
-		
 
 	private:
 		std::vector<std::thread> m_workerThreads;

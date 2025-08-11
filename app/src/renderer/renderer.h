@@ -8,6 +8,7 @@
 #include "editor/editor_profiler.h"
 #include "game_state.h"
 #include "renderer_sprite.h"
+#include <debug/memory_widget.h>
 
 class RenderingEngine
 {
@@ -209,6 +210,14 @@ public:
 		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
+		ImGui::End();
+
+		if(ImGui::Begin("Memory Pools"))
+		{
+			IMGUI_DRAW_POOL_WIDGET(MoveComponent, false);
+			ImGui::Separator();
+			IMGUI_DRAW_POOL_WIDGET(Sprite2DComponent, false);
+		}
 		ImGui::End();
 
 		// Left panel

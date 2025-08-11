@@ -73,12 +73,10 @@ i32 main(i32 argc, char* argv[])
 	window.InitOpenGL(gameState);
 
 	// Rendering Engine
-	RenderingEngine renderEngine;
-	renderEngine.CreateFramebuffer(gameState);
+	SpriteBatchRenderer spriteBatchRenderer;
+	RenderingEngine renderEngine(spriteBatchRenderer);
+	renderEngine.Init(gameState);
 
-	// Render Info
-	Render2DInfo renderInfo;
-	renderInfo.renderer.Init();
 
 	// Init Systems
 #if ENC_DEBUG
@@ -88,15 +86,19 @@ i32 main(i32 argc, char* argv[])
 	PROFILE_SET_THREAD_NAME("MainThread");
 
 	task::TaskSchedulerSystem taskScheduler;
-	for(int i = 0; i < 1000; i++)
-	{
-		const char* str = StringFactory::TempFormat("TaskWorker", i);
-		taskScheduler.CreateTask(str, [](float deltaTime) {
-			const u32 randWorkLoad = (rand() % 5000) + 250;
-			StubWorkload::math_workload(randWorkLoad); });
-	}
+	//for(int i = 0; i < 1000; i++)
+	//{
+	//	const char* str = StringFactory::TempFormat("TaskWorker", i);
+	//	taskScheduler.CreateTask(str, [](float deltaTime) {
+	//		const u32 randWorkLoad = (rand() % 5000) + 250;
+	//		StubWorkload::math_workload(randWorkLoad); });
+	//}
 
-	taskScheduler.CreateTask("MoveComponent Pool", [](float deltaTime) {
+	auto clearRenderTask = taskScheduler.CreateTask("ClearRenderCommand List", [&renderEngine](float deltaTime) {
+		renderEngine.ClearRenderCommands();
+		});
+
+	auto moveTask = taskScheduler.CreateTask("MoveComponent Pool", [](float deltaTime) {
 		// Rotate Sprites
 		Pool<MoveComponent>* pMovePool = MoveComponent::GetPool();
 		AssertMsg(pMovePool, "Call MoveComponent::InitPool() first");
@@ -105,7 +107,28 @@ i32 main(i32 argc, char* argv[])
 			moveComp.Update(deltaTime);
 		}
 		});
+
+	moveTask->AddDependency(clearRenderTask);
+
+	auto pushRenderTask = taskScheduler.CreateTask("Sprite2DComponent Pool", [&renderEngine](float deltaTime) {
+		Pool<Sprite2DComponent>* pSpritePool = Sprite2DComponent::GetPool();
+		AssertMsg(pSpritePool, "Call MoveComponent::InitPool() first");
+		RenderCommand cmd;
+		for(Sprite2DComponent& comp : *pSpritePool)
+		{
+			cmd.sprite = comp.GetSprite();
+			cmd.position = comp.GetMovementComponent().GetPosition();
+			cmd.rotation = comp.GetMovementComponent().GetRotation();
+			renderEngine.PushRenderCommand(cmd);
+		}
+		});
+
+	pushRenderTask->AddDependency(clearRenderTask);
+	pushRenderTask->AddDependency(moveTask);
+
 	taskScheduler.CreateExecutionPlan();
+
+	Camera2D camera;
 
 	// Init Pools
 	MoveComponent::Init(&gameState.arenas[AT_COMPONENTS]);
@@ -128,7 +151,6 @@ i32 main(i32 argc, char* argv[])
 		};
 
 		Entity ent(sprite.position, utils::GetFloat(0.0f, 360.0f), sprite);
-		renderInfo.entities.push_back(ent);
 	}
 
 	f32 deltaTime = 0.0f;
@@ -209,11 +231,11 @@ i32 main(i32 argc, char* argv[])
 
 			if(keyboardState[SDL_SCANCODE_Q])
 			{
-				renderInfo.camera.zoom = std::min(100.0f, renderInfo.camera.zoom + 1.0f * deltaTime);
+				camera.zoom = std::min(100.0f, camera.zoom + 1.0f * deltaTime);
 			}
 			if(keyboardState[SDL_SCANCODE_E])
 			{
-				renderInfo.camera.zoom = std::max(0.1f, renderInfo.camera.zoom - 1.0f * deltaTime);
+				camera.zoom = std::max(0.1f, camera.zoom - 1.0f * deltaTime);
 			}
 
 			if(camMovementInput != Vec2(0.0f, 0.0f))
@@ -238,38 +260,33 @@ i32 main(i32 argc, char* argv[])
 			frame_stats_update(g_frameStats, deltaTime);
 #endif
 
-			
+
 
 			{
 				PROFILE_SCOPE("Late Camera Update");
 
 				Vec2 targetVelocity = camMovementInput * cameraSpeed;
-				renderInfo.camera.cameraVelocity = glm::mix(renderInfo.camera.cameraVelocity, targetVelocity,
-					renderInfo.camera.cameraDamping * deltaTime);
-				renderInfo.camera.position += renderInfo.camera.cameraVelocity * deltaTime;
+				camera.cameraVelocity = glm::mix(camera.cameraVelocity, targetVelocity,
+					camera.cameraDamping * deltaTime);
+				camera.position += camera.cameraVelocity * deltaTime;
 			}
 		}
 		//~UPDATE
 
 		// RENDER
-		{
-			PROFILE_SCOPE("Render Frame");
-			renderEngine.RenderFrame(gameState, renderInfo);
-		}
+		renderEngine.RenderFrame(gameState, camera);
 		//~RENDER
 
 		ARENA_RESET(&gameState.arenas[AT_FRAME]);
 	}
 
-	renderEngine.ClearFramebuffer(gameState);
+	renderEngine.Shutdown(gameState);
 
 #ifdef USE_LPP
 	lppHandler.Clear();
 #endif
 
 	window.ShutdownImGui();
-
-	renderInfo.renderer.Clear();
 
 	ClearGameState(gameState);
 

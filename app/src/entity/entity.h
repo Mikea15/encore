@@ -13,7 +13,14 @@ public:
 	Entity(const Vec2& position, float rotation, const Sprite& sprite)
 	{
 		m_pMoveComponent = MoveComponent::Alloc(position, rotation);
-		m_pSpriteComponent = Sprite2DComponent::Alloc(sprite);
+		Assert(m_pMoveComponent);
+		// Ugly. Fix later.
+		// Use u16 ids, instead of pool pointers.
+		// or extract location to entity instead of move component.
+		// each comp should know about the entity as well.
+		// entity can be a pool too, might as well.
+		// that way each comp, can keep an id to the entity as well.
+		m_pSpriteComponent = Sprite2DComponent::Alloc(sprite, *m_pMoveComponent);
 	}
 
 	const MoveComponent& GetMoveComponent() const { Assert(m_pMoveComponent); return *m_pMoveComponent; }

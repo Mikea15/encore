@@ -10,9 +10,35 @@
 #include "renderer_sprite.h"
 #include <debug/memory_widget.h>
 
+struct RenderCommand
+{
+	Sprite sprite;
+	Vec2 position;
+	f32 rotation;
+};
+
 class RenderingEngine
 {
 public:
+	RenderingEngine(SpriteBatchRenderer& renderer) 
+		: m_2dRenderer(renderer)
+	{ }
+
+	void Init(GameState& rGameState)
+	{
+		m_2dRenderer.Init();
+		
+		m_renderCommands.reserve(100'000);
+
+		CreateFramebuffer(rGameState);
+	}
+
+	void Shutdown(GameState& rGameState)
+	{
+		m_2dRenderer.Clear();
+		ClearFramebuffer(rGameState);
+	}
+
 	void CreateFramebuffer(GameState& gameState)
 	{
 		PROFILE();
@@ -63,8 +89,10 @@ public:
 		}
 	}
 
-	void RenderFrame(GameState& gameState, Render2DInfo& render2D)
+	void RenderFrame(GameState& gameState, Camera2D& camera)
 	{
+		PROFILE();
+
 		// Setup ImGui Rendering Frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL2_NewFrame();
@@ -73,7 +101,7 @@ public:
 		if(gameState.editor.bShowImGui)
 		{
 			// In editor mode: display the texture in ImGui
-			RenderImGui(gameState, render2D);
+			RenderImGui(gameState);
 		}
 		
 		if(!gameState.editor.bShowImGui && gameState.bShowInGameImGui)
@@ -84,34 +112,56 @@ public:
 		}
 		
 		// Prepare ImGui for Rendering
-		ImGui::Render();
+		{
+			PROFILE_SCOPE("Render::ImGui::PrepareForRender");
+			ImGui::Render();
+		}
 
 		// Always render the scene once to the framebuffer
-		RenderScene(gameState, render2D);
+		RenderScene(gameState, camera);
 		
-		if(gameState.editor.bShowImGui)
 		{
-			// Clear the screen and render ImGui
-			SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, gameState.window.width, gameState.window.height);
-			glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
-		}
-		else
-		{
-			// In fullscreen mode: blit the framebuffer to screen
-			BlitFramebufferToScreen(gameState);
+			PROFILE_SCOPE("Render::Blit");
+			if(gameState.editor.bShowImGui)
+			{
+				// Clear the screen and render ImGui
+				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glViewport(0, 0, gameState.window.width, gameState.window.height);
+				glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+			}
+			else
+			{
+				// In fullscreen mode: blit the framebuffer to screen
+				BlitFramebufferToScreen(gameState);
+			}
 		}
 
-		// Draw ImGui on Top
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		{
+			PROFILE_SCOPE("Render::ImGui");
+			// Draw ImGui on Top
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		}
 
 		// Swap Buffers
-		SDL_GL_SwapWindow(gameState.window.pWindow);
+		{
+			PROFILE_SCOPE("SwapWindow");
+			SDL_GL_SwapWindow(gameState.window.pWindow);
+		}
 	}
 
-	void RenderScene(GameState& gameState, Render2DInfo& render2D)
+	void PushRenderCommand(RenderCommand cmd)
+	{
+		m_renderCommands.push_back(cmd);
+	}
+
+	void ClearRenderCommands()
+	{
+		m_renderCommands.clear();
+	}
+
+	void RenderScene(GameState& gameState, Camera2D& camera)
 	{
 		PROFILE();
 
@@ -134,23 +184,21 @@ public:
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		render2D.renderer.Begin(render2D.camera, (f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight);
+		m_2dRenderer.Begin(camera, (f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight);
 
 		// Draw background
-		render2D.renderer.DrawSprite({ 0, 0 }, { 2000, 2000 }, 0, { 0.1f, 0.1f, 0.2f, 1.0f });
+		m_2dRenderer.DrawSprite({ 0, 0 }, { 2000, 2000 }, 0, { 0.1f, 0.1f, 0.2f, 1.0f });
 
 		// Draw all sprites
-		for(const auto& ent : render2D.entities)
+		for(const RenderCommand& cmd : m_renderCommands)
 		{
-			render2D.renderer.DrawSprite(ent.GetMoveComponent().GetPosition(),
-				ent.GetMoveComponent().GetRotation(),
-				ent.GetSprite2DComponent().GetSprite());
+			m_2dRenderer.DrawSprite(cmd.position, cmd.rotation, cmd.sprite);
 		}
 
 		// Draw UI elements (these don't move with camera)
 		// You'd set up a separate UI camera/projection for this
 
-		render2D.renderer.End();
+		m_2dRenderer.End();
 
 		// Unbind framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -159,7 +207,7 @@ public:
 		glViewport(0, 0, gameState.window.width, gameState.window.height);
 	}
 
-	void RenderImGui(GameState& gameState, Render2DInfo& renderer)
+	void RenderImGui(GameState& gameState)
 	{
 		PROFILE();
 		if(!gameState.editor.bShowImGui) return;
@@ -185,6 +233,7 @@ public:
 		// Menu bar
 		if(ImGui::BeginMenuBar())
 		{
+			PROFILE_SCOPE("Menu");
 			if(ImGui::BeginMenu("Window"))
 			{
 				ImGui::MenuItem("Profiler", nullptr, &gameState.editor.bOpenProfiler);
@@ -214,6 +263,7 @@ public:
 
 		if(ImGui::Begin("Memory Pools"))
 		{
+			PROFILE_SCOPE("Memory Pools");
 			IMGUI_DRAW_POOL_WIDGET(MoveComponent, false);
 			ImGui::Separator();
 			IMGUI_DRAW_POOL_WIDGET(Sprite2DComponent, false);
@@ -221,19 +271,23 @@ public:
 		ImGui::End();
 
 		// Left panel
-		ImGui::Begin("Properties");
-		ImGui::Text("Scene Properties");
-		ImGui::Text("Framebuffer Size: %d x %d", gameState.framebufferWidth, gameState.framebufferHeight);
-		ImGui::Text("Time: %.2f", time);
-		ImGui::Separator();
-		ImGui::Text("Controls:");
-		ImGui::BulletText("F1: Toggle UI");
-		ImGui::BulletText("ESC: Exit");
+		if(ImGui::Begin("Properties"))
+		{
+			PROFILE_SCOPE("Properties");
+			ImGui::Text("Scene Properties");
+			ImGui::Text("Framebuffer Size: %d x %d", gameState.framebufferWidth, gameState.framebufferHeight);
+			ImGui::Text("Time: %.2f", time);
+			ImGui::Separator();
+			ImGui::Text("Controls:");
+			ImGui::BulletText("F1: Toggle UI");
+			ImGui::BulletText("ESC: Exit");
+		}
 		ImGui::End();
 
 		// Right panel
 		if(gameState.editor.bOpenMemoryMonitor)
 		{
+			PROFILE_SCOPE("MemoryMonitor");
 			debug::DrawMemoryStats(gameState.arenas[AT_GLOBAL], "Global");
 			debug::DrawMemoryStats(gameState.arenas[AT_COMPONENTS], "Components");
 			debug::DrawMemoryStats(gameState.arenas[AT_FRAME], "Frame");
@@ -242,17 +296,21 @@ public:
 		// debug::DrawProfiler();
 		if(gameState.editor.bOpenProfiler)
 		{
+			PROFILE_SCOPE("Profiler");
 			m_profilerWindow.DrawProfilerFlameGraph(gameState);
 		}
 		// debug::DrawProfilerFlameGraph();
 
 		// Bottom panel
-		ImGui::Begin("Console");
-		ImGui::Text("Console Output");
-		ImGui::Separator();
-		ImGui::Text("Application running...");
-		ImGui::Text("Viewport mode: %s", gameState.editor.bShowImGui ? "Editor" : "Fullscreen");
-		ImGui::Text("Scene rendering to texture: %dx%d", gameState.framebufferWidth, gameState.framebufferHeight);
+		if(ImGui::Begin("Console"))
+		{
+			PROFILE_SCOPE("Console");
+			ImGui::Text("Console Output");
+			ImGui::Separator();
+			ImGui::Text("Application running...");
+			ImGui::Text("Viewport mode: %s", gameState.editor.bShowImGui ? "Editor" : "Fullscreen");
+			ImGui::Text("Scene rendering to texture: %dx%d", gameState.framebufferWidth, gameState.framebufferHeight);
+		}
 		ImGui::End();
 
 		// PerfPanel
@@ -264,27 +322,28 @@ public:
 #endif
 
 		// Rendering
-		debug::DrawRendererStats(renderer);
+		debug::DrawRendererStats(m_2dRenderer);
 
 		// Central viewport window - this displays the 3D scene
-		ImGui::Begin("Scene Viewport");
+		if(ImGui::Begin("Scene Viewport"))
+		{
+			PROFILE_SCOPE("Scene ViewPort");
+			ImVec2 content_region = ImGui::GetContentRegionAvail();
+			i32 new_width = (i32)content_region.x;
+			i32 new_height = (i32)content_region.y;
 
-		// Get the content region size
-		ImVec2 content_region = ImGui::GetContentRegionAvail();
-		i32 new_width = (i32)content_region.x;
-		i32 new_height = (i32)content_region.y;
+			// Ensure minimum size
+			if(new_width < 64) new_width = 64;
+			if(new_height < 64) new_height = 64;
 
-		// Ensure minimum size
-		if(new_width < 64) new_width = 64;
-		if(new_height < 64) new_height = 64;
+			// Resize framebuffer if needed
+			ResizeFramebuffer(gameState, new_width, new_height);
 
-		// Resize framebuffer if needed
-		ResizeFramebuffer(gameState, new_width, new_height);
+			// Display the rendered scene texture
+			ImGui::Image((void*)(intptr_t)gameState.colorTexture,
+				ImVec2((f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
 
-		// Display the rendered scene texture
-		ImGui::Image((void*)(intptr_t)gameState.colorTexture,
-			ImVec2((f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
-
+		}
 		ImGui::End();
 
 		// Demo window
@@ -324,4 +383,8 @@ public:
 private:
 	editor::ProfilerWindow m_profilerWindow;
 
+	SpriteBatchRenderer& m_2dRenderer;
+	
+
+	std::vector<RenderCommand> m_renderCommands;
 };

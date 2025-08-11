@@ -388,10 +388,3 @@ private:
 	// Statistics
 	Stats stats;
 };
-
-struct Render2DInfo
-{
-	SpriteBatchRenderer renderer;
-	Camera2D camera;
-	std::vector<Entity> entities;
-};

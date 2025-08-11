@@ -19,6 +19,7 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 
 #include "components/move_component.h"
+#include "components/sprite2d_component.h"
 
 #if ENC_DEBUG
 #include "debug/framerate_widget.h"
@@ -108,9 +109,10 @@ i32 main(i32 argc, char* argv[])
 
 	// Init Pools
 	MoveComponent::Init(&gameState.arenas[AT_COMPONENTS]);
+	Sprite2DComponent::Init(&gameState.arenas[AT_COMPONENTS]);
 
 	// Create some test sprites
-	for(int i = 0; i < 10000; ++i)
+	for(int i = 0; i < 100000; ++i)
 	{
 		Sprite sprite;
 		sprite.position = {
@@ -125,8 +127,7 @@ i32 main(i32 argc, char* argv[])
 			1.0f
 		};
 
-		Entity ent;
-		ent.Init(sprite);
+		Entity ent(sprite.position, utils::GetFloat(0.0f, 360.0f), sprite);
 		renderInfo.entities.push_back(ent);
 	}
 

@@ -80,7 +80,7 @@ public:
 		shader.SetIntArray("uTextures", samplers, MAX_TEXTURES);
 	}
 
-	void DrawSprite(const Sprite& sprite)
+	void DrawSprite(const Vec2& position, float rotation, const Sprite& sprite)
 	{
 		f32 textureIndex = GetTextureIndex(sprite.texId);
 
@@ -111,10 +111,10 @@ public:
 		};
 
 		// Apply rotation if needed
-		if(sprite.rotation != 0.0f)
+		if(rotation != 0.0f)
 		{
-			f32 rCos = cos(glm::radians(sprite.rotation));
-			f32 rSin = sin(glm::radians(sprite.rotation));
+			f32 rCos = cos(glm::radians(rotation));
+			f32 rSin = sin(glm::radians(rotation));
 
 			for(i8 i = 0; i < 4; ++i)
 			{
@@ -128,7 +128,7 @@ public:
 		// Translate to world position
 		for(i8 i = 0; i < 4; ++i)
 		{
-			corners[i] += sprite.position;
+			corners[i] += position;
 		}
 
 		// UV coordinates
@@ -153,7 +153,7 @@ public:
 	{
 		Sprite sprite(position, size, texture);
 		sprite.color = color;
-		DrawSprite(sprite);
+		DrawSprite(position, sprite.rotation, sprite);
 	}
 
 	// PERF: Move Semantics Here?
@@ -162,7 +162,7 @@ public:
 		Sprite sprite(position, size, texture);
 		sprite.rotation = rotation;
 		sprite.color = color;
-		DrawSprite(sprite);
+		DrawSprite(position, sprite.rotation, sprite);
 	}
 
 	void End()

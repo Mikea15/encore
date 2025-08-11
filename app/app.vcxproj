@@ -213,6 +213,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\components\sprite2d_component.cpp" />
     <ClCompile Include="src\components\move_component.cpp" />
     <ClCompile Include="src\components\move_component.h" />
     <ClCompile Include="src\game_state.cpp" />
@@ -231,6 +232,7 @@
     <ClCompile Include="vendor\imgui\implot_items.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\components\sprite2d_component.h" />
     <ClInclude Include="src\debug\extension_imgui.h" />
     <ClInclude Include="src\debug\framerate_widget.h" />
     <ClInclude Include="src\debug\memory_widget.h" />

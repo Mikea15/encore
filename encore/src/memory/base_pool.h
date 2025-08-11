@@ -3,6 +3,8 @@
 #include "core/core_minimal.h"
 #include "base_arena.h"
 
+#include <utility>
+
 #define COMPILE_DEMO 0
 
 template<typename T>
@@ -10,28 +12,28 @@ class Pool
 {
 public:
 	Pool()
-		: items(nullptr)
+		: m_pItems(nullptr)
 		, free_list(nullptr)
 		, capacity(0)
-		, free_count(0)
+		, m_freeCount(0)
 		, active(nullptr)
 	{}
 
 	bool Init(Arena* arena, u32 cap)
 	{
-		if(items) return false;
+		if(m_pItems) return false;
 
-		items = arena_alloc_array(arena, T, cap);
+		m_pItems = arena_alloc_array(arena, T, cap);
 		free_list = arena_alloc_array(arena, u32, cap);
 		active = arena_alloc_array(arena, b8, cap);
 
-		if(!items || !free_list || !active)
+		if(!m_pItems || !free_list || !active)
 		{
 			return false;
 		}
 
 		capacity = cap;
-		free_count = cap;
+		m_freeCount = cap;
 
 		for(u32 i = 0; i < cap; i++)
 		{
@@ -42,32 +44,42 @@ public:
 		return true;
 	}
 
-	T* Alloc()
+	template<typename... Args>
+	T* Alloc(Args&&... args)
 	{
-		if(!items || free_count == 0) return nullptr;
+		if(!m_pItems)
+		{
+			LOG_ERROR("Pool not Initialized");
+			return nullptr;
+		}
+		if(m_freeCount == 0)
+		{
+			LOG_ERROR("Pool full");
+			return nullptr;
+		}
 
-		u32 index = free_list[--free_count];
+		u32 index = free_list[--m_freeCount];
 		active[index] = true;
-		new(&items[index]) T(); // Placement new for proper construction
-		return &items[index];
+		new(&m_pItems[index]) T(std::forward<Args>(args)...); // Placement new for proper construction
+		return &m_pItems[index];
 	}
 
 	void Free(T* item)
 	{
-		if(!item || !items) return;
+		if(!item || !m_pItems) return;
 
-		u32 index = static_cast<u32>(item - items);
+		u32 index = static_cast<u32>(item - m_pItems);
 		if(index < capacity && active[index])
 		{
 			active[index] = false;
 			item->~T(); // Proper destruction
-			free_list[free_count++] = index;
+			free_list[m_freeCount++] = index;
 		}
 	}
 
 	u32 GetCapacity() const { return capacity; }
-	u32 GetFreeCount() const { return free_count; }
-	u32 GetActiveCount() const { return capacity - free_count; }
+	u32 GetFreeCount() const { return m_freeCount; }
+	u32 GetActiveCount() const { return capacity - m_freeCount; }
 
 	// Iterator support
 	class Iterator
@@ -89,8 +101,8 @@ public:
 			FindNext();
 		}
 
-		T& operator*() { return pool->items[index]; }
-		T* operator->() { return &pool->items[index]; }
+		T& operator*() { return pool->m_pItems[index]; }
+		T* operator->() { return &pool->m_pItems[index]; }
 
 		Iterator& operator++()
 		{
@@ -109,10 +121,10 @@ public:
 	Iterator end() const { return Iterator(this, capacity); }
 
 private:
-	T* items;
+	T* m_pItems;
 	u32* free_list;
 	u32 capacity;
-	u32 free_count;
+	u32 m_freeCount;
 	b8* active;
 };
 
@@ -120,14 +132,14 @@ private:
 #define DECLARE_POOL(Type) \
     static Pool<Type> pool; \
     static Pool<Type>* GetPool(); \
-    static Type* Alloc(); \
+	template<typename... Args> \
+    static Type* Alloc(Args&&... args) { return pool.Alloc(std::forward<Args>(args)...); } \
     static void Free(Type* item); \
     static bool Init(Arena* arena);
 
 #define IMPLEMENT_POOL(Type, Cap) \
     Pool<Type> Type::pool; \
     Pool<Type>* Type::GetPool() { return &pool; } \
-    Type* Type::Alloc() { return pool.Alloc(); } \
     void Type::Free(Type* item) { pool.Free(item); } \
     bool Type::Init(Arena* arena) { return pool.Init(arena, Cap); }
 

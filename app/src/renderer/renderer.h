@@ -141,7 +141,9 @@ public:
 		// Draw all sprites
 		for(const auto& ent : render2D.entities)
 		{
-			render2D.renderer.DrawSprite(ent.GetMoveComponent().m_sprite);
+			render2D.renderer.DrawSprite(ent.GetMoveComponent().GetPosition(),
+				ent.GetMoveComponent().GetRotation(),
+				ent.GetSprite2DComponent().GetSprite());
 		}
 
 		// Draw UI elements (these don't move with camera)

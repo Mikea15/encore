@@ -12,17 +12,23 @@ struct MoveComponent
 public:
 	DECLARE_POOL(MoveComponent);
 
-	MoveComponent() {}
+	MoveComponent() = default;
+	MoveComponent(const Vec2& position, float rotation) 
+		: m_position(position)
+		, m_startingPosition(position)
+		, m_rotation(rotation)
+		, m_accumulatedTime(0.0f)
+	{}
 
-	void Init(Sprite sprite) {
-		m_sprite = sprite;
-	}
+	void Update(float deltaTime);
 
-	void Update(float deltaTime)
-	{
-		m_sprite.rotation += deltaTime * rand() * 0.03f;
-	}
+	const Vec2& GetPosition() const { return m_position; }
+	const f32 GetRotation() const { return m_rotation; }
 
-	Sprite m_sprite;
+private:
+	Vec2 m_position;
+	Vec2 m_startingPosition;
+	f32 m_rotation;
+	f32 m_accumulatedTime;
 };
 

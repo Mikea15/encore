@@ -116,9 +116,16 @@ i32 main(i32 argc, char* argv[])
 		RenderCommand cmd;
 		for(Sprite2DComponent& comp : *pSpritePool)
 		{
+			// Get the entity this component belongs to
+			Entity* pEntity = Entity::GetPool()->Get(comp.GetEntityId());
+			if(!pEntity) continue;
+
+			MoveComponent* pMoveComp = pEntity->GetMoveComponent();
+			if(!pMoveComp) continue;
+
 			cmd.sprite = comp.GetSprite();
-			cmd.position = comp.GetMovementComponent().GetPosition();
-			cmd.rotation = comp.GetMovementComponent().GetRotation();
+			cmd.position = pMoveComp->GetPosition();
+			cmd.rotation = pMoveComp->GetRotation();
 			renderEngine.PushRenderCommand(cmd);
 		}
 		});
@@ -131,6 +138,7 @@ i32 main(i32 argc, char* argv[])
 	Camera2D camera;
 
 	// Init Pools
+	Entity::Init(&gameState.arenas[AT_COMPONENTS]);
 	MoveComponent::Init(&gameState.arenas[AT_COMPONENTS]);
 	Sprite2DComponent::Init(&gameState.arenas[AT_COMPONENTS]);
 
@@ -150,7 +158,9 @@ i32 main(i32 argc, char* argv[])
 			1.0f
 		};
 
-		Entity ent(sprite.position, utils::GetFloat(0.0f, 360.0f), sprite);
+		Entity* pEnt = Entity::Alloc();
+		Assert(pEnt);
+		pEnt->RegisterComponents(sprite.position, utils::GetFloat(0.0f, 360.0f), sprite);
 	}
 
 	f32 deltaTime = 0.0f;

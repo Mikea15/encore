@@ -135,3 +135,7 @@ using f64 = double;
 #define NO_MOVE(Type)						\
 	Type(Type&&) = delete;					\
 	Type& operator=(Type&&) = delete
+
+#define INVALID_U32 -1
+#define INVALID_u64 -1
+#define INDEX_NONE -1

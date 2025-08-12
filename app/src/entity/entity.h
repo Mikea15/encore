@@ -7,27 +7,44 @@
 #include "renderer/render2d_types.h"
 #include "utils/utils_rand.h"
 
-class Entity
+class Entity : public PoolId
 {
 public:
-	Entity(const Vec2& position, float rotation, const Sprite& sprite)
+	DECLARE_POOL(Entity);
+
+	Entity() = default;
+
+	void RegisterComponents(const Vec2& position, float rotation, const Sprite& sprite)
 	{
-		m_pMoveComponent = MoveComponent::Alloc(position, rotation);
-		Assert(m_pMoveComponent);
-		// Ugly. Fix later.
-		// Use u16 ids, instead of pool pointers.
-		// or extract location to entity instead of move component.
-		// each comp should know about the entity as well.
-		// entity can be a pool too, might as well.
-		// that way each comp, can keep an id to the entity as well.
-		m_pSpriteComponent = Sprite2DComponent::Alloc(sprite, *m_pMoveComponent);
+		m_moveComponentId = MoveComponent::Alloc(GetId(), position, rotation)->GetId();
+		m_spriteComponentId = Sprite2DComponent::Alloc(GetId(), sprite)->GetId();
 	}
 
-	const MoveComponent& GetMoveComponent() const { Assert(m_pMoveComponent); return *m_pMoveComponent; }
-	const Sprite2DComponent& GetSprite2DComponent() const { Assert(m_pSpriteComponent); return *m_pSpriteComponent; }
+	void RemoveComponents()
+	{
+		MoveComponent::Free(m_moveComponentId);
+		Sprite2DComponent::Free(m_spriteComponentId);
+	}
+
+	const u32 GetMoveComponentId() const { return m_moveComponentId; }
+	const u32 GetSprite2DComponentId() const { return m_spriteComponentId; }
+
+	MoveComponent* GetMoveComponent() const
+	{
+		return MoveComponent::GetPool()->Get(m_moveComponentId);
+	}
+
+	Sprite2DComponent* GetSpriteComponent() const
+	{
+		return Sprite2DComponent::GetPool()->Get(m_spriteComponentId);
+	}
+
 
 private:
 	Vec2 m_position;
+	u32 m_moveComponentId;
+	u32 m_spriteComponentId;
+
 	MoveComponent* m_pMoveComponent;
 	Sprite2DComponent* m_pSpriteComponent;
 };

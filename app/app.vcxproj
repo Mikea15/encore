@@ -216,6 +216,7 @@
     <ClCompile Include="src\components\sprite2d_component.cpp" />
     <ClCompile Include="src\components\move_component.cpp" />
     <ClCompile Include="src\components\move_component.h" />
+    <ClCompile Include="src\entity\entity.cpp" />
     <ClCompile Include="src\game_state.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\profiler\profiler.cpp" />

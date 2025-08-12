@@ -4,12 +4,30 @@
 #include "base_arena.h"
 
 #include <utility>
+#include <type_traits>
 
 #define COMPILE_DEMO 0
+
+class PoolId
+{
+	template<typename T> friend class Pool;
+
+public:
+	PoolId() : m_id(INVALID_U32) {}
+	virtual ~PoolId() = default;
+
+	u32 GetId() const { return m_id; }
+	bool IsValid() const { return m_id != INDEX_NONE; }
+
+protected:
+	u32 m_id;
+};
 
 template<typename T>
 class Pool
 {
+	static_assert(std::is_base_of<PoolId, T>::value, "Type T must inherit from PoolId");
+
 public:
 	Pool()
 		: m_pItems(nullptr)
@@ -92,9 +110,45 @@ public:
 		m_pActive[index] = true;
 
 		// Use placement new with perfect forwarding for proper construction
-		new(&m_pItems[index]) T(std::forward<Args>(args)...);
+		T* newItem = new(&m_pItems[index]) T(std::forward<Args>(args)...);
+
+		static_cast<PoolId*>(newItem)->m_id = index;
 
 		return &m_pItems[index];
+	}
+
+	T* Get(u32 id)
+	{
+		AssertMsg(id >= 0, "Trying to provide an invalid id:");
+
+		if(id >= m_capacity)
+		{
+			LOG_WARNING("Id over capacity!");
+			return nullptr;
+		}
+		if(!m_pActive[id])
+		{
+			LOG_WARNING("Object not active. Was not allocated properly!");
+			return nullptr;
+		}
+		return &m_pItems[id];
+	}
+
+	const T* Get(u32 id) const
+	{
+		AssertMsg(id >= 0, "Trying to provide an invalid id");
+
+		if(id >= m_capacity)
+		{
+			LOG_WARNING("Id over capacity!");
+			return nullptr;
+		}
+		if(!m_pActive[id])
+		{
+			LOG_WARNING("Object not active. Was not allocated properly!");
+			return nullptr;
+		}
+		return &m_pItems[id];
 	}
 
 	void Free(T* pItem)
@@ -105,11 +159,7 @@ public:
 			return;
 		}
 
-		if(!m_pItems)
-		{
-			LOG_ERROR("Pool not initialized - cannot free item");
-			return;
-		}
+		AssertMsg(m_pItems, "Pool not initialized! No Items to free");
 
 		// Validate item is within pool bounds
 		u32 index = static_cast<u32>(pItem - m_pItems);
@@ -141,9 +191,16 @@ public:
 		}
 	}
 
+	void Free(u32 id)
+	{
+		T* item = Get(id);
+		Free(item);
+	}
+
 	u32 GetCapacity() const { return m_capacity; }
 	u32 GetFreeCount() const { return m_freeCount; }
 	u32 GetActiveCount() const { return m_capacity - m_freeCount; }
+
 	float GetUsagePercentage() const
 	{
 		return m_capacity > 0 ? ((float)(m_capacity - m_freeCount) / (float)m_capacity * 100.0f) : 0.0f;
@@ -205,6 +262,7 @@ private:
 	template<typename... Args> \
     static Type* Alloc(Args&&... args) { return pool.Alloc(std::forward<Args>(args)...); } \
     static void Free(Type* pItem) { pool.Free(pItem); } \
+    static void Free(u32 id) { pool.Free(id); } \
     static bool Init(Arena* pArena);
 
 #define IMPLEMENT_POOL(Type, Cap) \

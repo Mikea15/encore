@@ -8,22 +8,24 @@
 #include "renderer/render2d_types.h"
 #include "utils/utils_rand.h"
 
-struct Sprite2DComponent
+struct Sprite2DComponent : public PoolId
 {
 public:
+	typedef PoolId Base;
+
 	DECLARE_POOL(Sprite2DComponent);
 
 	Sprite2DComponent() = default;
-	Sprite2DComponent(const Sprite& sprite, MoveComponent& rMoveComponent)
-		: m_sprite(sprite)
-		, m_rMoveComponent(rMoveComponent)
+	Sprite2DComponent(u32 entityId, const Sprite& sprite)
+		: m_entityId(entityId)
+		, m_sprite(sprite)
 	{}
 
 	const Sprite& GetSprite() const { return m_sprite; }
-	const MoveComponent& GetMovementComponent() const { return m_rMoveComponent; }
+	u32 GetEntityId() const { return m_entityId; }
 
 private:
+	u32 m_entityId;
 	Sprite m_sprite;
-	MoveComponent& m_rMoveComponent;
 };
 

@@ -18,6 +18,11 @@ namespace editor
 	public:
 		void DrawProfilerFlameGraph(const GameState& gameState)
 		{
+			if(framesHist.size() == 0)
+			{
+				framesHist.resize(framesHistCount);
+			}
+
 			if(ImGui::Begin("Profiler - FlameGraph"))
 			{
 				std::vector<ThreadSafeProfiler::Entry> currentEntries;
@@ -74,6 +79,10 @@ namespace editor
 					maxDepth = std::max(maxDepth, entry.depth);
 				}
 
+				framesHist[frameCount++ % framesHistCount] = (f32)US_TO_MS(totalDuration);
+				
+				ImGui::PlotHistogram("Histogram", framesHist.data(), (i32)framesHistCount, 0, nullptr, 0.0f, 150.0f, ImVec2(0, 80.0f));
+
 				u64 timeRange = maxTimestamp - minTimestamp;
 
 				// Options
@@ -104,6 +113,8 @@ namespace editor
 				ImGui::SameLine(); ImGui::Checkbox("Show Tooltips", &m_Options.bShowTooltips);
 				ImGui::SameLine(); ImGui::Checkbox("Show All Threads", &m_Options.bShowAllThreads);
 				
+
+
 				// Thread selection dropdown
 				if(!m_Options.bShowAllThreads)
 				{
@@ -402,6 +413,10 @@ namespace editor
 		ImVec2 dragStartPos;
 		float dragStartScrollOffset;
 		bool bDragging = false;
+
+		std::vector<float> framesHist;
+		const u32 framesHistCount = 240;
+		u32 frameCount = 0;
 
 		struct EditorOptions
 		{

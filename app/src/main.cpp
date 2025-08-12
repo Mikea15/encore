@@ -284,7 +284,14 @@ i32 main(i32 argc, char* argv[])
 		//~UPDATE
 
 		// RENDER
-		renderEngine.RenderFrame(gameState, camera);
+		if(gameState.editor.bShowImGui)
+		{
+			renderEngine.RenderEditorFrame(gameState, camera);
+		}
+		else
+		{
+			renderEngine.RenderFrame(gameState, camera);
+		}
 		//~RENDER
 
 		ARENA_RESET(&gameState.arenas[AT_FRAME]);

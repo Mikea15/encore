@@ -89,7 +89,7 @@ public:
 		}
 	}
 
-	void RenderFrame(GameState& gameState, Camera2D& camera)
+	void RenderEditorFrame(GameState& gameState, Camera2D& camera)
 	{
 		PROFILE();
 
@@ -98,19 +98,9 @@ public:
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		if(gameState.editor.bShowImGui)
-		{
-			// In editor mode: display the texture in ImGui
-			RenderImGui(gameState);
-		}
-		
-		if(!gameState.editor.bShowImGui && gameState.bShowInGameImGui)
-		{
-#if ENC_DEBUG
-			debug::DrawFrameStatsCompact(g_frameStats);
-#endif
-		}
-		
+		// In editor mode: display the texture in ImGui
+		RenderImGui(gameState);
+
 		// Prepare ImGui for Rendering
 		{
 			PROFILE_SCOPE("Render::ImGui::PrepareForRender");
@@ -119,23 +109,15 @@ public:
 
 		// Always render the scene once to the framebuffer
 		RenderScene(gameState, camera);
-		
+
 		{
 			PROFILE_SCOPE("Render::Blit");
-			if(gameState.editor.bShowImGui)
-			{
-				// Clear the screen and render ImGui
-				SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				glViewport(0, 0, gameState.window.width, gameState.window.height);
-				glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT);
-			}
-			else
-			{
-				// In fullscreen mode: blit the framebuffer to screen
-				BlitFramebufferToScreen(gameState);
-			}
+			// Clear the screen and render ImGui
+			SDL_GetWindowSize(gameState.window.pWindow, &gameState.window.width, &gameState.window.height);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, gameState.window.width, gameState.window.height);
+			glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 		}
 
 		{
@@ -145,6 +127,22 @@ public:
 		}
 
 		// Swap Buffers
+		{
+			PROFILE_SCOPE("SwapWindow");
+			SDL_GL_SwapWindow(gameState.window.pWindow);
+		}
+	}
+
+	void RenderFrame(GameState& gameState, Camera2D& camera)
+	{
+		PROFILE();
+
+		// Always render the scene once to the framebuffer
+		RenderScene(gameState, camera);
+
+		// In fullscreen mode: blit the framebuffer to screen
+		BlitFramebufferToScreen(gameState);
+
 		{
 			PROFILE_SCOPE("SwapWindow");
 			SDL_GL_SwapWindow(gameState.window.pWindow);

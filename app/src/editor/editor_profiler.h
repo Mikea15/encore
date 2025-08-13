@@ -23,7 +23,7 @@ namespace editor
 				framesHist.resize(framesHistCount);
 			}
 
-			if(ImGui::Begin("Profiler - FlameGraph"))
+			if(ImGui::Begin("Profiler"))
 			{
 				std::vector<ThreadSafeProfiler::Entry> currentEntries;
 				if(m_Options.bPaused)
@@ -112,8 +112,6 @@ namespace editor
 				
 				ImGui::SameLine(); ImGui::Checkbox("Show Tooltips", &m_Options.bShowTooltips);
 				ImGui::SameLine(); ImGui::Checkbox("Show All Threads", &m_Options.bShowAllThreads);
-				
-
 
 				// Thread selection dropdown
 				if(!m_Options.bShowAllThreads)

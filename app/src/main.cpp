@@ -29,7 +29,7 @@
 
 #include "memory/base_pool.h"
 #include "renderer/render2d_types.h"
-#include "renderer/renderer.h"
+#include "renderer/rendering_engine.h"
 #include "renderer/renderer_sprite.h"
 #include "renderer/window_handler.h"
 
@@ -38,6 +38,8 @@
 
 #include "integrations/livepp_handler.h"
 
+#define TEST 0
+#if TEST
 namespace StubWorkload {
 	void math_workload(int iterations)
 	{
@@ -49,6 +51,7 @@ namespace StubWorkload {
 		}
 	}
 }
+#endif
 
 i32 main(i32 argc, char* argv[])
 {
@@ -77,7 +80,6 @@ i32 main(i32 argc, char* argv[])
 	RenderingEngine renderEngine(spriteBatchRenderer);
 	renderEngine.Init(gameState);
 
-
 	// Init Systems
 #if ENC_DEBUG
 	frame_stats_init(g_frameStats, gameState.arenas[AT_GLOBAL]);
@@ -86,13 +88,15 @@ i32 main(i32 argc, char* argv[])
 	PROFILE_SET_THREAD_NAME("MainThread");
 
 	task::TaskSchedulerSystem taskScheduler;
-	//for(int i = 0; i < 1000; i++)
-	//{
-	//	const char* str = StringFactory::TempFormat("TaskWorker", i);
-	//	taskScheduler.CreateTask(str, [](float deltaTime) {
-	//		const u32 randWorkLoad = (rand() % 5000) + 250;
-	//		StubWorkload::math_workload(randWorkLoad); });
-	//}
+#if TEST
+	for(int i = 0; i < 1000; i++)
+	{
+		const char* str = StringFactory::TempFormat("TaskWorker", i);
+		taskScheduler.CreateTask(str, [](float deltaTime) {
+			const u32 randWorkLoad = (rand() % 5000) + 250;
+			StubWorkload::math_workload(randWorkLoad); });
+	}
+#endif
 
 	auto clearRenderTask = taskScheduler.CreateTask("ClearRenderCommand List", [&renderEngine](float deltaTime) {
 		renderEngine.ClearRenderCommands();
@@ -170,14 +174,14 @@ i32 main(i32 argc, char* argv[])
 	bool bGameRunning = true;
 	while(bGameRunning)
 	{
+		PROFILE_FRAME_START_ALL_THREADS();
+
 #ifdef USE_LPP
 		{
 			PROFILE_SCOPE("LPP_SyncPoint");
 			lppHandler.SyncPoint();
 		}
 #endif
-
-		PROFILE_FRAME_START_ALL_THREADS();
 
 		// Reset Frame Arena
 		ARENA_SAVE(&gameState.arenas[AT_FRAME]);
@@ -192,7 +196,7 @@ i32 main(i32 argc, char* argv[])
 
 		// EVENT BASED INPUT
 		{
-			PROFILE_SCOPE("Input3");
+			PROFILE_SCOPE("Input");
 
 			SDL_Event event;
 			while(SDL_PollEvent(&event))
@@ -257,11 +261,8 @@ i32 main(i32 argc, char* argv[])
 
 		//~INPUT
 
-		{
-			// TASK_GRAPH
-			PROFILE_SCOPE("Task Graph");
-			taskScheduler.ExecuteTaskGraph(deltaTime);
-		}
+		// TASK_GRAPH
+		taskScheduler.ExecuteTaskGraph(deltaTime);
 
 		// UPDATE
 		{
@@ -269,8 +270,6 @@ i32 main(i32 argc, char* argv[])
 #if ENC_DEBUG
 			frame_stats_update(g_frameStats, deltaTime);
 #endif
-
-
 
 			{
 				PROFILE_SCOPE("Late Camera Update");

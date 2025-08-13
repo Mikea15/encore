@@ -16,6 +16,9 @@ void RenderingEngine::Init(GameState & rGameState)
 	m_renderCommands.reserve(100'000);
 
 	CreateFramebuffer(rGameState);
+
+	m_imguiRenderer.RegisterWidget(new ImGuiMenu());
+	m_imguiRenderer.RegisterWidget(new ImGuiMemoryMonitor());
 }
 
 void RenderingEngine::Shutdown(GameState& rGameState)
@@ -50,7 +53,89 @@ void RenderingEngine::RenderEditorFrame(GameState& gameState, Camera2D& camera)
 	ImGui::NewFrame();
 
 	// In editor mode: display the texture in ImGui
-	RenderImGui(gameState);
+	{
+		PROFILE_SCOPE("Render::ImGui Widgets");
+		if(!gameState.editor.bShowImGui) return;
+
+		// Create a fullscreen dockspace
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(viewport->Pos);
+		ImGui::SetNextWindowSize(viewport->Size);
+		ImGui::SetNextWindowViewport(viewport->ID);
+
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+		window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+		ImGui::Begin("DockSpace Demo", nullptr, window_flags);
+		ImGui::PopStyleVar(3);
+
+		// DockSpace
+		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+		
+		m_imguiRenderer.Render(gameState);
+		
+		if(gameState.editor.bOpenProfiler)
+		{
+			PROFILE_SCOPE("Profiler");
+			m_profilerWindow.DrawProfilerFlameGraph(gameState);
+		}
+
+		// Bottom panel
+		if(ImGui::Begin("Console"))
+		{
+			PROFILE_SCOPE("Console");
+			ImGui::Text("Console Output");
+			ImGui::Separator();
+			ImGui::Text("Application running...");
+			ImGui::Text("Viewport mode: %s", gameState.editor.bShowImGui ? "Editor" : "Fullscreen");
+			ImGui::Text("Scene rendering to texture: %dx%d", gameState.framebufferWidth, gameState.framebufferHeight);
+		}
+		ImGui::End();
+
+		// PerfPanel
+#if ENC_DEBUG
+		if(gameState.editor.bOpenPerformanceMonitor)
+		{
+			debug::DrawFrameStats(gameState, g_frameStats);
+		}
+#endif
+
+		// Rendering
+		debug::DrawRendererStats(m_2dRenderer);
+
+		// Central viewport window - this displays the 3D scene
+		if(ImGui::Begin("Scene Viewport"))
+		{
+			PROFILE_SCOPE("Scene ViewPort");
+			ImVec2 content_region = ImGui::GetContentRegionAvail();
+			content_region.x = utils::Max(64.0f, content_region.x);
+			content_region.y = utils::Max(64.0f, content_region.y);
+
+			// Resize framebuffer if needed
+			ResizeFramebuffer(gameState, content_region.x, content_region.y);
+
+			// Display the rendered scene texture
+			ImGui::Image((void*)(intptr_t)gameState.colorTexture,
+				ImVec2((f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
+
+		}
+		ImGui::End();
+
+		// Demo window
+		if(gameState.editor.bShowDemoWindow)
+		{
+			ImGui::ShowDemoWindow(&gameState.editor.bShowDemoWindow);
+		}
+
+		ImGui::End();
+	}
 
 	// Prepare ImGui for Rendering
 	{
@@ -138,150 +223,6 @@ void RenderingEngine::RenderScene(GameState& gameState, Camera2D& camera)
 
 	// Reset viewport to window size for final presentation
 	glViewport(0, 0, gameState.window.width, gameState.window.height);
-}
-
-void RenderingEngine::RenderImGui(GameState& gameState)
-{
-	PROFILE();
-	if(!gameState.editor.bShowImGui) return;
-
-	// Create a fullscreen dockspace
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-
-	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-	window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-	ImGui::Begin("DockSpace Demo", nullptr, window_flags);
-	ImGui::PopStyleVar(3);
-
-	// Menu bar
-	if(ImGui::BeginMenuBar())
-	{
-		PROFILE_SCOPE("Menu");
-		if(ImGui::BeginMenu("Window"))
-		{
-			ImGui::MenuItem("Profiler", nullptr, &gameState.editor.bOpenProfiler);
-			ImGui::MenuItem("Performance Monitor", nullptr, &gameState.editor.bOpenPerformanceMonitor);
-			ImGui::MenuItem("Memory Monitor", nullptr, &gameState.editor.bOpenMemoryMonitor);
-
-			ImGui::EndMenu();
-		}
-		if(ImGui::BeginMenu("Help"))
-		{
-			ImGui::MenuItem("Toggle In-Game ImGui", nullptr, &gameState.bShowInGameImGui);
-			ImGui::MenuItem("Toggle ImGui", "TAB", &gameState.editor.bShowImGui);
-			ImGui::MenuItem("Demo Window", nullptr, &gameState.editor.bShowDemoWindow);
-
-			ImGui::Text("TAB: Toggle Editor Mode");
-			ImGui::Text("ESC: Exit application");
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-
-	// DockSpace
-	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
-
-	ImGui::End();
-
-	if(gameState.editor.bOpenMemoryMonitor)
-	{
-		PROFILE_SCOPE("MemoryMonitor");
-		if(ImGui::Begin("Profiler - Memory"))
-		{
-			if(ImGui::CollapsingHeader("Arenas"))
-			{
-				debug::DrawMemoryStats(gameState.arenas[AT_GLOBAL], "Global");
-				debug::DrawMemoryStats(gameState.arenas[AT_COMPONENTS], "Components");
-				debug::DrawMemoryStats(gameState.arenas[AT_FRAME], "Frame");
-			}
-			if(ImGui::CollapsingHeader("Pools"))
-			{
-				debug::DrawPoolUsageWidget("Move Component", MoveComponent::GetPool());
-				debug::DrawPoolUsageWidget("Sprite2D Component", Sprite2DComponent::GetPool());
-			}
-		}
-		ImGui::End();
-	}
-
-	// Left panel
-	if(ImGui::Begin("Properties"))
-	{
-		PROFILE_SCOPE("Properties");
-		ImGui::Text("Scene Properties");
-		ImGui::Text("Framebuffer Size: %d x %d", gameState.framebufferWidth, gameState.framebufferHeight);
-		ImGui::Text("Time: %.2f", time);
-		ImGui::Separator();
-		ImGui::Text("Controls:");
-		ImGui::BulletText("F1: Toggle UI");
-		ImGui::BulletText("ESC: Exit");
-	}
-	ImGui::End();
-
-	// debug::DrawProfiler();
-	if(gameState.editor.bOpenProfiler)
-	{
-		PROFILE_SCOPE("Profiler");
-		m_profilerWindow.DrawProfilerFlameGraph(gameState);
-	}
-	// debug::DrawProfilerFlameGraph();
-
-	// Bottom panel
-	if(ImGui::Begin("Console"))
-	{
-		PROFILE_SCOPE("Console");
-		ImGui::Text("Console Output");
-		ImGui::Separator();
-		ImGui::Text("Application running...");
-		ImGui::Text("Viewport mode: %s", gameState.editor.bShowImGui ? "Editor" : "Fullscreen");
-		ImGui::Text("Scene rendering to texture: %dx%d", gameState.framebufferWidth, gameState.framebufferHeight);
-	}
-	ImGui::End();
-
-	// PerfPanel
-#if ENC_DEBUG
-	if(gameState.editor.bOpenPerformanceMonitor)
-	{
-		debug::DrawFrameStats(gameState, g_frameStats);
-	}
-#endif
-
-	// Rendering
-	debug::DrawRendererStats(m_2dRenderer);
-
-	// Central viewport window - this displays the 3D scene
-	if(ImGui::Begin("Scene Viewport"))
-	{
-		PROFILE_SCOPE("Scene ViewPort");
-		ImVec2 content_region = ImGui::GetContentRegionAvail();
-		content_region.x = utils::Max(64.0f, content_region.x);
-		content_region.y = utils::Max(64.0f, content_region.y);
-
-		// Resize framebuffer if needed
-		ResizeFramebuffer(gameState, content_region.x, content_region.y);
-
-		// Display the rendered scene texture
-		ImGui::Image((void*)(intptr_t)gameState.colorTexture,
-			ImVec2((f32)gameState.framebufferWidth, (f32)gameState.framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
-
-	}
-	ImGui::End();
-
-	// Demo window
-	if(gameState.editor.bShowDemoWindow)
-	{
-		ImGui::ShowDemoWindow(&gameState.editor.bShowDemoWindow);
-	}
 }
 
 void RenderingEngine::BlitFramebufferToScreen(GameState& gameState)

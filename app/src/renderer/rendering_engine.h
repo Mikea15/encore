@@ -9,6 +9,7 @@
 #include "editor/editor_profiler.h"
 #include "game_state.h"
 #include "renderer_sprite.h"
+#include "renderer_imgui.h"
 
 struct RenderCommand
 {
@@ -33,7 +34,6 @@ public:
 
 private:
 	void RenderScene(GameState& gameState, Camera2D& camera);
-	void RenderImGui(GameState& gameState);
 	void BlitFramebufferToScreen(GameState& gameState);
 
 	void CreateFramebuffer(GameState& gameState);
@@ -44,4 +44,5 @@ private:
 	editor::ProfilerWindow m_profilerWindow;
 	SpriteBatchRenderer& m_2dRenderer;
 	std::vector<RenderCommand> m_renderCommands;
+	RendererImGui m_imguiRenderer;
 };

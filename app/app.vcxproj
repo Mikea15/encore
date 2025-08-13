@@ -250,6 +250,7 @@
     <ClInclude Include="src\renderer\frame_stats.h" />
     <ClInclude Include="src\renderer\render2d_camera.h" />
     <ClInclude Include="src\renderer\render2d_types.h" />
+    <ClInclude Include="src\renderer\renderer_imgui.h" />
     <ClInclude Include="src\renderer\rendering_engine.h" />
     <ClInclude Include="src\renderer\renderer_shader.h" />
     <ClInclude Include="src\renderer\renderer_sprite.h" />

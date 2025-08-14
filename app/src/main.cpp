@@ -293,7 +293,6 @@ i32 main(i32 argc, char* argv[])
 		}
 		//~RENDER
 
-		PROFILE_PRINT_REPORT();
 		ARENA_RESET(&gameState.arenas[AT_FRAME]);
 	}
 

@@ -11,6 +11,9 @@ const f64 PI_D = 3.14159265358979323846;
 const f64 TAU_D = 6.28318530717958647692;
 const f64 E_D = 2.71828182845904523536;
 
+const f64 SMALL_NUMBER = 1e-6f;
+const f64 TINY_NUMBER = 1e-4f;
+
 namespace utils 
 {
 	template<typename T>
@@ -63,51 +66,38 @@ namespace utils
 		return ((T)0 < value) - (value < 0.0f);
 	}
 
-	inline f32 Square(f32 value)
+	template<typename T>
+	inline T Square(T value)
 	{
 		return value * value;
 	}
 
-	inline f64 Square(f64 value)
-	{
-		return value * value;
-	}
-
-	inline i32 Square(i32 value)
-	{
-		return value * value;
-	}
-
-	inline f32 Map(f32 value, f32 in_min, f32 in_max, f32 out_min, f32 out_max)
-	{
-		return out_min + (value - in_min) * (out_max - out_min) / (in_max - in_min);
-	}
-
-	inline f64 Map(f64 value, f64 in_min, f64 in_max, f64 out_min, f64 out_max)
+	template<typename T>
+	inline T Map(T value, T in_min, T in_max, T out_min, T out_max)
 	{
 		return out_min + (value - in_min) * (out_max - out_min) / (in_max - in_min);
 	}
 
 	// Wrap a value to a range [min, max)
-	inline f32 Wrap(f32 value, f32 min_val, f32 max_val)
+	inline f32 Wrap(f32 value, f32 min, f32 max)
 	{
-		f32 range = max_val - min_val;
-		if(range <= 0.0f) return min_val;
+		f32 range = max - min;
+		if(range <= 0.0f) return min;
 
-		f32 result = value - min_val;
+		f32 result = value - min;
 		result = result - std::floor(result / range) * range;
-		return result + min_val;
+		return result + min;
 	}
 
 	// Wrap a value to a range [min, max)
-	inline f64 Wrap(f64 value, f64 min_val, f64 max_val)
+	inline f64 Wrap(f64 value, f64 min, f64 max)
 	{
-		f64 range = max_val - min_val;
-		if(range <= 0.0) return min_val;
+		f64 range = max - min;
+		if(range <= 0.0) return min;
 
-		f64 result = value - min_val;
+		f64 result = value - min;
 		result = result - std::floor(result / range) * range;
-		return result + min_val;
+		return result + min;
 	}
 
 	inline f32 Radians(f32 degrees)

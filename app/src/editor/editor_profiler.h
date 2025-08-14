@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <thread>
 #include <utils/utils_math.h>
+#include <set>
 
 namespace editor 
 {
@@ -19,29 +20,25 @@ namespace editor
 	public:
 		void DrawProfilerFlameGraph(const GameState& gameState)
 		{
-			if(framesHist.size() == 0)
-			{
-				framesHist.resize(framesHistCount);
-			}
+			m_frameEntries.clear();
 
 			if(ImGui::Begin("Profiler"))
 			{
-				std::vector<ProfilerEntry> currentEntries;
 				if(m_Options.bPaused)
 				{
-					currentEntries = frozenEntries;
+					m_frameEntries = frozenEntries;
 				}
 				else if(m_Options.bShowAllThreads)
 				{
-					currentEntries = Profiler::GetInstance().GetAllThreadsEntries();
+					m_frameEntries = Profiler::GetInstance().GetAllThreadsEntries();
 				}
 				else if(m_Options.bHasSelectedThread)
 				{
-					currentEntries = Profiler::GetInstance().GetThreadEntries(selectedThreadId);
+					m_frameEntries = Profiler::GetInstance().GetThreadEntries(selectedThreadId);
 				}
 				else
 				{
-					currentEntries = Profiler::GetInstance().GetCurrentThreadEntries();
+					m_frameEntries = Profiler::GetInstance().GetCurrentThreadEntries();
 				}
 
 				// If we're transitioning to paused, capture the current frame
@@ -61,11 +58,11 @@ namespace editor
 				u64 maxTimestamp = 0;
 				u8 maxDepth = 0;
 
-				// Group entries by thread for better analysis
+				// Group m_frameEntries by thread for better analysis
 				std::unordered_map<std::thread::id, std::vector<ProfilerEntry>> threadGroups;
 				std::unordered_map<std::thread::id, u64> threadDurations;
 
-				for(const auto& entry : currentEntries)
+				for(const auto& entry : m_frameEntries)
 				{
 					threadGroups[entry.threadId].push_back(entry);
 
@@ -79,10 +76,6 @@ namespace editor
 					maxTimestamp = utils::Max(maxTimestamp, entry.timestamp + entry.duration);
 					maxDepth = utils::Max(maxDepth, entry.depth);
 				}
-
-				framesHist[frameCount++ % framesHistCount] = (f32)US_TO_MS(totalDuration);
-				
-				ImGui::PlotHistogram("Histogram", framesHist.data(), (i32)framesHistCount, 0, nullptr, 0.0f, 150.0f, ImVec2(0, 80.0f));
 
 				u64 timeRange = maxTimestamp - minTimestamp;
 
@@ -112,6 +105,7 @@ namespace editor
 				}
 				
 				ImGui::SameLine(); ImGui::Checkbox("Show Tooltips", &m_Options.bShowTooltips);
+				ImGui::SameLine(); ImGui::Checkbox("Group by Threads", &m_Options.bGroupByThreads);
 				ImGui::SameLine(); ImGui::Checkbox("Show All Threads", &m_Options.bShowAllThreads);
 
 				// Thread selection dropdown
@@ -140,105 +134,250 @@ namespace editor
 					}
 				}
 
-				ImGui::Separator();
-
-				ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
-				ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
-
-				// Calculate height needed for multi-thread display
-				float graphHeight = (maxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.topMargin + 50.0f;
-				if(m_Options.bShowAllThreads && threadGroups.size() > 1)
+				if(ImGui::BeginTable("MAIN_DISPLAY", 2, ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable))
 				{
-					// Calculate height per thread group
-					float totalHeight = 0;
-					for(const auto& [threadId, entries] : threadGroups)
+					ImGui::TableNextRow();
+
+					ImGui::TableNextColumn();
 					{
-						u8 threadMaxDepth = 2;
-						for(const auto& entry : entries)
+						ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();
+						ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
+
+						// Calculate height needed for multi-thread display
+						float graphHeight = (maxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.topMargin + 50.0f;
+						if(m_Options.bShowAllThreads && threadGroups.size() > 1)
 						{
-							threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
-						}
-						totalHeight += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
-					}
-					graphHeight += totalHeight;
-				}
-
-				canvas_sz.y = std::max(canvas_sz.y, graphHeight);
-				ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
-
-				ImU32 bgColor = ImGui::WithAlpha(ImGui::PASTEL_LIGHT_BLUE, 40);
-				ImDrawList* pDrawList = ImGui::GetWindowDrawList();
-				pDrawList->AddRectFilled(canvas_p0, canvas_p1, bgColor);
-
-				float virtualCanvasWidth = (canvas_sz.x - m_Options.sideMargin * 2) * zoomLevel;
-				float viewportWidth = canvas_sz.x - m_Options.sideMargin * 2;
-
-				// Pan offset in pixels
-				float maxPanOffset = std::max(0.0f, virtualCanvasWidth - viewportWidth);
-				float panOffsetPixels = scrollOffset * maxPanOffset;
-
-				// Convert back to time domain
-				float pixelsPerNanosecond = timeRange > 0 ? virtualCanvasWidth / (float)timeRange : 0.0f;
-				u64 panOffsetTime = pixelsPerNanosecond > 0 ? (u64)(panOffsetPixels / pixelsPerNanosecond) : 0;
-
-				u64 visibleStartTime = minTimestamp + panOffsetTime;
-				u64 visibleTimeRange = zoomLevel > 0 ? (u64)((float)timeRange / zoomLevel) : timeRange;
-				u64 visibleEndTime = visibleStartTime + visibleTimeRange;
-
-				ImVec2 mousePos = ImGui::GetMousePos();
-				HandlePanCanvas(mousePos, canvas_p0, canvas_p1, virtualCanvasWidth, viewportWidth);
-
-				float currentY = canvas_p0.y + m_Options.topMargin;
-
-				// Reset Hover each Frame.
-				pHoveredEntry = nullptr;
-
-				if(m_Options.bShowAllThreads && threadGroups.size() > 1)
-				{
-					for(auto& [threadId, entries] : threadGroups)
-					{
-						const u64 threadDuration = threadDurations[threadId];
-						std::string threadLabel = Profiler::GetInstance().GetThreadName(threadId);
-
-						const char* threadInfoStr = StringFactory::TempFormat("%s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
-
-						ImU32 threadLabelColor = ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 160);
-						pDrawList->AddText(ImVec2(canvas_p0.x + m_Options.sideMargin, currentY), threadLabelColor, threadInfoStr);
-						currentY += 20.0f;
-
-						for(auto& entry : entries)
-						{
-							DrawProfileEntry(*pDrawList, entry, canvas_p0, canvas_sz, currentY,
-								minTimestamp, timeRange, virtualCanvasWidth, panOffsetPixels, visibleStartTime, visibleEndTime,
-								totalDuration, mousePos);
+							// Calculate height per thread group
+							float totalHeight = 0;
+							for(const auto& [threadId, entries] : threadGroups)
+							{
+								u8 threadMaxDepth = 2;
+								for(const auto& entry : entries)
+								{
+									threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
+								}
+								totalHeight += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
+							}
+							graphHeight += totalHeight;
 						}
 
-						// Find max depth for this thread to advance Y properly
-						u8 threadMaxDepth = 0;
-						for(const auto& entry : entries)
+						canvas_sz.y = std::max(canvas_sz.y, graphHeight);
+						ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
+
+						ImU32 bgColor = ImGui::WithAlpha(ImGui::PASTEL_LIGHT_BLUE, 40);
+						ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+						pDrawList->AddRectFilled(canvas_p0, canvas_p1, bgColor);
+
+						float virtualCanvasWidth = (canvas_sz.x - m_Options.sideMargin * 2) * zoomLevel;
+						float viewportWidth = canvas_sz.x - m_Options.sideMargin * 2;
+
+						// Pan offset in pixels
+						float maxPanOffset = std::max(0.0f, virtualCanvasWidth - viewportWidth);
+						float panOffsetPixels = scrollOffset * maxPanOffset;
+
+						// Convert back to time domain
+						float pixelsPerNanosecond = timeRange > 0 ? virtualCanvasWidth / (float)timeRange : 0.0f;
+						u64 panOffsetTime = pixelsPerNanosecond > 0 ? (u64)(panOffsetPixels / pixelsPerNanosecond) : 0;
+
+						u64 visibleStartTime = minTimestamp + panOffsetTime;
+						u64 visibleTimeRange = zoomLevel > 0 ? (u64)((float)timeRange / zoomLevel) : timeRange;
+						u64 visibleEndTime = visibleStartTime + visibleTimeRange;
+
+						ImVec2 mousePos = ImGui::GetMousePos();
+						HandlePanCanvas(mousePos, canvas_p0, canvas_p1, virtualCanvasWidth, viewportWidth);
+
+						float currentY = canvas_p0.y + m_Options.topMargin;
+
+						// Reset Hover each Frame.
+						pHoveredEntry = nullptr;
+
+						if(m_Options.bShowAllThreads && threadGroups.size() > 1)
 						{
-							threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
+							for(auto& [threadId, entries] : threadGroups)
+							{
+								const u64 threadDuration = threadDurations[threadId];
+								std::string threadLabel = Profiler::GetInstance().GetThreadName(threadId);
+
+								const char* threadInfoStr = StringFactory::TempFormat("%s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
+
+								ImU32 threadLabelColor = ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 160);
+								pDrawList->AddText(ImVec2(canvas_p0.x + m_Options.sideMargin, currentY), threadLabelColor, threadInfoStr);
+								currentY += 20.0f;
+
+								for(auto& entry : entries)
+								{
+									DrawProfileEntry(*pDrawList, entry, canvas_p0, canvas_sz, currentY,
+										minTimestamp, timeRange, virtualCanvasWidth, panOffsetPixels, visibleStartTime, visibleEndTime,
+										totalDuration, mousePos);
+								}
+
+								// Find max depth for this thread to advance Y properly
+								u8 threadMaxDepth = 0;
+								for(const auto& entry : entries)
+								{
+									threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
+								}
+
+								currentY += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
+							}
+						}
+						else
+						{
+							// Draw all entries (single thread or filtered)
+							for(auto& entry : m_frameEntries)
+							{
+								DrawProfileEntry(*pDrawList, entry, canvas_p0, canvas_sz, currentY,
+									minTimestamp, timeRange, virtualCanvasWidth, panOffsetPixels, visibleStartTime, visibleEndTime,
+									totalDuration, mousePos);
+							}
 						}
 
-						currentY += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
+						// Show tooltip for hovered entry
+						ShowTooltip(pHoveredEntry, totalDuration);
+
+						// Reserve the space we used
+						ImGui::Dummy(ImVec2(canvas_sz.x, graphHeight));
 					}
-				}
-				else
-				{
-					// Draw all entries (single thread or filtered)
-					for(auto& entry : currentEntries)
+
+
+					ImGui::TableNextColumn();
 					{
-						DrawProfileEntry(*pDrawList, entry, canvas_p0, canvas_sz, currentY,
-							minTimestamp, timeRange, virtualCanvasWidth, panOffsetPixels, visibleStartTime, visibleEndTime,
-							totalDuration, mousePos);
+						
+						// Display frame time and thread breakdown
+						ImGui::Text("FrameTime: %.3f ms", NS_TO_MS(totalDuration));
+
+						if(m_Options.bShowAllThreads && threadDurations.size() > 1)
+						{
+							ImGui::Text("Threads: %zu", threadDurations.size());
+
+							// Show thread time breakdown
+							for(const auto& [threadId, duration] : threadDurations)
+							{
+								ImGui::Text("  %s: %.2f ms (%.1f%%)",
+									Profiler::GetInstance().GetThreadName(threadId),
+									NS_TO_MS(duration),
+									totalDuration > 0 ? (float)duration / totalDuration * 100.0f : 0.0f);
+							}
+							ImGui::Separator();
+						}
+
+						if(ImGui::BeginTable("PROFILER_TABLE", m_Options.bGroupByThreads && m_Options.bShowAllThreads ? 3 : 2,
+							ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders))
+						{
+							ImGui::TableSetupScrollFreeze(0, 1);
+							ImGui::TableSetupColumn("Function", ImGuiTableColumnFlags_WidthStretch);
+							if(m_Options.bGroupByThreads && m_Options.bShowAllThreads)
+							{
+								ImGui::TableSetupColumn("Thread", ImGuiTableColumnFlags_WidthFixed, 100.0f);
+							}
+							ImGui::TableSetupColumn("Duration", ImGuiTableColumnFlags_WidthStretch);
+							ImGui::TableHeadersRow();
+
+							// Sort m_frameEntries by duration (descending)
+							std::vector<ProfilerEntry> sortedEntries = m_frameEntries;
+							std::sort(sortedEntries.begin(), sortedEntries.end(),
+								[](const ProfilerEntry& a, const ProfilerEntry& b) {
+									return a.duration > b.duration;
+								});
+
+							if(m_Options.bGroupByThreads && m_Options.bShowAllThreads && threadGroups.size() > 1)
+							{
+								// Display grouped by thread
+								for(const auto& [threadId, threadEntries] : threadGroups)
+								{
+									// Thread header row
+									ImGui::TableNextRow();
+									ImGui::TableNextColumn();
+
+									ImU32 headerColor = ImGui::GetColorU32(ImGuiCol_HeaderActive);
+									ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, headerColor);
+									ImGui::Text("%s", Profiler::GetInstance().GetThreadName(threadId));
+
+									ImGui::TableNextColumn();
+									ImGui::Text("Thread");
+									ImGui::TableNextColumn();
+									ImGui::Text("%.2f ms", NS_TO_MS(threadDurations[threadId]));
+
+									// Sort thread m_frameEntries
+									std::vector<ProfilerEntry> sortedThreadEntries = threadEntries;
+									std::sort(sortedThreadEntries.begin(), sortedThreadEntries.end(),
+										[](const ProfilerEntry& a, const ProfilerEntry& b) {
+											return a.threadId > b.threadId;
+										});
+
+									// Display m_frameEntries for this thread
+									for(const auto& entry : sortedThreadEntries)
+									{
+										ImGui::TableNextRow();
+										ImGui::TableNextColumn();
+
+										// Indent based on depth
+										std::string indent(entry.depth * 2, ' ');
+										ImGui::Text("%s%s", indent.c_str(), entry.section);
+
+										ImGui::TableNextColumn();
+										ImGui::Text("%s", Profiler::GetInstance().GetThreadName(entry.threadId));
+
+										ImGui::TableNextColumn();
+										const char* str = StringFactory::TempFormat("%.3f ms", NS_TO_MS((f32)entry.duration));
+										const float percentage = totalDuration > 0 ? (float)entry.duration / totalDuration : 0.0f;
+										ImGui::UsageProgressBar(str, percentage, ImVec2(-1.0f, 15.0f));
+									}
+								}
+							}
+							else
+							{
+								// Display all m_frameEntries in one list
+								for(const auto& entry : sortedEntries)
+								{
+									ImGui::TableNextRow();
+									ImGui::TableNextColumn();
+
+									// Indent based on depth
+									std::string indent(entry.depth * 2, ' ');
+									ImGui::Text("%s%s", indent.c_str(), entry.section);
+
+									if(m_Options.bGroupByThreads && m_Options.bShowAllThreads)
+									{
+										ImGui::TableNextColumn();
+										ImGui::Text("%s", Profiler::GetInstance().GetThreadName(entry.threadId));
+									}
+
+									ImGui::TableNextColumn();
+
+									const char* str = StringFactory::TempFormat("%.3f ms", NS_TO_MS((f32)entry.duration));
+									const float percentage = totalDuration > 0 ? (float)entry.duration / totalDuration : 0.0f;
+									ImGui::UsageProgressBar(str, percentage, ImVec2(-1.0f, 15.0f));
+								}
+							}
+
+							ImGui::EndTable();
+						}
+
+						// Additional statistics
+						if(m_frameEntries.size() > 0)
+						{
+							ImGui::Separator();
+							ImGui::Text("Total Entries: %zu", m_frameEntries.size());
+
+							if(m_Options.bShowAllThreads && threadDurations.size() > 1)
+							{
+								// Find heaviest thread
+								auto heaviestThread = std::max_element(threadDurations.begin(), threadDurations.end(),
+									[](const auto& a, const auto& b) { return a.second < b.second; });
+
+								if(heaviestThread != threadDurations.end())
+								{
+									ImGui::Text("Heaviest Thread: %s (%.2f ms)",
+										Profiler::GetInstance().GetThreadName(heaviestThread->first),
+										NS_TO_MS(heaviestThread->second));
+								}
+							}
+						}
 					}
+
+					ImGui::EndTable();
 				}
-
-				// Show tooltip for hovered entry
-				ShowTooltip(pHoveredEntry, totalDuration);
-
-				// Reserve the space we used
-				ImGui::Dummy(ImVec2(canvas_sz.x, graphHeight));
 
 			}
 			ImGui::End();
@@ -401,10 +540,12 @@ namespace editor
 			ImGui::EndTooltip();
 		}
 
+
 	private:
 		ProfilerEntry* pHoveredEntry = nullptr;
 		std::vector<ProfilerEntry> frozenEntries; // Store paused data
 		std::thread::id selectedThreadId;
+		std::vector<ProfilerEntry> m_frameEntries;
 
 		float zoomLevel = 1.0f;
 		float scrollOffset = 0.0f;
@@ -412,10 +553,6 @@ namespace editor
 		ImVec2 dragStartPos;
 		float dragStartScrollOffset;
 		bool bDragging = false;
-
-		std::vector<float> framesHist;
-		const u32 framesHistCount = 240;
-		u32 frameCount = 0;
 
 		struct EditorOptions
 		{

@@ -1,15 +1,11 @@
 #pragma once
 
 #include "core/core_minimal.h"
-
-#include "debug/memory_widget.h"
-#include "debug/profiler_widget.h"
-#include "debug/renderer_widget.h"
-
 #include "editor/editor_profiler.h"
-#include "game_state.h"
-#include "renderer_sprite.h"
 #include "renderer_imgui.h"
+
+class SpriteBatchRenderer;
+struct Camera2D;
 
 struct RenderCommand
 {

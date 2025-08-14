@@ -1,9 +1,13 @@
-#include "rendering_engine.h"
+
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/backends/imgui_impl_sdl2.h"
+#include "rendering_engine.h"
 
 #include "debug/framerate_widget.h"
-#include <utils/utils_math.h>
+#include "debug/renderer_widget.h"
+#include "profiler/profiler.h"
+#include "renderer_sprite.h"
+#include "utils/utils_math.h"
 
 RenderingEngine::RenderingEngine(SpriteBatchRenderer& renderer)
 	: m_2dRenderer(renderer)
@@ -119,7 +123,7 @@ void RenderingEngine::RenderEditorFrame(GameState& gameState, Camera2D& camera)
 			content_region.y = utils::Max(64.0f, content_region.y);
 
 			// Resize framebuffer if needed
-			ResizeFramebuffer(gameState, content_region.x, content_region.y);
+			ResizeFramebuffer(gameState, (i32)content_region.x, (i32)content_region.y);
 
 			// Display the rendered scene texture
 			ImGui::Image((void*)(intptr_t)gameState.colorTexture,

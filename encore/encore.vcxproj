@@ -201,6 +201,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\manager\base_singleton.h" />
     <ClInclude Include="src\memory\base_arena.h" />
     <ClInclude Include="src\memory\base_pool.h" />
     <ClInclude Include="src\core\core_log.h" />

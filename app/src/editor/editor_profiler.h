@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <thread>
+#include <utils/utils_math.h>
 
 namespace editor 
 {
@@ -25,28 +26,28 @@ namespace editor
 
 			if(ImGui::Begin("Profiler"))
 			{
-				std::vector<ThreadSafeProfiler::Entry> currentEntries;
+				std::vector<ProfilerEntry> currentEntries;
 				if(m_Options.bPaused)
 				{
 					currentEntries = frozenEntries;
 				}
 				else if(m_Options.bShowAllThreads)
 				{
-					currentEntries = g_profiler.GetAllThreadsEntries();
+					currentEntries = Profiler::GetInstance().GetAllThreadsEntries();
 				}
 				else if(m_Options.bHasSelectedThread)
 				{
-					currentEntries = g_profiler.GetThreadEntries(selectedThreadId);
+					currentEntries = Profiler::GetInstance().GetThreadEntries(selectedThreadId);
 				}
 				else
 				{
-					currentEntries = g_profiler.GetCurrentThreadEntries();
+					currentEntries = Profiler::GetInstance().GetCurrentThreadEntries();
 				}
 
 				// If we're transitioning to paused, capture the current frame
 				if(m_Options.bPaused && frozenEntries.empty())
 				{
-					frozenEntries = m_Options.bShowAllThreads ? g_profiler.GetAllThreadsEntries() : g_profiler.GetCurrentThreadEntries();
+					frozenEntries = m_Options.bShowAllThreads ? Profiler::GetInstance().GetAllThreadsEntries() : Profiler::GetInstance().GetCurrentThreadEntries();
 				}
 
 				// If unpausing, clear frozen data
@@ -58,10 +59,10 @@ namespace editor
 				u64 totalDuration = 0;
 				u64 minTimestamp = UINT64_MAX;
 				u64 maxTimestamp = 0;
-				u32 maxDepth = 0;
+				u8 maxDepth = 0;
 
 				// Group entries by thread for better analysis
-				std::unordered_map<std::thread::id, std::vector<ThreadSafeProfiler::Entry>> threadGroups;
+				std::unordered_map<std::thread::id, std::vector<ProfilerEntry>> threadGroups;
 				std::unordered_map<std::thread::id, u64> threadDurations;
 
 				for(const auto& entry : currentEntries)
@@ -74,9 +75,9 @@ namespace editor
 						totalDuration += entry.duration;
 					}
 
-					minTimestamp = std::min(minTimestamp, entry.timestamp);
-					maxTimestamp = std::max(maxTimestamp, entry.timestamp + entry.duration);
-					maxDepth = std::max(maxDepth, entry.depth);
+					minTimestamp = utils::Min(minTimestamp, entry.timestamp);
+					maxTimestamp = utils::Max(maxTimestamp, entry.timestamp + entry.duration);
+					maxDepth = utils::Max(maxDepth, entry.depth);
 				}
 
 				framesHist[frameCount++ % framesHistCount] = (f32)US_TO_MS(totalDuration);
@@ -106,7 +107,7 @@ namespace editor
 					m_Options.bPaused = !m_Options.bPaused;
 					if(m_Options.bPaused)
 					{
-						frozenEntries = m_Options.bShowAllThreads ? g_profiler.GetAllThreadsEntries() : g_profiler.GetCurrentThreadEntries();
+						frozenEntries = m_Options.bShowAllThreads ? Profiler::GetInstance().GetAllThreadsEntries() : Profiler::GetInstance().GetCurrentThreadEntries();
 					}
 				}
 				
@@ -117,12 +118,12 @@ namespace editor
 				if(!m_Options.bShowAllThreads)
 				{
 					ImGui::SameLine();
-					if(ImGui::BeginCombo("Thread", m_Options.bHasSelectedThread ? g_profiler.GetThreadName(selectedThreadId).c_str() : "Select Thread"))
+					if(ImGui::BeginCombo("Thread", m_Options.bHasSelectedThread ? Profiler::GetInstance().GetThreadName(selectedThreadId) : "Select Thread"))
 					{
 						for(const auto& [threadId, entries] : threadGroups)
 						{
 							bool isSelected = (m_Options.bHasSelectedThread && selectedThreadId == threadId);
-							std::string threadName = g_profiler.GetThreadName(threadId);
+							std::string threadName = Profiler::GetInstance().GetThreadName(threadId);
 
 							if(ImGui::Selectable(threadName.c_str(), isSelected))
 							{
@@ -152,10 +153,10 @@ namespace editor
 					float totalHeight = 0;
 					for(const auto& [threadId, entries] : threadGroups)
 					{
-						u32 threadMaxDepth = 2;
+						u8 threadMaxDepth = 2;
 						for(const auto& entry : entries)
 						{
-							threadMaxDepth = std::max(threadMaxDepth, entry.depth);
+							threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
 						}
 						totalHeight += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
 					}
@@ -197,7 +198,7 @@ namespace editor
 					for(auto& [threadId, entries] : threadGroups)
 					{
 						const u64 threadDuration = threadDurations[threadId];
-						std::string threadLabel = g_profiler.GetThreadName(threadId);
+						std::string threadLabel = Profiler::GetInstance().GetThreadName(threadId);
 
 						const char* threadInfoStr = StringFactory::TempFormat("%s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
 
@@ -213,10 +214,10 @@ namespace editor
 						}
 
 						// Find max depth for this thread to advance Y properly
-						u32 threadMaxDepth = 0;
+						u8 threadMaxDepth = 0;
 						for(const auto& entry : entries)
 						{
-							threadMaxDepth = std::max(threadMaxDepth, entry.depth);
+							threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
 						}
 
 						currentY += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
@@ -244,7 +245,7 @@ namespace editor
 		}
 
 	private:
-		void DrawProfileEntry(ImDrawList& rDrawList, ThreadSafeProfiler::Entry& entry, ImVec2 canvas_p0, ImVec2 canvas_sz, float baseY, u64 minTimestamp, u64 timeRange, float virtualCanvasWidth, float panOffsetPixels,
+		void DrawProfileEntry(ImDrawList& rDrawList, ProfilerEntry& entry, ImVec2 canvas_p0, ImVec2 canvas_sz, float baseY, u64 minTimestamp, u64 timeRange, float virtualCanvasWidth, float panOffsetPixels,
 			u64 visibleStartTime, u64 visibleEndTime, u64 totalDuration, ImVec2 mousePos)
 		{
 			const u64 entryStart = entry.timestamp;
@@ -296,7 +297,7 @@ namespace editor
 			HandleHoverEntry(mousePos, rectMin, rectMax, entry);
 		}
 
-		void DrawEntryName(float endX, float startX, ThreadSafeProfiler::Entry& entry, float y, ImDrawList& rDrawList)
+		void DrawEntryName(float endX, float startX, ProfilerEntry& entry, float y, ImDrawList& rDrawList)
 		{
 			const float minSizeForText = 50.0f;
 			float rectWidth = endX - startX;
@@ -317,7 +318,7 @@ namespace editor
 			}
 		}
 
-		void HandleHoverEntry(ImVec2& mousePos, const ImVec2& rectMin, const ImVec2& rectMax, ThreadSafeProfiler::Entry& entry)
+		void HandleHoverEntry(ImVec2& mousePos, const ImVec2& rectMin, const ImVec2& rectMax, ProfilerEntry& entry)
 		{
 			if(m_Options.bShowTooltips)
 			{
@@ -383,7 +384,7 @@ namespace editor
 			}
 		}
 
-		void ShowTooltip(const ThreadSafeProfiler::Entry* pEntry, u64 totalDuration)
+		void ShowTooltip(const ProfilerEntry* pEntry, u64 totalDuration)
 		{
 			if(!m_Options.bShowTooltips || pEntry == nullptr)
 			{
@@ -392,8 +393,8 @@ namespace editor
 
 			constexpr bool bShowMicroseconds = true;
 			ImGui::BeginTooltip();
-			ImGui::Text("%s", g_profiler.GetThreadName(pEntry->threadId).c_str());
-			ImGui::Text("Task: %s", pEntry->section.c_str());
+			ImGui::Text("%s", Profiler::GetInstance().GetThreadName(pEntry->threadId));
+			ImGui::Text("Task: %s", pEntry->section);
 			ImGui::Text("Duration: %s | %.2f%%", 
 				utils::FormatDuration(pEntry->duration, bShowMicroseconds),
 				totalDuration > 0 ? (float)pEntry->duration / totalDuration * 100.0f : 0.0f);
@@ -401,8 +402,8 @@ namespace editor
 		}
 
 	private:
-		ThreadSafeProfiler::Entry* pHoveredEntry = nullptr;
-		std::vector<ThreadSafeProfiler::Entry> frozenEntries; // Store paused data
+		ProfilerEntry* pHoveredEntry = nullptr;
+		std::vector<ProfilerEntry> frozenEntries; // Store paused data
 		std::thread::id selectedThreadId;
 
 		float zoomLevel = 1.0f;

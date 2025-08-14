@@ -220,6 +220,7 @@
     <ClCompile Include="src\game_state.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\profiler\profiler.cpp" />
+    <ClCompile Include="src\profiler\profiler_section.cpp" />
     <ClCompile Include="src\renderer\rendering_engine.cpp" />
     <ClCompile Include="src\utils\string_factory.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
@@ -247,6 +248,8 @@
     <ClInclude Include="src\globals.h" />
     <ClInclude Include="src\integrations\livepp_handler.h" />
     <ClInclude Include="src\profiler\profiler.h" />
+    <ClInclude Include="src\profiler\profiler_section.h" />
+    <ClInclude Include="src\profiler\profiler_types.h" />
     <ClInclude Include="src\renderer\frame_stats.h" />
     <ClInclude Include="src\renderer\render2d_camera.h" />
     <ClInclude Include="src\renderer\render2d_types.h" />

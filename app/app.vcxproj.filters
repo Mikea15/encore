@@ -72,6 +72,9 @@
     <ClCompile Include="src\renderer\rendering_engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\profiler\profiler_section.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h">
@@ -195,6 +198,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\renderer\renderer_imgui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\profiler\profiler_section.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\profiler\profiler_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

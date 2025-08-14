@@ -42,6 +42,9 @@
     <ClInclude Include="src\core\windows_undef.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\manager\base_singleton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\core_platform.cpp">

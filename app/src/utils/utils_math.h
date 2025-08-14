@@ -13,122 +13,54 @@ const f64 E_D = 2.71828182845904523536;
 
 namespace utils 
 {
-	inline f32 Min(f32 a, f32 b)
+	template<typename T>
+	inline T Min(T a, T b) { return (a < b) ? a : b; }
+
+	template<typename T>
+	inline T Max(T a, T b) { return (a > b) ? a : b; }
+
+	template<typename T>
+	inline T Clamp(T value, T min, T max)
 	{
-		return (a < b) ? a : b;
+		return Min(Max(value, min), max);
 	}
 
-	inline f32 Max(f32 a, f32 b)
+	template<typename T>
+	inline T Clamp01(T value)
 	{
-		return (a > b) ? a : b;
+		return Min(Max(value, (T)0), (T)1);
 	}
 
-	inline f64 Min(f64 a, f64 b)
-	{
-		return (a < b) ? a : b;
-	}
-
-	inline f64 Max(f64 a, f64 b)
-	{
-		return (a > b) ? a : b;
-	}
-
-	inline i32 Min(i32 a, i32 b)
-	{
-		return (a < b) ? a : b;
-	}
-
-	inline i32 Max(i32 a, i32 b)
-	{
-		return (a > b) ? a : b;
-	}
-
-	inline f32 Clamp(f32 value, f32 min_val, f32 max_val)
-	{
-		return Min(Max(value, min_val), max_val);
-	}
-
-	inline f64 Clamp(f64 value, f64 min_val, f64 max_val)
-	{
-		return Min(Max(value, min_val), max_val);
-	}
-
-	inline i32 Clamp(i32 value, i32 min_val, i32 max_val)
-	{
-		return Min(Max(value, min_val), max_val);
-	}
-
-	inline f32 Clamp01(f32 value)
-	{
-		return Clamp(value, 0.0f, 1.0f);
-	}
-
-	inline f64 Clamp01(f64 value)
-	{
-		return Clamp(value, 0.0, 1.0);
-	}
-
-	inline f32 Lerp(f32 a, f32 b, f32 t)
+	template<typename T>
+	inline T Lerp(T a, T b, T t)
 	{
 		return a + (b - a) * t;
 	}
 
-	inline f64 Lerp(f64 a, f64 b, f64 t)
-	{
-		return a + (b - a) * t;
-	}
-
-	inline f32 InvLerp(f32 a, f32 b, f32 value)
-	{
-		return (value - a) / (b - a);
-	}
-
-	inline f64 InvLerp(f64 a, f64 b, f64 value)
+	template<typename T>
+	inline T InvLerp(T a, T b, T value)
 	{
 		return (value - a) / (b - a);
 	}
 
 	// Smoothstep interpolation
-	inline f32 SmoothStep(f32 edge0, f32 edge1, f32 x)
+	template<typename T>
+	inline T SmoothStep(T edge0, T edge1, T x)
 	{
-		f32 t = Clamp01((x - edge0) / (edge1 - edge0));
+		T t = Clamp01((x - edge0) / (edge1 - edge0));
 		return t * t * (3.0f - 2.0f * t);
 	}
 
-	inline f64 SmoothStep(f64 edge0, f64 edge1, f64 x)
+	template<typename T>
+	inline T Abs(T value)
 	{
-		f64 t = Clamp01((x - edge0) / (edge1 - edge0));
-		return t * t * (3.0 - 2.0 * t);
+		return (value < (T)0) ? -value : value;
 	}
 
-	inline f32 Abs(f32 value)
+	template<typename T>
+	inline T Sign(T value)
 	{
-		return (value < 0.0f) ? -value : value;
-	}
-
-	inline f64 Abs(f64 value)
-	{
-		return (value < 0.0) ? -value : value;
-	}
-
-	inline i32 Abs(i32 value)
-	{
-		return (value < 0) ? -value : value;
-	}
-
-	inline f32 Sign(f32 value)
-	{
-		return (0.0f < value) - (value < 0.0f);
-	}
-
-	inline f64 Sign(f64 value)
-	{
-		return (0.0 < value) - (value < 0.0);
-	}
-
-	inline i32 Sign(i32 value)
-	{
-		return (0 < value) - (value < 0);
+		return ((T)0 < value) - (value < 0.0f);
 	}
 
 	inline f32 Square(f32 value)

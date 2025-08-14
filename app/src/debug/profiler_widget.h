@@ -27,23 +27,23 @@ namespace debug
 			ImGui::Checkbox("Group by Thread", &bGroupByThread);
 
 			// Get profiling data based on display mode
-			std::vector<ThreadSafeProfiler::Entry> entries;
+			std::vector<ProfilerEntry> entries;
 
 			if(bShowAllThreads)
 			{
-				entries = g_profiler.GetAllThreadsEntries();
+				entries = Profiler::GetInstance().GetAllThreadsEntries();
 			}
 			else
 			{
 				if(bHasSelectedThread)
 				{
-					// If you add GetThreadEntries method to ThreadSafeProfiler
-					// entries = g_profiler.GetThreadEntries(selectedThreadId);
-					entries = g_profiler.GetCurrentThreadEntries(); // Fallback for now
+					// If you add GetThreadEntries method to Profiler
+					// entries = Profiler::GetInstance().GetThreadEntries(selectedThreadId);
+					entries = Profiler::GetInstance().GetCurrentThreadEntries(); // Fallback for now
 				}
 				else
 				{
-					entries = g_profiler.GetCurrentThreadEntries();
+					entries = Profiler::GetInstance().GetCurrentThreadEntries();
 				}
 			}
 
@@ -54,25 +54,25 @@ namespace debug
 
 				// Get available threads
 				std::set<std::thread::id> availableThreads;
-				auto allEntries = g_profiler.GetAllThreadsEntries();
+				auto allEntries = Profiler::GetInstance().GetAllThreadsEntries();
 				for(const auto& entry : allEntries)
 				{
 					availableThreads.insert(entry.threadId);
 				}
 
-				if(ImGui::BeginCombo("Thread", bHasSelectedThread ? g_profiler.GetThreadName(selectedThreadId).c_str() : "Select Thread"))
+				if(ImGui::BeginCombo("Thread", bHasSelectedThread ? Profiler::GetInstance().GetThreadName(selectedThreadId).c_str() : "Select Thread"))
 				{
 					for(const auto& threadId : availableThreads)
 					{
 						bool isSelected = (bHasSelectedThread && selectedThreadId == threadId);
-						std::string threadName = g_profiler.GetThreadName(threadId);
+						std::string threadName = Profiler::GetInstance().GetThreadName(threadId);
 
 						if(ImGui::Selectable(threadName.c_str(), isSelected))
 						{
 							selectedThreadId = threadId;
 							bHasSelectedThread = true;
 							// Update entries for selected thread
-							entries = g_profiler.GetCurrentThreadEntries(); // Update this when GetThreadEntries is available
+							entries = Profiler::GetInstance().GetCurrentThreadEntries(); // Update this when GetThreadEntries is available
 						}
 
 						if(isSelected)
@@ -87,7 +87,7 @@ namespace debug
 			// Calculate total time and thread statistics
 			u64 totalTime = 0;
 			std::unordered_map<std::thread::id, u64> threadTotals;
-			std::unordered_map<std::thread::id, std::vector<ThreadSafeProfiler::Entry>> threadGroups;
+			std::unordered_map<std::thread::id, std::vector<ProfilerEntry>> threadGroups;
 
 			for(const auto& entry : entries)
 			{
@@ -110,7 +110,7 @@ namespace debug
 				for(const auto& [threadId, duration] : threadTotals)
 				{
 					ImGui::Text("  %s: %.2f ms (%.1f%%)",
-						g_profiler.GetThreadName(threadId).c_str(),
+						Profiler::GetInstance().GetThreadName(threadId).c_str(),
 						NS_TO_MS(duration),
 						totalTime > 0 ? (float)duration / totalTime * 100.0f : 0.0f);
 				}
@@ -130,9 +130,9 @@ namespace debug
 				ImGui::TableHeadersRow();
 
 				// Sort entries by duration (descending)
-				std::vector<ThreadSafeProfiler::Entry> sortedEntries = entries;
+				std::vector<ProfilerEntry> sortedEntries = entries;
 				std::sort(sortedEntries.begin(), sortedEntries.end(),
-					[](const ThreadSafeProfiler::Entry& a, const ThreadSafeProfiler::Entry& b) {
+					[](const ProfilerEntry& a, const ProfilerEntry& b) {
 						return a.duration > b.duration;
 					});
 
@@ -145,7 +145,7 @@ namespace debug
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
 
-						std::string threadHeader = "=== " + g_profiler.GetThreadName(threadId) + " ===";
+						std::string threadHeader = "=== " + Profiler::GetInstance().GetThreadName(threadId) + " ===";
 						ImU32 headerColor = ImGui::GetColorU32(ImGuiCol_HeaderActive);
 						ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, headerColor);
 						ImGui::Text("%s", threadHeader.c_str());
@@ -156,9 +156,9 @@ namespace debug
 						ImGui::Text("%.2f ms", NS_TO_MS(threadTotals[threadId]));
 
 						// Sort thread entries
-						std::vector<ThreadSafeProfiler::Entry> sortedThreadEntries = threadEntries;
+						std::vector<ProfilerEntry> sortedThreadEntries = threadEntries;
 						std::sort(sortedThreadEntries.begin(), sortedThreadEntries.end(),
-							[](const ThreadSafeProfiler::Entry& a, const ThreadSafeProfiler::Entry& b) {
+							[](const ProfilerEntry& a, const ProfilerEntry& b) {
 								return a.threadId > b.threadId;
 							});
 
@@ -173,7 +173,7 @@ namespace debug
 							ImGui::Text("%s%s", indent.c_str(), entry.section.c_str());
 
 							ImGui::TableNextColumn();
-							ImGui::Text("%s", g_profiler.GetThreadName(entry.threadId).c_str());
+							ImGui::Text("%s", Profiler::GetInstance().GetThreadName(entry.threadId).c_str());
 
 							ImGui::TableNextColumn();
 							const char* str = StringFactory::TempFormat("%.3f ms", NS_TO_MS((f32)entry.duration));
@@ -197,7 +197,7 @@ namespace debug
 						if(bGroupByThread && bShowAllThreads)
 						{
 							ImGui::TableNextColumn();
-							ImGui::Text("%s", g_profiler.GetThreadName(entry.threadId).c_str());
+							ImGui::Text("%s", Profiler::GetInstance().GetThreadName(entry.threadId).c_str());
 						}
 
 						ImGui::TableNextColumn();
@@ -226,7 +226,7 @@ namespace debug
 					if(heaviestThread != threadTotals.end())
 					{
 						ImGui::Text("Heaviest Thread: %s (%.2f ms)",
-							g_profiler.GetThreadName(heaviestThread->first).c_str(),
+							Profiler::GetInstance().GetThreadName(heaviestThread->first).c_str(),
 							NS_TO_MS(heaviestThread->second));
 					}
 				}

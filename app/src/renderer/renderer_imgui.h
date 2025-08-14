@@ -1,7 +1,11 @@
 #pragma once
 
 #include "game_state.h"
+#include "debug/memory_widget.h"
 #include "profiler/profiler.h"
+
+#include "components/move_component.h"
+#include "components/sprite2d_component.h"
 
 class ImGuiWidget
 {
@@ -19,13 +23,13 @@ public:
 			PROFILE_SCOPE("MemoryMonitor");
 			if(ImGui::Begin("Profiler - Memory"))
 			{
-				if(ImGui::CollapsingHeader("Arenas"))
+				if(ImGui::CollapsingHeader("Arenas", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					debug::DrawMemoryStats(gameState.arenas[AT_GLOBAL], "Global");
 					debug::DrawMemoryStats(gameState.arenas[AT_COMPONENTS], "Components");
 					debug::DrawMemoryStats(gameState.arenas[AT_FRAME], "Frame");
 				}
-				if(ImGui::CollapsingHeader("Pools"))
+				if(ImGui::CollapsingHeader("Pools", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					debug::DrawPoolUsageWidget("Move Component", MoveComponent::GetPool());
 					debug::DrawPoolUsageWidget("Sprite2D Component", Sprite2DComponent::GetPool());

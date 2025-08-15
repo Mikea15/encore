@@ -3,6 +3,8 @@
 #include "core/core_minimal.h"
 #include "editor/editor_profiler.h"
 #include "renderer_imgui.h"
+#include "renderer_sprite.h"
+#include "sprite.h"
 
 class SpriteBatchRenderer;
 struct Camera2D;

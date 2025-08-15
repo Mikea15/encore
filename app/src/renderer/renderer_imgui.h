@@ -23,6 +23,27 @@ public:
 			PROFILE_SCOPE("MemoryMonitor");
 			if(ImGui::Begin("Profiler - Memory"))
 			{
+				if(ImGui::CollapsingHeader("Total", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					u32 totalUsageReserved = 0;
+					u32 currentTotalUsage = 0;
+					for(int i = 0; i < AT_COUNT; i++)
+					{
+						ArenaStats stats = arena_get_stats(&gameState.arenas[i]);
+						totalUsageReserved += stats.totalSize;
+						currentTotalUsage += stats.usedBytes;
+					}
+
+					f32 totalUsageRatio = (f32)currentTotalUsage / totalUsageReserved;
+
+					const char* str = StringFactory::TempFormat("%.1f%% ( Used: %.2f KB )",
+						totalUsageRatio,
+						(f32)BYTES_TO_KB(currentTotalUsage));
+
+					ImGui::UsageProgressBar(str, totalUsageRatio / 100.0f, ImVec2(0.0f, 15.0f));
+					ImGui::SameLine();
+					ImGui::Text("Total Usage");
+				}
 				if(ImGui::CollapsingHeader("Arenas", ImGuiTreeNodeFlags_DefaultOpen))
 				{
 					debug::DrawMemoryStats(gameState.arenas[AT_GLOBAL], "Global");

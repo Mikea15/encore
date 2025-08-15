@@ -24,15 +24,15 @@ namespace editor
 
 			if(ImGui::Begin("Profiler"))
 			{
-				if(m_Options.bPaused)
+				if(m_options.bPaused)
 				{
 					m_frameEntries = frozenEntries;
 				}
-				else if(m_Options.bShowAllThreads)
+				else if(m_options.bShowAllThreads)
 				{
 					m_frameEntries = Profiler::GetInstance().GetAllThreadsEntries();
 				}
-				else if(m_Options.bHasSelectedThread)
+				else if(m_options.bHasSelectedThread)
 				{
 					m_frameEntries = Profiler::GetInstance().GetThreadEntries(selectedThreadId);
 				}
@@ -42,13 +42,13 @@ namespace editor
 				}
 
 				// If we're transitioning to paused, capture the current frame
-				if(m_Options.bPaused && frozenEntries.empty())
+				if(m_options.bPaused && frozenEntries.empty())
 				{
-					frozenEntries = m_Options.bShowAllThreads ? Profiler::GetInstance().GetAllThreadsEntries() : Profiler::GetInstance().GetCurrentThreadEntries();
+					frozenEntries = m_options.bShowAllThreads ? Profiler::GetInstance().GetAllThreadsEntries() : Profiler::GetInstance().GetCurrentThreadEntries();
 				}
 
 				// If unpausing, clear frozen data
-				if(!m_Options.bPaused && !frozenEntries.empty())
+				if(!m_options.bPaused && !frozenEntries.empty())
 				{
 					frozenEntries.clear();
 				}
@@ -83,46 +83,48 @@ namespace editor
 				if(ImGui::CollapsingHeader("Options"))
 				{
 					ImGui::SeparatorText("Viewport:");
-					ImGui::DragFloat("Min Zoom", &m_Options.minZoom, 0.1f, 0.1f, 4.9f);
-					ImGui::DragFloat("Max Zoom", &m_Options.maxZoom, 1.0f, 5.0f, 100.0f);
+					ImGui::DragFloat("Min Zoom", &m_options.minZoom, 0.1f, 0.1f, 4.9f);
+					ImGui::DragFloat("Max Zoom", &m_options.maxZoom, 1.0f, 5.0f, 100.0f);
 					
 					ImGui::SeparatorText("Style:");
-					ImGui::DragFloat("Bar Height", &m_Options.barHeight, 0.1f, 5.0f, 25.0f);
-					ImGui::DragFloat("Bar Spacing", &m_Options.barSpacing, 0.1f, 0.0f, 5.0f);
-					ImGui::DragFloat("Side Margin", &m_Options.sideMargin, 0.1f, 0.0f, 20.0f);
-					ImGui::DragFloat("Top Margin", &m_Options.topMargin, 0.1f, 0.0f, 50.0f);
-					ImGui::DragFloat("Thread Separator Height", &m_Options.threadSeparatorHeight, 0.1f, 0.0f, 30.0f);
+					ImGui::DragFloat("Bar Height", &m_options.barHeight, 0.1f, 5.0f, 25.0f);
+					ImGui::DragFloat("Bar Spacing", &m_options.barSpacing, 0.1f, 0.0f, 5.0f);
+					ImGui::DragFloat("Side Margin", &m_options.sideMargin, 0.1f, 0.0f, 20.0f);
+					ImGui::DragFloat("Top Margin", &m_options.topMargin, 0.1f, 0.0f, 50.0f);
+					ImGui::DragFloat("Thread Separator Height", &m_options.threadSeparatorHeight, 0.1f, 0.0f, 30.0f);
+					ImGui::DragInt("Entry Background Opacity", &m_options.entryBackgroundOpacity, 1, 0, 255);
+					ImGui::DragInt("Entry Border Opacity", &m_options.entryBorderOpacity, 1, 0, 255);
 				}
 
 				// Controls
-				if(ImGui::Button(m_Options.bPaused ? "Resume" : "Pause"))
+				if(ImGui::Button(m_options.bPaused ? "Resume" : "Pause"))
 				{
-					m_Options.bPaused = !m_Options.bPaused;
-					if(m_Options.bPaused)
+					m_options.bPaused = !m_options.bPaused;
+					if(m_options.bPaused)
 					{
-						frozenEntries = m_Options.bShowAllThreads ? Profiler::GetInstance().GetAllThreadsEntries() : Profiler::GetInstance().GetCurrentThreadEntries();
+						frozenEntries = m_options.bShowAllThreads ? Profiler::GetInstance().GetAllThreadsEntries() : Profiler::GetInstance().GetCurrentThreadEntries();
 					}
 				}
 				
-				ImGui::SameLine(); ImGui::Checkbox("Show Tooltips", &m_Options.bShowTooltips);
-				ImGui::SameLine(); ImGui::Checkbox("Group by Threads", &m_Options.bGroupByThreads);
-				ImGui::SameLine(); ImGui::Checkbox("Show All Threads", &m_Options.bShowAllThreads);
+				ImGui::SameLine(); ImGui::Checkbox("Show Tooltips", &m_options.bShowTooltips);
+				ImGui::SameLine(); ImGui::Checkbox("Group by Threads", &m_options.bGroupByThreads);
+				ImGui::SameLine(); ImGui::Checkbox("Show All Threads", &m_options.bShowAllThreads);
 
 				// Thread selection dropdown
-				if(!m_Options.bShowAllThreads)
+				if(!m_options.bShowAllThreads)
 				{
 					ImGui::SameLine();
-					if(ImGui::BeginCombo("Thread", m_Options.bHasSelectedThread ? Profiler::GetInstance().GetThreadName(selectedThreadId) : "Select Thread"))
+					if(ImGui::BeginCombo("Thread", m_options.bHasSelectedThread ? Profiler::GetInstance().GetThreadName(selectedThreadId) : "Select Thread"))
 					{
 						for(const auto& [threadId, entries] : threadGroups)
 						{
-							bool isSelected = (m_Options.bHasSelectedThread && selectedThreadId == threadId);
+							bool isSelected = (m_options.bHasSelectedThread && selectedThreadId == threadId);
 							std::string threadName = Profiler::GetInstance().GetThreadName(threadId);
 
 							if(ImGui::Selectable(threadName.c_str(), isSelected))
 							{
 								selectedThreadId = threadId;
-								m_Options.bHasSelectedThread = true;
+								m_options.bHasSelectedThread = true;
 							}
 
 							if(isSelected)
@@ -144,8 +146,8 @@ namespace editor
 						ImVec2 canvas_sz = ImGui::GetContentRegionAvail();
 
 						// Calculate height needed for multi-thread display
-						float graphHeight = (maxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.topMargin + 50.0f;
-						if(m_Options.bShowAllThreads && threadGroups.size() > 1)
+						float graphHeight = (maxDepth + 1) * (m_options.barHeight + m_options.barSpacing) + m_options.topMargin + 50.0f;
+						if(m_options.bShowAllThreads && threadGroups.size() > 1)
 						{
 							// Calculate height per thread group
 							float totalHeight = 0;
@@ -156,7 +158,7 @@ namespace editor
 								{
 									threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
 								}
-								totalHeight += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
+								totalHeight += (threadMaxDepth + 1) * (m_options.barHeight + m_options.barSpacing) + m_options.threadSeparatorHeight;
 							}
 							graphHeight += totalHeight;
 						}
@@ -168,30 +170,30 @@ namespace editor
 						ImDrawList* pDrawList = ImGui::GetWindowDrawList();
 						pDrawList->AddRectFilled(canvas_p0, canvas_p1, bgColor);
 
-						float virtualCanvasWidth = (canvas_sz.x - m_Options.sideMargin * 2) * zoomLevel;
-						float viewportWidth = canvas_sz.x - m_Options.sideMargin * 2;
+						float virtualCanvasWidth = (canvas_sz.x - m_options.sideMargin * 2) * m_zoomLevel;
+						float viewportWidth = canvas_sz.x - m_options.sideMargin * 2;
 
 						// Pan offset in pixels
 						float maxPanOffset = std::max(0.0f, virtualCanvasWidth - viewportWidth);
-						float panOffsetPixels = scrollOffset * maxPanOffset;
+						float panOffsetPixels = m_scrollOffset * maxPanOffset;
 
 						// Convert back to time domain
 						float pixelsPerNanosecond = timeRange > 0 ? virtualCanvasWidth / (float)timeRange : 0.0f;
 						u64 panOffsetTime = pixelsPerNanosecond > 0 ? (u64)(panOffsetPixels / pixelsPerNanosecond) : 0;
 
 						u64 visibleStartTime = minTimestamp + panOffsetTime;
-						u64 visibleTimeRange = zoomLevel > 0 ? (u64)((float)timeRange / zoomLevel) : timeRange;
+						u64 visibleTimeRange = m_zoomLevel > 0 ? (u64)((float)timeRange / m_zoomLevel) : timeRange;
 						u64 visibleEndTime = visibleStartTime + visibleTimeRange;
 
 						ImVec2 mousePos = ImGui::GetMousePos();
 						HandlePanCanvas(mousePos, canvas_p0, canvas_p1, virtualCanvasWidth, viewportWidth);
 
-						float currentY = canvas_p0.y + m_Options.topMargin;
+						float currentY = canvas_p0.y + m_options.topMargin;
 
 						// Reset Hover each Frame.
 						pHoveredEntry = nullptr;
 
-						if(m_Options.bShowAllThreads && threadGroups.size() > 1)
+						if(m_options.bShowAllThreads && threadGroups.size() > 1)
 						{
 							for(auto& [threadId, entries] : threadGroups)
 							{
@@ -201,7 +203,7 @@ namespace editor
 								const char* threadInfoStr = StringFactory::TempFormat("%s - Duration: %u ms", threadLabel.c_str(), US_TO_MS(threadDuration));
 
 								ImU32 threadLabelColor = ImGui::WithAlpha(ImGui::PASTEL_LEMON_CHIFFON, 160);
-								pDrawList->AddText(ImVec2(canvas_p0.x + m_Options.sideMargin, currentY), threadLabelColor, threadInfoStr);
+								pDrawList->AddText(ImVec2(canvas_p0.x + m_options.sideMargin, currentY), threadLabelColor, threadInfoStr);
 								currentY += 20.0f;
 
 								for(auto& entry : entries)
@@ -218,7 +220,7 @@ namespace editor
 									threadMaxDepth = utils::Max(threadMaxDepth, entry.depth);
 								}
 
-								currentY += (threadMaxDepth + 1) * (m_Options.barHeight + m_Options.barSpacing) + m_Options.threadSeparatorHeight;
+								currentY += (threadMaxDepth + 1) * (m_options.barHeight + m_options.barSpacing) + m_options.threadSeparatorHeight;
 							}
 						}
 						else
@@ -244,9 +246,9 @@ namespace editor
 					{
 						
 						// Display frame time and thread breakdown
-						ImGui::Text("FrameTime: %.3f ms", NS_TO_MS(totalDuration));
+						ImGui::Text("FrameTime: %.3f ms", US_TO_MS((f32)totalDuration));
 
-						if(m_Options.bShowAllThreads && threadDurations.size() > 1)
+						if(m_options.bShowAllThreads && threadDurations.size() > 1)
 						{
 							ImGui::Text("Threads: %zu", threadDurations.size());
 
@@ -255,18 +257,18 @@ namespace editor
 							{
 								ImGui::Text("  %s: %.2f ms (%.1f%%)",
 									Profiler::GetInstance().GetThreadName(threadId),
-									NS_TO_MS(duration),
-									totalDuration > 0 ? (float)duration / totalDuration * 100.0f : 0.0f);
+									US_TO_MS((f32)duration),
+									totalDuration > 0 ? (f32)duration / totalDuration * 100.0f : 0.0f);
 							}
 							ImGui::Separator();
 						}
 
-						if(ImGui::BeginTable("PROFILER_TABLE", m_Options.bGroupByThreads && m_Options.bShowAllThreads ? 3 : 2,
+						if(ImGui::BeginTable("PROFILER_TABLE", m_options.bGroupByThreads && m_options.bShowAllThreads ? 3 : 2,
 							ImGuiTableFlags_Sortable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders))
 						{
 							ImGui::TableSetupScrollFreeze(0, 1);
 							ImGui::TableSetupColumn("Function", ImGuiTableColumnFlags_WidthStretch);
-							if(m_Options.bGroupByThreads && m_Options.bShowAllThreads)
+							if(m_options.bGroupByThreads && m_options.bShowAllThreads)
 							{
 								ImGui::TableSetupColumn("Thread", ImGuiTableColumnFlags_WidthFixed, 100.0f);
 							}
@@ -280,7 +282,7 @@ namespace editor
 									return a.duration > b.duration;
 								});
 
-							if(m_Options.bGroupByThreads && m_Options.bShowAllThreads && threadGroups.size() > 1)
+							if(m_options.bGroupByThreads && m_options.bShowAllThreads && threadGroups.size() > 1)
 							{
 								// Display grouped by thread
 								for(const auto& [threadId, threadEntries] : threadGroups)
@@ -296,7 +298,7 @@ namespace editor
 									ImGui::TableNextColumn();
 									ImGui::Text("Thread");
 									ImGui::TableNextColumn();
-									ImGui::Text("%.2f ms", NS_TO_MS(threadDurations[threadId]));
+									ImGui::Text("%.2f ms", US_TO_MS((f32)threadDurations[threadId]));
 
 									// Sort thread m_frameEntries
 									std::vector<ProfilerEntry> sortedThreadEntries = threadEntries;
@@ -319,7 +321,7 @@ namespace editor
 										ImGui::Text("%s", Profiler::GetInstance().GetThreadName(entry.threadId));
 
 										ImGui::TableNextColumn();
-										const char* str = StringFactory::TempFormat("%.3f ms", NS_TO_MS((f32)entry.duration));
+										const char* str = StringFactory::TempFormat("%.3f ms", US_TO_MS((f32)entry.duration));
 										const float percentage = totalDuration > 0 ? (float)entry.duration / totalDuration : 0.0f;
 										ImGui::UsageProgressBar(str, percentage, ImVec2(-1.0f, 15.0f));
 									}
@@ -337,7 +339,7 @@ namespace editor
 									std::string indent(entry.depth * 2, ' ');
 									ImGui::Text("%s%s", indent.c_str(), entry.section);
 
-									if(m_Options.bGroupByThreads && m_Options.bShowAllThreads)
+									if(m_options.bGroupByThreads && m_options.bShowAllThreads)
 									{
 										ImGui::TableNextColumn();
 										ImGui::Text("%s", Profiler::GetInstance().GetThreadName(entry.threadId));
@@ -345,7 +347,7 @@ namespace editor
 
 									ImGui::TableNextColumn();
 
-									const char* str = StringFactory::TempFormat("%.3f ms", NS_TO_MS((f32)entry.duration));
+									const char* str = StringFactory::TempFormat("%.3f ms", US_TO_MS((f32)entry.duration));
 									const float percentage = totalDuration > 0 ? (float)entry.duration / totalDuration : 0.0f;
 									ImGui::UsageProgressBar(str, percentage, ImVec2(-1.0f, 15.0f));
 								}
@@ -360,7 +362,7 @@ namespace editor
 							ImGui::Separator();
 							ImGui::Text("Total Entries: %zu", m_frameEntries.size());
 
-							if(m_Options.bShowAllThreads && threadDurations.size() > 1)
+							if(m_options.bShowAllThreads && threadDurations.size() > 1)
 							{
 								// Find heaviest thread
 								auto heaviestThread = std::max_element(threadDurations.begin(), threadDurations.end(),
@@ -370,7 +372,7 @@ namespace editor
 								{
 									ImGui::Text("Heaviest Thread: %s (%.2f ms)",
 										Profiler::GetInstance().GetThreadName(heaviestThread->first),
-										NS_TO_MS(heaviestThread->second));
+										US_TO_MS((f32)heaviestThread->second));
 								}
 							}
 						}
@@ -406,14 +408,14 @@ namespace editor
 			const float virtualEndX = ((float)(entryEnd - minTimestamp) / (float)timeRange) * virtualCanvasWidth;
 
 			// Apply pan offset and convert to screen space
-			float startX = canvas_p0.x + m_Options.sideMargin + virtualStartX - panOffsetPixels;
-			float endX = canvas_p0.x + m_Options.sideMargin + virtualEndX - panOffsetPixels;
+			float startX = canvas_p0.x + m_options.sideMargin + virtualStartX - panOffsetPixels;
+			float endX = canvas_p0.x + m_options.sideMargin + virtualEndX - panOffsetPixels;
 
-			float y = baseY + entry.depth * (m_Options.barHeight + m_Options.barSpacing);
+			float y = baseY + entry.depth * (m_options.barHeight + m_options.barSpacing);
 
 			// Clamp to visible area
-			startX = std::max(startX, canvas_p0.x + m_Options.sideMargin);
-			endX = std::min(endX, canvas_p0.x + canvas_sz.x - m_Options.sideMargin);
+			startX = std::max(startX, canvas_p0.x + m_options.sideMargin);
+			endX = std::min(endX, canvas_p0.x + canvas_sz.x - m_options.sideMargin);
 
 			if(endX <= startX)
 			{
@@ -421,13 +423,13 @@ namespace editor
 			}
 
 			const ImVec2 rectMin(startX, y);
-			const ImVec2 rectMax(endX, y + m_Options.barHeight);
+			const ImVec2 rectMax(endX, y + m_options.barHeight);
 
-			const ImU32 color = ImGui::GetPastelColor(entry.depth + std::hash<std::thread::id>{}(entry.threadId), 80);
+			const ImU32 backgroundColor = ImGui::GetPastelColor(entry.depth + std::hash<std::thread::id>{}(entry.threadId), m_options.entryBackgroundOpacity);
 
 			// Draw rectangle
-			rDrawList.AddRectFilled(rectMin, rectMax, color);
-			rDrawList.AddRect(rectMin, rectMax, ImGui::WithAlpha(color, 220), 0.0f, ImDrawFlags_None, 0.1f);
+			rDrawList.AddRectFilled(rectMin, rectMax, backgroundColor);
+			rDrawList.AddRect(rectMin, rectMax, ImGui::WithAlpha(backgroundColor, m_options.entryBorderOpacity), 0.0f, ImDrawFlags_None, 0.1f);
 
 			// Add text if rectangle is wide enough
 			const float rectWidth = endX - startX;
@@ -452,14 +454,14 @@ namespace editor
 					text = text.substr(0, (size_t)(spaceForText / textSize.x * text.length())) + "...";
 				}
 
-				ImVec2 textPos(startX + 2.0f, y + (m_Options.barHeight - textSize.y) * 0.5f);
+				ImVec2 textPos(startX + 2.0f, y + (m_options.barHeight - textSize.y) * 0.5f);
 				rDrawList.AddText(textPos, IM_COL32(255, 255, 255, 255), text.c_str());
 			}
 		}
 
 		void HandleHoverEntry(ImVec2& mousePos, const ImVec2& rectMin, const ImVec2& rectMax, ProfilerEntry& entry)
 		{
-			if(m_Options.bShowTooltips)
+			if(m_options.bShowTooltips)
 			{
 				if(mousePos.x >= rectMin.x && mousePos.x <= rectMax.x && mousePos.y >= rectMin.y && mousePos.y <= rectMax.y)
 				{
@@ -484,48 +486,48 @@ namespace editor
 				const float wheel = ImGui::GetIO().MouseWheel;
 				if(wheel != 0.0f)
 				{
-					zoomLevel *= (1.0f + wheel * 0.1f);
-					zoomLevel = std::clamp(zoomLevel, m_Options.minZoom, m_Options.maxZoom);
+					m_zoomLevel *= (1.0f + wheel * 0.1f);
+					m_zoomLevel = std::clamp(m_zoomLevel, m_options.minZoom, m_options.maxZoom);
 				}
 
 				if(ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
-					bDragging = true;
-					dragStartPos = mousePos;
-					dragStartScrollOffset = scrollOffset;
+					m_bDragging = true;
+					m_dragStartPos = mousePos;
+					m_dragStartScrollOffset = m_scrollOffset;
 				}
 
 				if(ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					zoomLevel = 1.0f;
-					scrollOffset = 0.0f;
+					m_zoomLevel = 1.0f;
+					m_scrollOffset = 0.0f;
 				}
 			}
 
-			if(bDragging)
+			if(m_bDragging)
 			{
 				if(ImGui::IsMouseDown(ImGuiMouseButton_Left))
 				{
 					ImVec2 currentMousePos = ImGui::GetMousePos();
-					float dragDelta = currentMousePos.x - dragStartPos.x;
+					float dragDelta = currentMousePos.x - m_dragStartPos.x;
 
 					float maxPanOffset = std::max(0.0f, virtualCanvasWidth - viewportWidth);
 					if(maxPanOffset > 0.0f)
 					{
 						float scrollDelta = -dragDelta / maxPanOffset;
-						scrollOffset = std::clamp(dragStartScrollOffset + scrollDelta, 0.0f, 1.0f);
+						m_scrollOffset = std::clamp(m_dragStartScrollOffset + scrollDelta, 0.0f, 1.0f);
 					}
 				}
 				else
 				{
-					bDragging = false;
+					m_bDragging = false;
 				}
 			}
 		}
 
 		void ShowTooltip(const ProfilerEntry* pEntry, u64 totalDuration)
 		{
-			if(!m_Options.bShowTooltips || pEntry == nullptr)
+			if(!m_options.bShowTooltips || pEntry == nullptr)
 			{
 				return;
 			}
@@ -547,12 +549,12 @@ namespace editor
 		std::thread::id selectedThreadId;
 		std::vector<ProfilerEntry> m_frameEntries;
 
-		float zoomLevel = 1.0f;
-		float scrollOffset = 0.0f;
+		float m_zoomLevel = 1.0f;
+		float m_scrollOffset = 0.0f;
 
-		ImVec2 dragStartPos;
-		float dragStartScrollOffset;
-		bool bDragging = false;
+		ImVec2 m_dragStartPos;
+		float m_dragStartScrollOffset;
+		bool m_bDragging = false;
 
 		struct EditorOptions
 		{
@@ -563,14 +565,17 @@ namespace editor
 			float topMargin = 5.0f;
 			float threadSeparatorHeight = 15.0f;
 
-			float minZoom = 0.1f;
-			float maxZoom = 20.0f;
+			float minZoom = 0.01f;
+			float maxZoom = 100.0f;
+
+			i32 entryBackgroundOpacity = 60;
+			i32 entryBorderOpacity = 180;
 
 			bool bShowAllThreads = true;
 			bool bGroupByThreads = false;
 			bool bHasSelectedThread = false;
 			bool bShowTooltips = true;
 			bool bPaused = false;
-		} m_Options;
+		} m_options;
 	};
 }

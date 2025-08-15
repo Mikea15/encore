@@ -1,6 +1,8 @@
 #pragma once
 
 #include "core/core_minimal.h"
+#include "debug/framerate_widget.h"
+#include "debug/memory_widget.h"
 #include "editor_profiler.h"
 #include "game_state.h"
 

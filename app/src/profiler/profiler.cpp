@@ -1,4 +1,5 @@
 #include "profiler.h"
+#include <utils/string_factory.h>
 
 // Define the thread_local static member
 thread_local ProfilerThreadData* Profiler::tl_threadData = nullptr;
@@ -90,9 +91,7 @@ const char* Profiler::GetThreadName(std::thread::id threadId)
 		return it->second;
 	}
 
-	char buff[80];
-	sprintf_s(buff, "Thread_%d", threadId); 
-	return buff;
+	return StringFactory::TempFormat("Thread_%d", threadId);
 }
 
 // Report profiling data grouped by thread
@@ -116,7 +115,7 @@ void Profiler::PrintReport()
 			{
 				printf("\t");
 			}
-			printf("%s: %.4fms\n", entry.section, NS_TO_MS(entry.duration));
+			printf("%s: %.4fms\n", entry.section, NS_TO_MS((f32)entry.duration));
 		}
 	}
 }

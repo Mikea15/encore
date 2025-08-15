@@ -1,41 +1,40 @@
 #pragma once
 
 #include "imgui/imgui.h"
-
-#include <string>
+#include "imgui/imgui_internal.h"
 
 namespace ImGui 
 {
-	// Individual pastel color constants (callable by name)
-	static constexpr ImU32 PASTEL_LIGHT_BLUE = IM_COL32(173, 216, 230, 255);
-	static constexpr ImU32 PASTEL_SKY_BLUE = IM_COL32(135, 206, 235, 255);
-	static constexpr ImU32 PASTEL_LIGHT_STEEL_BLUE = IM_COL32(176, 196, 222, 255);
-	static constexpr ImU32 PASTEL_LAVENDER = IM_COL32(230, 230, 250, 255);
-	static constexpr ImU32 PASTEL_PALE_TURQUOISE = IM_COL32(175, 238, 238, 255);
-	static constexpr ImU32 PASTEL_LIGHT_GREEN = IM_COL32(144, 238, 144, 255);
-	static constexpr ImU32 PASTEL_PALE_GREEN = IM_COL32(152, 251, 152, 255);
-	static constexpr ImU32 PASTEL_HONEYDEW = IM_COL32(240, 255, 240, 255);
-	static constexpr ImU32 PASTEL_MINT_CREAM = IM_COL32(245, 255, 250, 255);
-	static constexpr ImU32 PASTEL_LIGHT_PINK = IM_COL32(255, 182, 193, 255);
-	static constexpr ImU32 PASTEL_PEACH_PUFF = IM_COL32(255, 218, 185, 255);
-	static constexpr ImU32 PASTEL_PINK = IM_COL32(255, 192, 203, 255);
-	static constexpr ImU32 PASTEL_MISTY_ROSE = IM_COL32(255, 228, 225, 255);
-	static constexpr ImU32 PASTEL_ANTIQUE_WHITE = IM_COL32(250, 235, 215, 255);
-	static constexpr ImU32 PASTEL_LIGHT_YELLOW = IM_COL32(255, 255, 224, 255);
-	static constexpr ImU32 PASTEL_LEMON_CHIFFON = IM_COL32(255, 250, 205, 255);
-	static constexpr ImU32 PASTEL_PAPAYA_WHIP = IM_COL32(255, 239, 213, 255);
-	static constexpr ImU32 PASTEL_OLD_LACE = IM_COL32(253, 245, 230, 255);
-	static constexpr ImU32 PASTEL_PLUM = IM_COL32(221, 160, 221, 255);
-	static constexpr ImU32 PASTEL_ORCHID = IM_COL32(218, 112, 214, 255);
-	static constexpr ImU32 PASTEL_LAVENDER_BLUSH = IM_COL32(255, 240, 245, 255);
-	static constexpr ImU32 PASTEL_VIOLET = IM_COL32(238, 130, 238, 255);
-	static constexpr ImU32 PASTEL_LIGHT_GOLDENROD = IM_COL32(250, 250, 210, 255);
-	static constexpr ImU32 PASTEL_BISQUE = IM_COL32(255, 228, 196, 255);
-	static constexpr ImU32 PASTEL_SEASHELL = IM_COL32(255, 245, 238, 255);
-	static constexpr ImU32 PASTEL_BEIGE = IM_COL32(245, 245, 220, 255);
-	static constexpr ImU32 PASTEL_CORNSILK = IM_COL32(255, 248, 220, 255);
+	// Enhanced pastel colors with more saturation and contrast while maintaining softness
+	static constexpr ImU32 PASTEL_LIGHT_BLUE = IM_COL32(120, 180, 220, 255);      // More saturated blue
+	static constexpr ImU32 PASTEL_SKY_BLUE = IM_COL32(100, 170, 230, 255);        // Deeper sky blue
+	static constexpr ImU32 PASTEL_LIGHT_STEEL_BLUE = IM_COL32(140, 170, 210, 255); // More contrast
+	static constexpr ImU32 PASTEL_LAVENDER = IM_COL32(200, 180, 240, 255);        // More purple tint
+	static constexpr ImU32 PASTEL_PALE_TURQUOISE = IM_COL32(120, 220, 210, 255);  // More vibrant turquoise
+	static constexpr ImU32 PASTEL_LIGHT_GREEN = IM_COL32(120, 220, 120, 255);     // More saturated green
+	static constexpr ImU32 PASTEL_PALE_GREEN = IM_COL32(130, 240, 130, 255);      // Brighter pale green
+	static constexpr ImU32 PASTEL_HONEYDEW = IM_COL32(220, 250, 220, 255);        // Slightly more green
+	static constexpr ImU32 PASTEL_MINT_CREAM = IM_COL32(220, 250, 230, 255);      // More minty
+	static constexpr ImU32 PASTEL_LIGHT_PINK = IM_COL32(250, 150, 170, 255);      // More saturated pink
+	static constexpr ImU32 PASTEL_PEACH_PUFF = IM_COL32(250, 200, 150, 255);      // Warmer peach
+	static constexpr ImU32 PASTEL_PINK = IM_COL32(250, 160, 180, 255);            // More vibrant pink
+	static constexpr ImU32 PASTEL_MISTY_ROSE = IM_COL32(250, 210, 210, 255);      // Slightly more rose
+	static constexpr ImU32 PASTEL_ANTIQUE_WHITE = IM_COL32(240, 220, 190, 255);   // Warmer antique
+	static constexpr ImU32 PASTEL_LIGHT_YELLOW = IM_COL32(250, 250, 180, 255);    // More saturated yellow
+	static constexpr ImU32 PASTEL_LEMON_CHIFFON = IM_COL32(250, 240, 170, 255);   // More lemony
+	static constexpr ImU32 PASTEL_PAPAYA_WHIP = IM_COL32(250, 220, 180, 255);     // Warmer papaya
+	static constexpr ImU32 PASTEL_OLD_LACE = IM_COL32(245, 230, 200, 255);        // Warmer lace
+	static constexpr ImU32 PASTEL_PLUM = IM_COL32(200, 120, 200, 255);            // More saturated plum
+	static constexpr ImU32 PASTEL_ORCHID = IM_COL32(210, 90, 200, 255);           // More vibrant orchid
+	static constexpr ImU32 PASTEL_LAVENDER_BLUSH = IM_COL32(250, 220, 230, 255);  // More blush
+	static constexpr ImU32 PASTEL_VIOLET = IM_COL32(220, 100, 220, 255);          // More saturated violet
+	static constexpr ImU32 PASTEL_LIGHT_GOLDENROD = IM_COL32(240, 230, 140, 255); // More golden
+	static constexpr ImU32 PASTEL_BISQUE = IM_COL32(250, 210, 170, 255);          // Warmer bisque
+	static constexpr ImU32 PASTEL_SEASHELL = IM_COL32(250, 230, 210, 255);        // Warmer seashell
+	static constexpr ImU32 PASTEL_BEIGE = IM_COL32(230, 220, 180, 255);           // More contrast beige
+	static constexpr ImU32 PASTEL_CORNSILK = IM_COL32(250, 240, 190, 255);        // Warmer cornsilk
 
-	// Randomized pastel color palette (no gradients on sequential access)
+	// Randomized enhanced pastel color palette
 	static const ImU32 PASTEL_COLORS[] = {
 		PASTEL_ORCHID,
 		PASTEL_LIGHT_GREEN,
@@ -82,23 +81,6 @@ namespace ImGui
 		return (color & 0x00FFFFFF) | (alpha << 24);
 	}
 
-	// Helper function to get a color based on a hash (for consistent coloring)
-	static ImU32 GetPastelColorByHash(const std::string& str)
-	{
-		std::hash<std::string> hasher;
-		size_t hash = hasher(str);
-		return PASTEL_COLORS[hash % PASTEL_COLORS_COUNT];
-	}
-
-	// Helper function to get a color based on a hash with custom alpha
-	static ImU32 GetPastelColorByHash(const std::string& str, u8 alpha)
-	{
-		std::hash<std::string> hasher;
-		size_t hash = hasher(str);
-		ImU32 color = PASTEL_COLORS[hash % PASTEL_COLORS_COUNT];
-		return (color & 0x00FFFFFF) | (alpha << 24);
-	}
-
 	// Helper function to get a color based on depth (cycles through colors)
 	static ImU32 GetPastelColorByDepth(u32 depth)
 	{
@@ -118,25 +100,53 @@ namespace ImGui
 		return (color & 0x00FFFFFF) | (alpha << 24);
 	}
 
+	// NEW: Helper function to create a darker version of any pastel for better contrast
+	static ImU32 GetPastelDark(size_t index, float darknessFactor = 0.7f)
+	{
+		ImU32 color = PASTEL_COLORS[index % PASTEL_COLORS_COUNT];
+		u8 r = (u8)(((color >> 0) & 0xFF) * darknessFactor);
+		u8 g = (u8)(((color >> 8) & 0xFF) * darknessFactor);
+		u8 b = (u8)(((color >> 16) & 0xFF) * darknessFactor);
+		u8 a = (color >> 24) & 0xFF;
+		return IM_COL32(r, g, b, a);
+	}
+
+	// NEW: Helper function to create a lighter version of any pastel
+	static ImU32 GetPastelLight(size_t index, float lightnessFactor = 1.2f)
+	{
+		ImU32 color = PASTEL_COLORS[index % PASTEL_COLORS_COUNT];
+		u8 r = (u8)ImMin(255, (int)(((color >> 0) & 0xFF) * lightnessFactor));
+		u8 g = (u8)ImMin(255, (int)(((color >> 8) & 0xFF) * lightnessFactor));
+		u8 b = (u8)ImMin(255, (int)(((color >> 16) & 0xFF) * lightnessFactor));
+		u8 a = (color >> 24) & 0xFF;
+		return IM_COL32(r, g, b, a);
+	}
+
+	// Enhanced usage progress bar with better color transitions
 	static void UsageProgressBar(const char* label, float fraction, ImVec2 size = ImVec2(-1.0f, 0.0f))
 	{
-		// Determine color based on fraction
+		// More vibrant color progression for better visibility
 		ImVec4 color;
-		if (fraction < 0.25f) {
-			color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); // Green
+		if(fraction < 0.25f)
+		{
+			color = ImVec4(0.2f, 0.9f, 0.3f, 1.0f); // Vibrant green
 		}
-		else if (fraction < 0.5f) {
-			color = ImVec4(0.5f, 1.0f, 0.0f, 1.0f); // Yellow-green
+		else if(fraction < 0.5f)
+		{
+			color = ImVec4(0.7f, 0.9f, 0.2f, 1.0f); // Bright lime
 		}
-		else if (fraction < 0.75f) {
-			color = ImVec4(1.0f, 0.65f, 0.0f, 1.0f); // Orange
+		else if(fraction < 0.75f)
+		{
+			color = ImVec4(1.0f, 0.6f, 0.1f, 1.0f); // Vivid orange
 		}
-		else {
-			color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
+		else
+		{
+			color = ImVec4(0.9f, 0.2f, 0.2f, 1.0f); // Bright red
 		}
 
 		ImGui::PushStyleColor(ImGuiCol_PlotHistogram, color);
 		ImGui::ProgressBar(fraction, size, label);
 		ImGui::PopStyleColor();
 	}
+
 }

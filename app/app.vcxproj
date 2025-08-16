@@ -221,11 +221,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\profiler\profiler.cpp" />
     <ClCompile Include="src\profiler\profiler_section.cpp" />
-    <ClCompile Include="src\renderer\renderer_sprite.cpp" />
     <ClCompile Include="src\renderer\rendering_engine.cpp" />
-    <ClCompile Include="src\renderer\sprite.cpp" />
-    <ClCompile Include="src\renderer\spritesheet.cpp" />
-    <ClCompile Include="src\renderer\texture.cpp" />
     <ClCompile Include="src\utils\string_factory.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_sdl2.cpp" />
@@ -262,9 +258,6 @@
     <ClInclude Include="src\renderer\renderer_shader.h" />
     <ClInclude Include="src\renderer\renderer_sprite.h" />
     <ClInclude Include="src\renderer\render_system.h" />
-    <ClInclude Include="src\renderer\sprite.h" />
-    <ClInclude Include="src\renderer\spritesheet.h" />
-    <ClInclude Include="src\renderer\texture.h" />
     <ClInclude Include="src\renderer\window_handler.h" />
     <ClInclude Include="src\tasks\task_node.h" />
     <ClInclude Include="src\tasks\thread_pool.h" />
@@ -285,7 +278,6 @@
     <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
     <ClInclude Include="vendor\imgui\imstb_textedit.h" />
     <ClInclude Include="vendor\imgui\imstb_truetype.h" />
-    <ClInclude Include="vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="todo.md" />

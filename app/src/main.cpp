@@ -28,10 +28,10 @@
 #endif
 
 #include "memory/base_pool.h"
-#include "renderer/types.h"
-#include "renderer/rendering_engine.h"
-#include "renderer/sprite_renderer.h"
-#include "renderer/window_handler.h"
+#include "gfx/types.h"
+#include "gfx/rendering_engine.h"
+#include "gfx/sprite_renderer.h"
+#include "gfx/window_handler.h"
 
 #include "game_state.h"
 #include "tasks/task_system.h"

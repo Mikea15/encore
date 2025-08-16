@@ -4,7 +4,7 @@
 #include "components/move_component.h"
 #include "components/sprite2d_component.h"
 #include "memory/base_pool.h"
-#include "renderer/types.h"
+#include "gfx/types.h"
 #include "utils/utils_rand.h"
 
 class Entity : public PoolId

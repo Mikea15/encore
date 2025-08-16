@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#include "renderer/frame_stats.h"
+#include "gfx/frame_stats.h"
 
 namespace debug
 {

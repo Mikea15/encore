@@ -5,9 +5,9 @@
 
 #include "components/move_component.h"
 #include "memory/base_pool.h"
-#include "renderer/types.h"
+#include "gfx/types.h"
 #include "utils/utils_rand.h"
-#include "renderer/sprite.h"
+#include "gfx/sprite.h"
 
 struct Sprite2DComponent : public PoolId
 {

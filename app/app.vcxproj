@@ -228,6 +228,7 @@
     <ClCompile Include="src\gfx\sprite_renderer.cpp" />
     <ClCompile Include="src\gfx\window_handler.cpp" />
     <ClCompile Include="src\utils\string_factory.cpp" />
+    <ClCompile Include="src\gfx\texture.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_sdl2.cpp" />
     <ClCompile Include="vendor\imgui\imgui.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="src\utils\utils_rand.h" />
     <ClInclude Include="src\utils\utils_thread.h" />
     <ClInclude Include="src\utils\utils_time.h" />
+    <ClInclude Include="src\gfx\texture.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_sdl2.h" />

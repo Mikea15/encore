@@ -4,7 +4,7 @@
 #include "core/core_minimal.h"
 
 #include "memory/base_pool.h"
-#include "renderer/render2d_types.h"
+#include "renderer/types.h"
 #include "utils/utils_rand.h"
 
 struct MoveComponent : public PoolId

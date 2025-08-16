@@ -2,9 +2,9 @@
 
 #include "core/core_types.h"
 
-#include "render2d_types.h"
-#include "render2d_camera.h"
-#include "renderer_shader.h"
+#include "types.h"
+#include "camera_2d.h"
+#include "shader.h"
 
 #include <GL/glew.h>
 

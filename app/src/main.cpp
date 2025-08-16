@@ -28,9 +28,9 @@
 #endif
 
 #include "memory/base_pool.h"
-#include "renderer/render2d_types.h"
+#include "renderer/types.h"
 #include "renderer/rendering_engine.h"
-#include "renderer/renderer_sprite.h"
+#include "renderer/sprite_renderer.h"
 #include "renderer/window_handler.h"
 
 #include "game_state.h"

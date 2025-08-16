@@ -6,7 +6,7 @@
 #include "debug/framerate_widget.h"
 #include "debug/renderer_widget.h"
 #include "profiler/profiler.h"
-#include "renderer_sprite.h"
+#include "sprite.h"
 #include "utils/utils_math.h"
 
 RenderingEngine::RenderingEngine(SpriteBatchRenderer& renderer)

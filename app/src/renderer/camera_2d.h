@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render2d_types.h"
+#include "types.h"
 
 struct Camera2D
 {

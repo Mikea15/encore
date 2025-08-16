@@ -6,7 +6,8 @@
 #include "extension_imgui.h"
 
 #include "memory/base_arena.h"
-#include "renderer/renderer_sprite.h"
+#include "renderer/sprite.h"
+#include "renderer/sprite_renderer.h"
 
 namespace debug 
 {

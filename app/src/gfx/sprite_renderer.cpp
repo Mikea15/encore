@@ -11,7 +11,7 @@ void SpriteBatchRenderer::Init()
 	m_textureSlots.reserve(MAX_TEXTURES);
 
 	u8 white[4] = { 255, 255, 255, 255 };
-	m_whiteTexture = TextureManager::GetInstance().CreateColored(1, 1, white, GL_RGBA);
+	m_whiteTexture = TextureManager::GetInstance().Create(white, 1, 1, GL_RGBA);
 }
 
 void SpriteBatchRenderer::Clear()

@@ -37,6 +37,7 @@
 #include "tasks/task_system.h"
 
 #include "integrations/livepp_handler.h"
+#include "gfx/texture_manager.h"
 
 #define TEST 0
 #if TEST
@@ -146,6 +147,8 @@ i32 main(i32 argc, char* argv[])
 	MoveComponent::Init(&gameState.arenas[AT_COMPONENTS]);
 	Sprite2DComponent::Init(&gameState.arenas[AT_COMPONENTS]);
 
+	Texture texSlimeIdle = TextureManager::GetInstance().LoadFromFile("../assets/sprites/slime1_temp.png");
+
 	// Create some test sprites
 	for(int i = 0; i < 100000; ++i)
 	{
@@ -155,12 +158,13 @@ i32 main(i32 argc, char* argv[])
 			(rand() % 2000) - 1000.0f // Random Y: -1000 to 1000
 		};
 		sprite.size = { (rand() % 32) + 1.0f, (rand() % 32) + 1.0f };
-		sprite.color = {
-			(rand() % 255) / 255.0f, // Random color
-			(rand() % 255) / 255.0f,
-			(rand() % 255) / 255.0f,
-			1.0f
-		};
+		//sprite.color = {
+		//	(rand() % 255) / 255.0f, // Random color
+		//	(rand() % 255) / 255.0f,
+		//	(rand() % 255) / 255.0f,
+		//	1.0f
+		//};
+		sprite.texId = texSlimeIdle.GetTextureID();
 
 		Entity* pEnt = Entity::Alloc();
 		Assert(pEnt);

@@ -10,9 +10,11 @@ class TextureManager
 	DECLARE_SINGLETON(TextureManager);
 
 public:
-	static Texture CreateEmpty(u32 width, u32 height, GLenum format = GL_RGBA);
-	static Texture CreateColored(u32 width, u32 height, u8 color[4], GLenum format = GL_RGBA);
+	Texture Create(const u8* pData, u32 width, u32 height, u8 channels);
+
+	Texture LoadFromFile(const char* pFilePath, bool bFlipVertically = true);
+	Texture LoadFromMemory(u8* pData, u32 width, u32 height, u8 channels);
 
 private:
-	
+	GLenum GetTextureFormat(u8 channels);
 };

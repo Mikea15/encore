@@ -236,6 +236,9 @@
     <ClInclude Include="src\gfx\texture_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\utils_path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="todo.md" />

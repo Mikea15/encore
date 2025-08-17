@@ -4,10 +4,12 @@
 #include "memory/base_pool.h"
 #include "gfx/types.h"
 
-class Texture : public PoolId
+class Texture //: public PoolId
 {
 public:
-	DECLARE_POOL(Texture);
+	//typedef PoolId Base;
+
+	//DECLARE_POOL(Texture);
 
 	// Constructor
 	Texture();

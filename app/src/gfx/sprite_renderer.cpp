@@ -21,7 +21,6 @@ void SpriteBatchRenderer::Clear()
 	if(m_VAO) { glDeleteVertexArrays(1, &m_VAO); }
 	if(m_VBO) { glDeleteBuffers(1, &m_VBO); }
 	if(m_EBO) { glDeleteBuffers(1, &m_EBO); }
-	if(m_whitePixelTexId) { glDeleteTextures(1, &m_whitePixelTexId); }
 }
 
 void SpriteBatchRenderer::Begin(const Camera2D& cam, f32 viewportWidth, f32 viewportHeight)
@@ -32,7 +31,7 @@ void SpriteBatchRenderer::Begin(const Camera2D& cam, f32 viewportWidth, f32 view
 	m_currentTextureSlot = 0;
 
 	// Always have white texture in slot 0
-	m_textureSlots.push_back(m_whitePixelTexId);
+	m_textureSlots.push_back(m_whiteTexture.GetTextureID());
 	m_currentTextureSlot = 1;
 
 	// Set up camera matrices
@@ -65,7 +64,7 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 		// Restart batch - but don't call Begin() again, just reset internal state
 		m_vertices.clear();
 		m_textureSlots.clear();
-		m_textureSlots.push_back(m_whitePixelTexId);
+		m_textureSlots.push_back(m_whiteTexture.GetTextureID());
 		m_currentTextureSlot = 1;
 
 		textureIndex = GetTextureIndex(sprite.texId);
@@ -319,6 +318,7 @@ void SpriteBatchRenderer::Flush()
 	// Reset for next batch
 	m_vertices.clear();
 	m_textureSlots.clear();
-	m_textureSlots.push_back(m_whitePixelTexId); // Always keep white texture
+
+	m_textureSlots.push_back(m_whiteTexture.GetTextureID());
 	m_currentTextureSlot = 1;
 }

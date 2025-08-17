@@ -61,7 +61,6 @@ private:
 
 	// OpenGL objects
 	GLuint m_VAO = 0, m_VBO = 0, m_EBO = 0;
-	GLuint m_whitePixelTexId = 0;
 
 	Texture m_whiteTexture;
 	Shader m_shader;

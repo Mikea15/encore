@@ -5,7 +5,7 @@ Texture TextureManager::CreateEmpty(u32 width, u32 height, GLenum format /*= GL_
 	return CreateColored(width, height, nullptr, format);
 }
 
-Texture TextureManager::CreateColored(u32 width, u32 height, u8 color[4], GLenum format)
+Texture TextureManager::CreateColored(u32 width, u32 height, u8* color, GLenum format)
 {
 	Assert(width > 0 && height > 0);
 
@@ -19,7 +19,7 @@ Texture TextureManager::CreateColored(u32 width, u32 height, u8 color[4], GLenum
 	if(format == GL_RGB) internalFormat = GL_RGB8;
 	else if(format == GL_RGBA) internalFormat = GL_RGBA8;
 
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, &color);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, color);
 
 	// Set default parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

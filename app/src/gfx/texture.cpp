@@ -1,11 +1,21 @@
 #include "texture.h"
 
+IMPLEMENT_POOL(Texture, 40);
+
 Texture::Texture()
 	: m_textureID(0)
 	, m_width(0)
 	, m_height(0)
 	, m_format(GL_RGBA)
 	, m_internalFormat(GL_RGBA)
+{}
+
+Texture::Texture(u32 texId, u32 width, u32 height, GLenum format, GLenum internalFormat)
+	: m_textureID(texId)
+	, m_width(width)
+	, m_height(height)
+	, m_format(format)
+	, m_internalFormat(internalFormat)
 {}
 
 Texture::~Texture()
@@ -33,7 +43,7 @@ Texture& Texture::operator=(Texture&& rOther) noexcept
 	return *this;
 }
 
-bool Texture::LoadFromFile(const std::string& rFilePath)
+bool Texture::LoadFromFile(const char* rFilePath)
 {
 	// Note: This is a simplified example. In practice, you'd use a library like stb_image
 	// to load actual image files. For now, this creates a placeholder texture.
@@ -53,60 +63,29 @@ bool Texture::LoadFromFile(const std::string& rFilePath)
 	};
 
 	glBindTexture(GL_TEXTURE_2D, m_textureID);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	// Set default parameters
 	SetWrapMode(GL_REPEAT, GL_REPEAT);
 	SetFilterMode(GL_LINEAR, GL_LINEAR);
 
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	m_width = 2;
 	m_height = 2;
 	m_format = GL_RGBA;
 	m_internalFormat = GL_RGBA;
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	return true;
 }
 
-bool Texture::CreateEmpty(int width, int height, GLenum format)
-{
-	if(width <= 0 || height <= 0)
-		return false;
-
-	// Generate texture ID if not already created
-	if(m_textureID == 0)
-	{
-		glGenTextures(1, &m_textureID);
-	}
-
-	glBindTexture(GL_TEXTURE_2D, m_textureID);
-
-	// Determine internal format based on format
-	GLenum internalFormat = format;
-	if(format == GL_RGB) internalFormat = GL_RGB8;
-	else if(format == GL_RGBA) internalFormat = GL_RGBA8;
-
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
-
-	// Set default parameters
-	SetWrapMode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-	SetFilterMode(GL_LINEAR, GL_LINEAR);
-
-	m_width = width;
-	m_height = height;
-	m_format = format;
-	m_internalFormat = internalFormat;
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	return true;
-}
-
-void Texture::Bind(unsigned int textureUnit) const
+void Texture::Bind(u32 textureUnit) const
 {
 	if(m_textureID != 0)
 	{
+		AssertMsg(GL_TEXTURE0 + textureUnit <= GL_TEXTURE31, "Over Texture limit 32");
+
 		glActiveTexture(GL_TEXTURE0 + textureUnit);
 		glBindTexture(GL_TEXTURE_2D, m_textureID);
 	}
@@ -155,6 +134,7 @@ void Texture::UpdateData(const void* pData, int width, int height, GLenum format
 	{
 		glBindTexture(GL_TEXTURE_2D, m_textureID);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, format, type, pData);
+
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		m_width = width;
@@ -163,16 +143,16 @@ void Texture::UpdateData(const void* pData, int width, int height, GLenum format
 	}
 }
 
-void Texture::SetActiveTextureUnit(unsigned int unit)
+void Texture::SetActiveTextureUnit(u32 unit)
 {
 	glActiveTexture(GL_TEXTURE0 + unit);
 }
 
-unsigned int Texture::GetMaxTextureUnits()
+u32 Texture::GetMaxTextureUnits()
 {
 	GLint maxUnits;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxUnits);
-	return static_cast<unsigned int>(maxUnits);
+	return static_cast<u32>(maxUnits);
 }
 
 void Texture::Cleanup()

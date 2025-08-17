@@ -1,7 +1,7 @@
 
 #include "move_component.h"
 
-IMPLEMENT_POOL(MoveComponent, 100000);
+IMPLEMENT_POOL(MoveComponent, 100'000);
 
 void MoveComponent::Update(float deltaTime)
 {

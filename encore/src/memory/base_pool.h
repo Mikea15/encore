@@ -256,18 +256,19 @@ private:
 };
 
 // Pool macros
-#define DECLARE_POOL(Type) \
-    static Pool<Type> pool; \
-    static Pool<Type>* GetPool() { return &pool; } \
-	template<typename... Args> \
-    static Type* Alloc(Args&&... args) { return pool.Alloc(std::forward<Args>(args)...); } \
-    static void Free(Type* pItem) { pool.Free(pItem); } \
-    static void Free(u32 id) { pool.Free(id); } \
+#define DECLARE_POOL(Type)																	\
+    static Pool<Type> pool;																	\
+    static Pool<Type>* GetPool() { return &pool; }											\
+	template<typename... Args>																\
+    static Type* Alloc(Args&&... args) { return pool.Alloc(std::forward<Args>(args)...); }	\
+    static void Free(Type* pItem) { pool.Free(pItem); }										\
+    static void Free(u32 id) { pool.Free(id); }												\
     static bool Init(Arena* pArena);
 
-#define IMPLEMENT_POOL(Type, Cap) \
-    Pool<Type> Type::pool; \
+#define IMPLEMENT_POOL(Type, Cap) 															\
+    Pool<Type> Type::pool; 																	\
     bool Type::Init(Arena* pArena) { return pool.Init(pArena, Cap); }
+
 
 #if COMPILE_DEMO
 // Example usage

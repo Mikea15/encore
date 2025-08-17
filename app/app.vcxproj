@@ -218,6 +218,7 @@
     <ClCompile Include="src\components\move_component.h" />
     <ClCompile Include="src\entity\entity.cpp" />
     <ClCompile Include="src\game_state.cpp" />
+    <ClCompile Include="src\gfx\texture_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\profiler\profiler.cpp" />
     <ClCompile Include="src\profiler\profiler_section.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="src\editor\editor_profiler.h" />
     <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\game_state.h" />
+    <ClInclude Include="src\gfx\texture_manager.h" />
     <ClInclude Include="src\globals.h" />
     <ClInclude Include="src\integrations\livepp_handler.h" />
     <ClInclude Include="src\profiler\profiler.h" />

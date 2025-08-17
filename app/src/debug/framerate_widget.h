@@ -16,7 +16,7 @@ namespace debug
 	{
 		if (ImGui::Begin("Performance Monitor"))
 		{
-			// Current frame stats
+			// Current frame m_renderStats
 			ImGui::Text("Average FPS: %.1f", stats.avgFps);
 			ImGui::Text("Average FrameTime: %.3f ms", 1000.0f / stats.avgFps);
 

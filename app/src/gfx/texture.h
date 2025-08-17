@@ -1,15 +1,17 @@
 #pragma once
 
 #include "core/core_minimal.h"
+#include "memory/base_pool.h"
 #include "gfx/types.h"
 
-#include <string>
-
-class Texture
+class Texture : public PoolId
 {
 public:
+	DECLARE_POOL(Texture);
+
 	// Constructor
 	Texture();
+	Texture(u32 texId, u32 width, u32 height, GLenum format, GLenum internalFormat);
 
 	// Destructor
 	~Texture();
@@ -23,13 +25,10 @@ public:
 	Texture& operator=(Texture&& rOther) noexcept;
 
 	// Load texture from file
-	bool LoadFromFile(const std::string& rFilePath);
-
-	// Create empty texture with specified dimensions
-	bool CreateEmpty(int width, int height, GLenum format = GL_RGBA);
+	bool LoadFromFile(const char* pFilePath);
 
 	// Bind texture to specified texture unit
-	void Bind(unsigned int textureUnit = 0) const;
+	void Bind(u32 textureUnit = 0) const;
 
 	// Unbind texture
 	void Unbind() const;
@@ -45,21 +44,21 @@ public:
 	void UpdateData(const void* pData, int width, int height, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE);
 
 	// Getters
-	unsigned int GetTextureID() const { return m_textureID; }
+	u32 GetTextureID() const { return m_textureID; }
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
 	GLenum GetFormat() const { return m_format; }
 	bool IsValid() const { return m_textureID != 0; }
 
 	// Static utility functions
-	static void SetActiveTextureUnit(unsigned int unit);
-	static unsigned int GetMaxTextureUnits();
+	static void SetActiveTextureUnit(u32 unit);
+	static u32 GetMaxTextureUnits();
 
 private:
 	void Cleanup();
 	void Move(Texture&& rOther) noexcept;
 
-	unsigned int m_textureID;
+	u32 m_textureID;
 	int m_width;
 	int m_height;
 	GLenum m_format;

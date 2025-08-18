@@ -6,15 +6,11 @@
 #include "profiler_types.h"
 #include "profiler_section.h"
 
-#include <vector>
-#include <chrono>
 #include <iostream>
 #include <iomanip>
 #include <thread>
 #include <unordered_map>
 #include <mutex>
-
-
 
 class Profiler
 {

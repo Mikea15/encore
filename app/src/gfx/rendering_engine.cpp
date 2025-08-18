@@ -13,7 +13,7 @@ RenderingEngine::RenderingEngine(SpriteBatchRenderer& renderer)
 	: m_2dRenderer(renderer)
 {}
 
-void RenderingEngine::Init(GameState & rGameState)
+void RenderingEngine::Init(GameState& rGameState)
 {
 	m_2dRenderer.Init();
 

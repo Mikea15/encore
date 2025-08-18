@@ -1,5 +1,8 @@
 #include "profiler.h"
-#include <utils/string_factory.h>
+
+#include "utils/string_factory.h"
+
+#include <chrono>
 
 // Define the thread_local static member
 thread_local ProfilerThreadData* Profiler::tl_threadData = nullptr;

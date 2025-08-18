@@ -37,7 +37,7 @@ private:
 	void ResizeFramebuffer(GameState& gameState, i32 width, i32 height);
 
 private:
-	editor::ProfilerWindow m_profilerWindow;
+	ProfilerWindow m_profilerWindow;
 	SpriteBatchRenderer& m_2dRenderer;
 	std::vector<RenderCommand> m_renderCommands;
 	RendererImGui m_imguiRenderer;

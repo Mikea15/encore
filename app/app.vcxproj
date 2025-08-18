@@ -216,6 +216,7 @@
     <ClCompile Include="src\components\sprite2d_component.cpp" />
     <ClCompile Include="src\components\move_component.cpp" />
     <ClCompile Include="src\components\move_component.h" />
+    <ClCompile Include="src\editor\editor.cpp" />
     <ClCompile Include="src\entity\entity.cpp" />
     <ClCompile Include="src\game_state.cpp" />
     <ClCompile Include="src\gfx\texture_manager.cpp" />
@@ -268,6 +269,8 @@
     <ClInclude Include="src\gfx\sprite_renderer.h" />
     <ClInclude Include="src\gfx\render_system.h" />
     <ClInclude Include="src\gfx\window_handler.h" />
+    <ClInclude Include="src\states\state.h" />
+    <ClInclude Include="src\states\state_sandbox.h" />
     <ClInclude Include="src\tasks\task_node.h" />
     <ClInclude Include="src\tasks\thread_pool.h" />
     <ClInclude Include="src\tasks\task_system.h" />
@@ -289,6 +292,7 @@
     <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
     <ClInclude Include="vendor\imgui\imstb_textedit.h" />
     <ClInclude Include="vendor\imgui\imstb_truetype.h" />
+    <ClInclude Include="vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="todo.md" />

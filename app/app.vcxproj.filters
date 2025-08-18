@@ -96,6 +96,9 @@
     <ClCompile Include="src\gfx\texture_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\editor\editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h">
@@ -237,6 +240,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\utils_path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\state_sandbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

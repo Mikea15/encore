@@ -5,6 +5,8 @@
 #include "manager/base_singleton.h"
 #include "texture.h"
 
+#include <GL/glew.h>
+
 class TextureManager
 {
 	DECLARE_SINGLETON(TextureManager);

@@ -3,6 +3,8 @@
 #include "core/core_minimal.h"
 #include "types.h"
 
+#include <GL/glew.h>
+
 struct Sprite
 {
 	Vec2 position = { 0.0f, 0.0f };

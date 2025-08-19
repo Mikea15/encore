@@ -7,6 +7,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "types.h"
+
 // PERF: Have Shaders loaded on a Pool or Something so that we can load them on a Job
 class Shader
 {
@@ -23,8 +25,8 @@ public:
 
 	GLint GetUniformLocation( const std::string& name ) const;
 
-	void SetMat4( const std::string& name, const glm::mat4& matrix ) const;
-	void SetVec3( const std::string& name, const glm::vec3& vector ) const;
+	void SetMat4( const std::string& name, const Mat4& matrix ) const;
+	void SetVec3( const std::string& name, const Vec3& vector ) const;
 	void SetFloat( const std::string& name, float value ) const;
 	void SetInt( const std::string& name, i32 value ) const;
 	void SetIntArray( const std::string& name, i32* values, i32 count ) const;

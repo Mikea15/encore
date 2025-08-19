@@ -218,7 +218,7 @@
     <ClCompile Include="src\components\move_component.h" />
     <ClCompile Include="src\editor\editor.cpp" />
     <ClCompile Include="src\entity\entity.cpp" />
-    <ClCompile Include="src\game_state.cpp" />
+    <ClCompile Include="src\game_engine.cpp" />
     <ClCompile Include="src\gfx\texture_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\profiler\profiler.cpp" />
@@ -247,11 +247,11 @@
     <ClInclude Include="src\debug\extension_imgui.h" />
     <ClInclude Include="src\debug\framerate_widget.h" />
     <ClInclude Include="src\debug\memory_widget.h" />
-    <ClInclude Include="src\debug\profiler_widget.h" />
     <ClInclude Include="src\debug\renderer_widget.h" />
     <ClInclude Include="src\editor\editor.h" />
     <ClInclude Include="src\editor\editor_profiler.h" />
     <ClInclude Include="src\entity\entity.h" />
+    <ClInclude Include="src\game_engine.h" />
     <ClInclude Include="src\game_state.h" />
     <ClInclude Include="src\gfx\texture_manager.h" />
     <ClInclude Include="src\globals.h" />

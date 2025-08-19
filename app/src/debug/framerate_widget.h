@@ -1,12 +1,10 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "imgui/imgui.h"
-#include "utils/string_factory.h"
 
 #include "game_state.h"
-
-#include <algorithm>
+#include "imgui/imgui.h"
+#include "utils/string_factory.h"
 
 #include "gfx/frame_stats.h"
 

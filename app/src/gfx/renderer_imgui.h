@@ -1,11 +1,13 @@
 #pragma once
 
-#include "game_state.h"
-#include "debug/memory_widget.h"
-#include "profiler/profiler.h"
+#include "core/core_minimal.h"
 
+#include "game_state.h"
 #include "components/move_component.h"
 #include "components/sprite2d_component.h"
+#include "debug/memory_widget.h"
+#include "profiler/profiler.h"
+#include "profiler/profiler_section.h"
 
 class ImGuiWidget
 {

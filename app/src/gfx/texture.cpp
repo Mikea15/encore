@@ -1,6 +1,6 @@
 #include "texture.h"
 
-// IMPLEMENT_POOL(Texture, 40);
+#include <algorithm>
 
 Texture::Texture()
 	: m_textureID(0)

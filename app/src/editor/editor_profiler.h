@@ -1,8 +1,9 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "debug/extension_imgui.h"
+
 #include "game_state.h"
+#include "debug/extension_imgui.h"
 #include "imgui/imgui.h"
 #include "profiler/profiler.h"
 #include "utils/string_factory.h"
@@ -11,7 +12,6 @@
 
 #include <algorithm>
 #include <thread>
-#include <set>
 
 
 class ProfilerWindow

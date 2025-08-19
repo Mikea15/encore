@@ -1,13 +1,13 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "debug/framerate_widget.h"
-#include "debug/memory_widget.h"
+
 #include "editor_profiler.h"
 #include "game_state.h"
-#include "editor_profiler.h"
+#include "debug/memory_widget.h"
 #include "gfx/camera_2d.h"
 #include "gfx/types.h"
+#include "profiler/profiler_section.h"
 
 #if ENC_DEBUG
 #define ENABLE_EDITOR 1
@@ -20,13 +20,24 @@
 class Editor
 {
 public:
-	Editor(GameState& rGameState) 
-		: m_rGameState(rGameState)
-	{}
-
+	void Init(GameState* pGameState)
+	{
+		m_pGameState = pGameState;
+	}
 	void HandleInput(const SDL_Event& event)
 	{
 		m_cameraInput = {};
+
+		switch(event.type)
+		{
+		case SDL_KEYDOWN:
+			if(event.key.keysym.sym == SDLK_TAB)
+			{
+				m_pGameState->editor.bShowImGui = !m_pGameState->editor.bShowImGui;
+			}
+			break;
+		default: break;
+		}
 
 		const u8* keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -54,19 +65,21 @@ public:
 
 			m_cameraInput = glm::normalize(m_cameraInput);
 
-			m_editorCamera.zoom += m_cameraInput.z * deltaTime;
-			m_editorCamera.zoom = utils::Clamp(m_editorCamera.zoom, 0.01f, 100.0f);
+			m_camera.zoom += m_cameraInput.z * deltaTime;
+			m_camera.zoom = utils::Clamp(m_camera.zoom, 0.01f, 100.0f);
 
-			m_editorCamera.cameraVelocity = glm::mix(m_editorCamera.cameraVelocity,
+			m_camera.cameraVelocity = glm::mix(m_camera.cameraVelocity,
 				Vec2(m_cameraInput.x, m_cameraInput.y) * cameraSpeed,
-				m_editorCamera.cameraDamping * deltaTime);
+				m_camera.cameraDamping * deltaTime);
 		}
 	}
 
-private:
-	GameState& m_rGameState;
+	Camera2D& GetCamera() { return m_camera; }
 
-	Camera2D m_editorCamera;
+private:
+	GameState* m_pGameState = nullptr;
+
+	Camera2D m_camera;
 	Vec3 m_cameraInput;
 	ProfilerWindow m_profilerWindow;
 };

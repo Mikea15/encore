@@ -1,4 +1,5 @@
 #include "sprite_renderer.h"
+
 #include "texture.h"
 #include "texture_manager.h"
 

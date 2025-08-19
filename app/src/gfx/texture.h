@@ -1,17 +1,13 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "memory/base_pool.h"
-#include "gfx/types.h"
 
-class Texture //: public PoolId
+#include <GL/glew.h>
+
+class Texture
 {
 public:
 	NO_COPY(Texture);
-
-	//typedef PoolId Base;
-
-	//DECLARE_POOL(Texture);
 
 	// Constructor
 	Texture();

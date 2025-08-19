@@ -52,7 +52,3 @@ struct GameState
 	// Global
 	bool bShowInGameImGui = true;
 };
-
-GameState CreateDefaultGameState();
-void ClearGameState(GameState& gameState);
-

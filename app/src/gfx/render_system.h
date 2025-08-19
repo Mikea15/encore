@@ -1,6 +1,7 @@
 #pragma once
 
-#include "core/minimal.h"
+#include "core/core_minimal.h"
+
 #include <thread>
 #include <queue>
 #include <mutex>

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "core/core_minimal.h"
+
 #include "components/move_component.h"
 #include "components/sprite2d_component.h"
-#include "memory/base_pool.h"
 #include "gfx/types.h"
-#include "utils/utils_rand.h"
+#include "memory/base_pool.h"
 
 class Entity : public PoolId
 {

@@ -3,10 +3,6 @@
 
 #include "core/core_minimal.h"
 
-#include "extension_imgui.h"
-
-#include "memory/base_arena.h"
-#include "gfx/sprite.h"
 #include "gfx/sprite_renderer.h"
 
 namespace debug 

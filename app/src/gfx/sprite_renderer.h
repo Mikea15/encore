@@ -2,17 +2,14 @@
 
 #include "core/core_types.h"
 
-#include "types.h"
 #include "camera_2d.h"
+#include "entity/entity.h"
 #include "shader.h"
-
 #include "texture.h"
+#include "types.h"
 
-#include <GL/glew.h>
-
-#include <string>
 #include <vector>
-#include <entity/entity.h>
+#include <GL/glew.h>
 
 class SpriteBatchRenderer
 {

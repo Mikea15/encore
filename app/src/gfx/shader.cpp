@@ -1,5 +1,6 @@
-#include "sprite.h"
 #include "shader.h"
+
+#include "sprite.h"
 
 void Shader::Init(const std::string& vertexSrc, const std::string& fragmentSrc)
 {

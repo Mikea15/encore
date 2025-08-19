@@ -4,9 +4,7 @@
 #include "manager/base_singleton.h"
 
 #include "profiler_types.h"
-#include "profiler_section.h"
 
-#include <iostream>
 #include <iomanip>
 #include <thread>
 #include <unordered_map>

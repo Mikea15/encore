@@ -3,6 +3,8 @@
 #include "core/core_minimal.h"
 
 #include "state.h"
+#include "entity/entity.h"
+#include "gfx/texture_manager.h"
 
 class SandboxState : public State
 {

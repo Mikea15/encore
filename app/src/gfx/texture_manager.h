@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "memory/base_pool.h"
+
 #include "manager/base_singleton.h"
 #include "texture.h"
 

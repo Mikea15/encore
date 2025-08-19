@@ -110,8 +110,7 @@ void Profiler::PrintReport()
 
 	for(const auto& [threadId, entries] : threadGroups)
 	{
-		std::cout << "\n=== " << GetThreadName(threadId) << " ===\n";
-
+		printf("\n=== %s ===\n", GetThreadName(threadId));
 		for(const auto& entry : entries)
 		{
 			for(int i = 0; i < entry.depth; i++)

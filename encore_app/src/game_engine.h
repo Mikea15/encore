@@ -34,7 +34,9 @@ private:
 	TaskSchedulerSystem m_taskScheduler;
 	GameState m_gameState;
 
+
 	Editor m_editor;
+
 
 	SandboxState m_sandbox;
 

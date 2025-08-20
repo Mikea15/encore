@@ -10,6 +10,7 @@
 
 namespace debug
 {
+#if ENC_DEBUG
 	static void DrawFrameStats(GameState& gameState, FrameStats& stats)
 	{
 		if (ImGui::Begin("Performance Monitor"))
@@ -75,4 +76,5 @@ namespace debug
 		}
 		ImGui::End();
 	}
+#endif
 };

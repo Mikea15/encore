@@ -1,15 +1,31 @@
 workspace "encore"
     architecture "x64"
     configurations { "Debug", "Profile", "Release" }
-    startproject "app"
+    startproject "encore_app"
 
+    -- Workspace-level settings
+    warnings "extra"
+    flags { "MultiProcessorCompile" }
+    
     -- Output directories
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
+    -- Global defines
+    defines
+    {
+        "GLM_FORCE_DEPTH_ZERO_TO_ONE",  -- Vulkan/DirectX depth convention
+        "GLM_FORCE_LEFT_HANDED"  -- Left-handed coordinate system
+    }
 
     -- vcpkg integration
     filter "system:windows"
         toolset "msc-v143"
         -- Enable vcpkg manifest mode
+        externalanglebrackets "on"
+        externalwarnings "off"
+        -- Windows-specific optimizations
+        buildoptions { "/bigobj" }  -- For large object files
+        linkoptions { "/SUBSYSTEM:CONSOLE" }
     filter {}
 
 -- Enable vcpkg manifest mode globally
@@ -60,22 +76,34 @@ project "encore_core"
 
     -- Configuration specific settings
     filter "configurations:Debug"
-        defines { "ENC_DEBUG", "ENC_EDITOR", "ENC_IMGUI" }
+        defines { "ENC_DEBUG", "ENC_EDITOR", "ENC_IMGUI", "_DEBUG" }
         runtime "Debug"
         symbols "on"
         optimize "off"
+        inlining "disabled"
+        -- eventually if remove LivePP
+        -- editandcontinue "on"  -- Hot reload support
 
     filter "configurations:Profile"
-        defines { "ENC_PROFILE", "ENC_EDITOR", "ENC_IMGUI" }
+        defines { "ENC_PROFILE", "ENC_EDITOR", "ENC_IMGUI", "NDEBUG" }
         runtime "Release"
         symbols "on"
         optimize "speed"
+        inlining "auto"
+        editandcontinue "off"
 
     filter "configurations:Release"
-        defines { "ENC_RELEASE" }
+        defines { "ENC_RELEASE", "NDEBUG" }
         runtime "Release"
         symbols "off"
         optimize "full"
+        inlining "auto"
+        editandcontinue "off"
+
+    -- Compiler-specific optimizations
+    filter { "configurations:Release", "system:windows" }
+        buildoptions { "/GL" }  -- Whole program optimization
+        linkoptions { "/LTCG" }  -- Link-time code generation
 
     filter {}
 
@@ -173,3 +201,40 @@ filter "system:windows"
     }
 
 filter {}
+
+newaction {
+    trigger = "package",
+    description = "Package release build for distribution",
+    execute = function()
+        print("Creating distribution package...")
+        local outputPath = "dist/encore-" .. os.date("%Y%m%d")
+        os.mkdir(outputPath)
+        os.copyfile("bin/Release-windows-x86_64/encore_app/encore_app.exe", outputPath .. "/encore.exe")
+        os.execute('xcopy "assets" "' .. outputPath .. '/assets" /E /I /Y')
+        os.copyfile("README.md", outputPath .. "/README.md")
+        print("Package created in: " .. outputPath)
+    end
+}
+
+-- Format code using clang-format
+newaction {
+    trigger = "format",
+    description = "Format all source code using clang-format",
+    execute = function()
+        print("Formatting code...")
+        os.execute("clang-format -i -style=file encore_core/src/**/*.cpp encore_core/src/**/*.h")
+        os.execute("clang-format -i -style=file encore_app/src/**/*.cpp encore_app/src/**/*.h")
+        print("Code formatting complete!")
+    end
+}
+
+-- Run static analysis with clang-tidy
+newaction {
+    trigger = "analyze",
+    description = "Run static analysis with clang-tidy",
+    execute = function()
+        print("Running static analysis...")
+        os.execute("clang-tidy encore_core/src/**/*.cpp encore_app/src/**/*.cpp")
+        print("Analysis complete!")
+    end
+}

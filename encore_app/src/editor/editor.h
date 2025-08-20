@@ -9,14 +9,6 @@
 #include "gfx/types.h"
 #include "profiler/profiler_section.h"
 
-#if ENC_DEBUG
-#define ENABLE_EDITOR 1
-#else
-#define ENABLE_EDITOR 0
-#endif
-
-
-#if ENABLE_EDITOR
 class Editor
 {
 public:
@@ -83,5 +75,5 @@ private:
 	Vec3 m_cameraInput;
 	ProfilerWindow m_profilerWindow;
 };
-#endif
+
 

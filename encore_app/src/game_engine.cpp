@@ -242,4 +242,6 @@ void GameEngine::InitGame()
 
 	// State
 	m_sandbox.Init();
+
+	m_bIsRunning = true;
 }

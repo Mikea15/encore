@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="encore_core">
+      <UniqueIdentifier>{C9052AFC-35BB-A2F1-BEAF-9CC82A6499F5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_core\src">
+      <UniqueIdentifier>{6080F569-CC0B-632E-D51C-E6224127BF2E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_core\src\core">
+      <UniqueIdentifier>{D86CDF62-C4FB-682C-6D1A-7D27598879D2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_core\src\manager">
+      <UniqueIdentifier>{AAB40387-16EC-4B1E-1FF6-AF418BAC7217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_core\src\memory">
+      <UniqueIdentifier>{E81F0AAF-D419-3301-BD86-C911A91F996D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\core\core_assert.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\core_log.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\core_minimal.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\core_platform.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\core_types.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\windows_undef.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\manager\base_singleton.h">
+      <Filter>encore_core\src\manager</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\base_arena.h">
+      <Filter>encore_core\src\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\base_pool.h">
+      <Filter>encore_core\src\memory</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\core\core_platform.cpp">
+      <Filter>encore_core\src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\memory\base_pool.cpp">
+      <Filter>encore_core\src\memory</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

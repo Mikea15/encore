@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Profile|x64">
+      <Configuration>Profile</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{81E08CAA-6D98-CEF7-D69F-A753C27669E8}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>encore_app</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\Debug-windows-x86_64\encore_app\</OutDir>
+    <IntDir>$(ProjectDir)..\intermediate\Debug-windows-x86_64\encore_app\</IntDir>
+    <TargetName>encore_app</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\Profile-windows-x86_64\encore_app\</OutDir>
+    <IntDir>$(ProjectDir)..\intermediate\Profile-windows-x86_64\encore_app\</IntDir>
+    <TargetName>encore_app</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\bin\Release-windows-x86_64\encore_app\</OutDir>
+    <IntDir>$(ProjectDir)..\intermediate\Release-windows-x86_64\encore_app\</IntDir>
+    <TargetName>encore_app</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalOptions>/p:VcpkgEnableManifest=true %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;SDL2d.lib;SDL2maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows\lib;$(VCPKG_ROOT)\installed\x64-windows\debug\lib;..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST "$(SolutionDir)assets"\ (xcopy /Q /E /Y /I "$(SolutionDir)assets" "..\bin\Debug-windows-x86_64\encore_app\assets" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)assets" "..\bin\Debug-windows-x86_64\encore_app\assets" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/p:VcpkgEnableManifest=true %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows\lib;$(VCPKG_ROOT)\installed\x64-windows\debug\lib;..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/p:VcpkgEnableManifest=true %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows\lib;$(VCPKG_ROOT)\installed\x64-windows\debug\lib;..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\components\move_component.h" />
+    <ClInclude Include="src\components\sprite2d_component.h" />
+    <ClInclude Include="src\debug\extension_imgui.h" />
+    <ClInclude Include="src\debug\framerate_widget.h" />
+    <ClInclude Include="src\debug\memory_widget.h" />
+    <ClInclude Include="src\debug\renderer_widget.h" />
+    <ClInclude Include="src\editor\editor.h" />
+    <ClInclude Include="src\editor\editor_profiler.h" />
+    <ClInclude Include="src\entity\entity.h" />
+    <ClInclude Include="src\game_engine.h" />
+    <ClInclude Include="src\game_state.h" />
+    <ClInclude Include="src\gfx\camera_2d.h" />
+    <ClInclude Include="src\gfx\frame_stats.h" />
+    <ClInclude Include="src\gfx\render_system.h" />
+    <ClInclude Include="src\gfx\renderer_imgui.h" />
+    <ClInclude Include="src\gfx\rendering_engine.h" />
+    <ClInclude Include="src\gfx\shader.h" />
+    <ClInclude Include="src\gfx\sprite.h" />
+    <ClInclude Include="src\gfx\sprite_renderer.h" />
+    <ClInclude Include="src\gfx\texture.h" />
+    <ClInclude Include="src\gfx\texture_manager.h" />
+    <ClInclude Include="src\gfx\types.h" />
+    <ClInclude Include="src\gfx\window_handler.h" />
+    <ClInclude Include="src\globals.h" />
+    <ClInclude Include="src\integrations\livepp_handler.h" />
+    <ClInclude Include="src\profiler\profiler.h" />
+    <ClInclude Include="src\profiler\profiler_section.h" />
+    <ClInclude Include="src\profiler\profiler_types.h" />
+    <ClInclude Include="src\states\state.h" />
+    <ClInclude Include="src\states\state_sandbox.h" />
+    <ClInclude Include="src\tasks\task_node.h" />
+    <ClInclude Include="src\tasks\task_system.h" />
+    <ClInclude Include="src\tasks\thread_pool.h" />
+    <ClInclude Include="src\utils\string_factory.h" />
+    <ClInclude Include="src\utils\utils_math.h" />
+    <ClInclude Include="src\utils\utils_path.h" />
+    <ClInclude Include="src\utils\utils_rand.h" />
+    <ClInclude Include="src\utils\utils_thread.h" />
+    <ClInclude Include="src\utils\utils_time.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Helpers.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Hooks.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Options.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Preferences.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Version_x64_CPP.h" />
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_x64_CPP.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_sdl2.h" />
+    <ClInclude Include="vendor\imgui\imconfig.h" />
+    <ClInclude Include="vendor\imgui\imgui.h" />
+    <ClInclude Include="vendor\imgui\imgui_internal.h" />
+    <ClInclude Include="vendor\imgui\implot.h" />
+    <ClInclude Include="vendor\imgui\implot_internal.h" />
+    <ClInclude Include="vendor\imgui\imstb_rectpack.h" />
+    <ClInclude Include="vendor\imgui\imstb_textedit.h" />
+    <ClInclude Include="vendor\imgui\imstb_truetype.h" />
+    <ClInclude Include="vendor\stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\components\move_component.cpp" />
+    <ClCompile Include="src\components\sprite2d_component.cpp" />
+    <ClCompile Include="src\editor\editor.cpp" />
+    <ClCompile Include="src\entity\entity.cpp" />
+    <ClCompile Include="src\game_engine.cpp" />
+    <ClCompile Include="src\gfx\camera_2d.cpp" />
+    <ClCompile Include="src\gfx\rendering_engine.cpp" />
+    <ClCompile Include="src\gfx\shader.cpp" />
+    <ClCompile Include="src\gfx\sprite.cpp" />
+    <ClCompile Include="src\gfx\sprite_renderer.cpp" />
+    <ClCompile Include="src\gfx\texture.cpp" />
+    <ClCompile Include="src\gfx\texture_manager.cpp" />
+    <ClCompile Include="src\gfx\window_handler.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\profiler\profiler.cpp" />
+    <ClCompile Include="src\profiler\profiler_section.cpp" />
+    <ClCompile Include="src\utils\string_factory.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_sdl2.cpp" />
+    <ClCompile Include="vendor\imgui\imgui.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="vendor\imgui\implot.cpp" />
+    <ClCompile Include="vendor\imgui\implot_demo.cpp" />
+    <ClCompile Include="vendor\imgui\implot_items.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\encore_core\encore_core.vcxproj">
+      <Project>{C9052AFC-35BB-A2F1-BEAF-9CC82A6499F5}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

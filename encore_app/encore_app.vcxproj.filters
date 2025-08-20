@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="encore_app">
+      <UniqueIdentifier>{81E08CAA-6D98-CEF7-D69F-A753C27669E8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src">
+      <UniqueIdentifier>{18F736EF-04C5-2AF5-ED58-9B1BD9C5065A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\components">
+      <UniqueIdentifier>{4D61DE85-B923-1210-02D4-A09C6ED5EAED}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\debug">
+      <UniqueIdentifier>{AE03B71C-9A92-40E6-43B1-54E12F1F518C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\editor">
+      <UniqueIdentifier>{6E5DDEB5-DAC9-99B0-A3BD-310E0FE9BB18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\entity">
+      <UniqueIdentifier>{842C99B6-F098-54B1-B98C-EC0E25B87619}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\gfx">
+      <UniqueIdentifier>{AC4CA811-9830-6967-0191-63BAED9353E9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\integrations">
+      <UniqueIdentifier>{5EB230FB-CABF-5EE1-53A6-5ACCBFB22A98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\profiler">
+      <UniqueIdentifier>{8A2F6D10-F666-B5A7-FF70-19CB6B27DCA0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\states">
+      <UniqueIdentifier>{FBB9A3D7-6726-5FD2-301A-F72F9C45813A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\tasks">
+      <UniqueIdentifier>{4DA1D61D-3930-60E7-E24E-74E2CEBC708D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\src\utils">
+      <UniqueIdentifier>{98FAF21D-8489-7CE7-2DA8-90E219168D8D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\vendor">
+      <UniqueIdentifier>{BEBB10B9-2AD2-0E4F-7349-9A70DF9EDFD6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\vendor\LivePP">
+      <UniqueIdentifier>{1D0B5431-0930-A3B1-327B-88411EFFA1CF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\vendor\LivePP\API">
+      <UniqueIdentifier>{86368984-72F1-7830-1BA9-F17A0743C3C0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\vendor\LivePP\API\x64">
+      <UniqueIdentifier>{F7D4C87B-E325-B4BD-0C8A-A27FF8394727}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\vendor\imgui">
+      <UniqueIdentifier>{A81F76A6-1457-BE3D-1D61-22618917E536}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="encore_app\vendor\imgui\backends">
+      <UniqueIdentifier>{D2B64D27-BE07-3969-E76B-272BD31BCCD2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\components\move_component.h">
+      <Filter>encore_app\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\sprite2d_component.h">
+      <Filter>encore_app\src\components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\extension_imgui.h">
+      <Filter>encore_app\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\framerate_widget.h">
+      <Filter>encore_app\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\memory_widget.h">
+      <Filter>encore_app\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\debug\renderer_widget.h">
+      <Filter>encore_app\src\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\editor.h">
+      <Filter>encore_app\src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\editor_profiler.h">
+      <Filter>encore_app\src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="src\entity\entity.h">
+      <Filter>encore_app\src\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_engine.h">
+      <Filter>encore_app\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game_state.h">
+      <Filter>encore_app\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\camera_2d.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\frame_stats.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\render_system.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\renderer_imgui.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\rendering_engine.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\shader.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\sprite.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\sprite_renderer.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\texture.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\texture_manager.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\types.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\window_handler.h">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\globals.h">
+      <Filter>encore_app\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\integrations\livepp_handler.h">
+      <Filter>encore_app\src\integrations</Filter>
+    </ClInclude>
+    <ClInclude Include="src\profiler\profiler.h">
+      <Filter>encore_app\src\profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\profiler\profiler_section.h">
+      <Filter>encore_app\src\profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\profiler\profiler_types.h">
+      <Filter>encore_app\src\profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\state.h">
+      <Filter>encore_app\src\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\state_sandbox.h">
+      <Filter>encore_app\src\states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tasks\task_node.h">
+      <Filter>encore_app\src\tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tasks\task_system.h">
+      <Filter>encore_app\src\tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tasks\thread_pool.h">
+      <Filter>encore_app\src\tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\string_factory.h">
+      <Filter>encore_app\src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\utils_math.h">
+      <Filter>encore_app\src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\utils_path.h">
+      <Filter>encore_app\src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\utils_rand.h">
+      <Filter>encore_app\src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\utils_thread.h">
+      <Filter>encore_app\src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\utils_time.h">
+      <Filter>encore_app\src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Helpers.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Hooks.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Options.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Preferences.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_Version_x64_CPP.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\LivePP\API\x64\LPP_API_x64_CPP.h">
+      <Filter>encore_app\vendor\LivePP\API\x64</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>encore_app\vendor\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>encore_app\vendor\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\backends\imgui_impl_sdl2.h">
+      <Filter>encore_app\vendor\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\imconfig.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\imgui.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\imgui_internal.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\implot.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\implot_internal.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\imstb_rectpack.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\imstb_textedit.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\imgui\imstb_truetype.h">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\stb_image.h">
+      <Filter>encore_app\vendor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\components\move_component.cpp">
+      <Filter>encore_app\src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\components\sprite2d_component.cpp">
+      <Filter>encore_app\src\components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor\editor.cpp">
+      <Filter>encore_app\src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entity\entity.cpp">
+      <Filter>encore_app\src\entity</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game_engine.cpp">
+      <Filter>encore_app\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\camera_2d.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\rendering_engine.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\shader.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\sprite.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\sprite_renderer.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\texture.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\texture_manager.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\window_handler.cpp">
+      <Filter>encore_app\src\gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>encore_app\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\profiler\profiler.cpp">
+      <Filter>encore_app\src\profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\profiler\profiler_section.cpp">
+      <Filter>encore_app\src\profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\string_factory.cpp">
+      <Filter>encore_app\src\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>encore_app\vendor\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\backends\imgui_impl_sdl2.cpp">
+      <Filter>encore_app\vendor\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\imgui.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\imgui_demo.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\imgui_draw.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\imgui_tables.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\imgui_widgets.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\implot.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\implot_demo.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\imgui\implot_items.cpp">
+      <Filter>encore_app\vendor\imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

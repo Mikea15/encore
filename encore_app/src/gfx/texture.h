@@ -7,14 +7,11 @@
 class Texture
 {
 public:
-	NO_COPY(Texture);
-
 	// Constructor
 	Texture();
-	Texture(u32 texId, u32 width, u32 height, u8 channels);
+	Texture(GLuint texId, u32 width, u32 height, u8 channels);
 
-	// Destructor
-	~Texture();
+	// ~Texture() = delete; 
 
 	Texture(Texture&& rOther) noexcept;
 	Texture& operator=(Texture&& rOther) noexcept;
@@ -27,7 +24,7 @@ public:
 
 	void GenerateMipmaps();
 
-	u32 GetTextureID() const { return m_textureID; }
+	GLuint GetTextureID() const { return m_textureID; }
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
 	int GetChannels() const { return m_channels; }
@@ -38,10 +35,7 @@ public:
 	static u32 GetMaxTextureUnits();
 
 private:
-	void Cleanup();
-	void Move(Texture&& rOther) noexcept;
-
-	u32 m_textureID;
+	GLuint m_textureID;
 	int m_width;
 	int m_height;
 	int m_channels;

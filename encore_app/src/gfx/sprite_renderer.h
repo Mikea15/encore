@@ -59,7 +59,7 @@ private:
 	// OpenGL objects
 	GLuint m_VAO = 0, m_VBO = 0, m_EBO = 0;
 
-	Texture m_whiteTexture;
+	GLuint m_whiteTextureId;
 	Shader m_shader;
 
 	// Batch data

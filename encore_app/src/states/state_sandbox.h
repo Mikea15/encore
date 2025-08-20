@@ -11,7 +11,7 @@ class SandboxState : public State
 public:
 	virtual void Init() override
 	{
-		Texture texSlimeIdle = TextureManager::GetInstance().LoadFromFile("../assets/sprites/slime1_temp.png");
+		GLuint texSlimeIdle = TextureManager::GetInstance().LoadFromFile("../assets/sprites/slime1_temp.png");
 
 		// Create some test sprites
 		for(int i = 0; i < 100000; ++i)
@@ -28,7 +28,7 @@ public:
 			//	(rand() % 255) / 255.0f,
 			//	1.0f
 			//};
-			sprite.texId = texSlimeIdle.GetTextureID();
+			sprite.texId = texSlimeIdle;
 
 			Entity* pEnt = Entity::Alloc();
 			Assert(pEnt);

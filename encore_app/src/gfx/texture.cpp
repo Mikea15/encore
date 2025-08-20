@@ -9,36 +9,12 @@ Texture::Texture()
 	, m_channels(0)
 {}
 
-Texture::Texture(u32 texId, u32 width, u32 height, u8 channels)
+Texture::Texture(GLuint texId, u32 width, u32 height, u8 channels)
 	: m_textureID(texId)
 	, m_width(width)
 	, m_height(height)
 	, m_channels(channels)
 {}
-
-Texture::~Texture()
-{
-	Cleanup();
-}
-
-Texture::Texture(Texture&& rOther) noexcept
-	: m_textureID(0)
-	, m_width(0)
-	, m_height(0)
-	, m_channels(0)
-{
-	Move(std::move(rOther));
-}
-
-Texture& Texture::operator=(Texture&& rOther) noexcept
-{
-	if(this != &rOther)
-	{
-		Cleanup();
-		Move(std::move(rOther));
-	}
-	return *this;
-}
 
 void Texture::Bind(u32 textureUnit) const
 {
@@ -98,26 +74,4 @@ u32 Texture::GetMaxTextureUnits()
 	GLint maxUnits;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxUnits);
 	return static_cast<u32>(maxUnits);
-}
-
-void Texture::Cleanup()
-{
-	if(m_textureID != 0)
-	{
-		glDeleteTextures(1, &m_textureID);
-		m_textureID = 0;
-	}
-}
-
-void Texture::Move(Texture&& rOther) noexcept
-{
-	m_textureID = rOther.m_textureID;
-	m_width = rOther.m_width;
-	m_height = rOther.m_height;
-	m_channels = rOther.m_channels;
-
-	rOther.m_textureID = 0;
-	rOther.m_width = 0;
-	rOther.m_height = 0;
-	rOther.m_channels = 0;
 }

@@ -12,7 +12,7 @@ void SpriteBatchRenderer::Init()
 	m_textureSlots.reserve(MAX_TEXTURES);
 
 	u8 white[4] = { 255, 255, 255, 255 };
-	m_whiteTexture = TextureManager::GetInstance().Create(white, 1, 1, 4);
+	m_whiteTextureId = TextureManager::GetInstance().CreateTexture(white, 1, 1, 4);
 }
 
 void SpriteBatchRenderer::Clear()
@@ -32,7 +32,7 @@ void SpriteBatchRenderer::Begin(const Camera2D& cam, f32 viewportWidth, f32 view
 	m_currentTextureSlot = 0;
 
 	// Always have white texture in slot 0
-	m_textureSlots.push_back(m_whiteTexture.GetTextureID());
+	m_textureSlots.push_back(m_whiteTextureId);
 	m_currentTextureSlot = 1;
 
 	// Set up camera matrices
@@ -56,6 +56,14 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 {
 	f32 textureIndex = GetTextureIndex(sprite.texId);
 
+	// Debug: Log texture usage
+	static bool debugOnce = true;
+	if(debugOnce && sprite.texId != 0)
+	{
+		LOG_INFO("Drawing sprite with texture ID: %d, index: %f", sprite.texId, textureIndex);
+		debugOnce = false;
+	}
+
 	// Check if we need to flush (too many sprites or textures)
 	if(m_vertices.size() + 4 > MAX_VERTICES ||
 		(textureIndex == -1.0f && m_currentTextureSlot >= MAX_TEXTURES))
@@ -65,20 +73,20 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 		// Restart batch - but don't call Begin() again, just reset internal state
 		m_vertices.clear();
 		m_textureSlots.clear();
-		m_textureSlots.push_back(m_whiteTexture.GetTextureID());
+		m_textureSlots.push_back(m_whiteTextureId);
 		m_currentTextureSlot = 1;
 
 		textureIndex = GetTextureIndex(sprite.texId);
 	}
 
-	// Create quad m_vertices
+	// Create quad vertices
 	Vec2 halfSize = sprite.size * 0.5f;
 
 	// Calculate corner positions
 	Vec2 corners[4] = {
 		{ -halfSize.x, -halfSize.y }, // Bottom-left
-		{ halfSize.x, -halfSize.y }, // Bottom-right
-		{ halfSize.x,  halfSize.y }, // Top-right
+		{ halfSize.x, -halfSize.y },  // Bottom-right
+		{ halfSize.x,  halfSize.y },  // Top-right
 		{ -halfSize.x,  halfSize.y }  // Top-left
 	};
 
@@ -111,7 +119,7 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 		{ sprite.uvMin.x, sprite.uvMax.y }  // Top-left
 	};
 
-	// Add m_vertices to batch
+	// Add vertices to batch
 	for(i8 i = 0; i < 4; ++i)
 	{
 		m_vertices.emplace_back(SpriteVertex{ corners[i], uvs[i], sprite.color, textureIndex });
@@ -198,74 +206,92 @@ void SpriteBatchRenderer::CreateBuffers()
 
 void SpriteBatchRenderer::CreateShader()
 {
-	std::string vertex_source = R"(
-			#version 330 core
-			layout (location = 0) in vec2 aPosition;
-			layout (location = 1) in vec2 aTexCoords;
-			layout (location = 2) in vec4 aColor;
-			layout (location = 3) in float aTextureId;
+	std::string vertexSource = R"(
+        #version 330 core
+        layout (location = 0) in vec2 aPosition;
+        layout (location = 1) in vec2 aTexCoords;
+        layout (location = 2) in vec4 aColor;
+        layout (location = 3) in float aTextureId;
 
-			uniform mat4 uViewProjection;
+        uniform mat4 uViewProjection;
 
-			out vec2 TexCoords;
-			out vec4 Color;
-			out float TextureId;
+        out vec2 TexCoords;
+        out vec4 Color;
+        out float TextureId;
 
-			void main() {
-				TexCoords = aTexCoords;
-				Color = aColor;
-				TextureId = aTextureId;
-    
-				gl_Position = uViewProjection * vec4(aPosition, 0.0, 1.0);
-			}
-			)";
+        void main() {
+            TexCoords = aTexCoords;
+            Color = aColor;
+            TextureId = aTextureId;
+            gl_Position = uViewProjection * vec4(aPosition, 0.0, 1.0);
+        }
+    )";
 
-	std::string fragment_source = R"(
-			#version 330 core
-			out vec4 FragColor;
+	std::string fragmentSource = R"(
+        #version 330 core
+        out vec4 FragColor;
 
-			in vec2 TexCoords;
-			in vec4 Color;
-			in float TextureId;
+        in vec2 TexCoords;
+        in vec4 Color;
+        in float TextureId;
 
-			uniform sampler2D uTextures[32];
+        uniform sampler2D uTextures[32];
 
-			void main() {
-				vec4 texColor = vec4(1.0);
-    
-				// Sample from the correct texture slot
-				int texIndex = int(TextureId);
-				
-				// Use a switch statement or if-else chain for better performance
-				if (texIndex == 0) texColor = texture(uTextures[0], TexCoords);
-				else if (texIndex == 1) texColor = texture(uTextures[1], TexCoords);
-				else if (texIndex == 2) texColor = texture(uTextures[2], TexCoords);
-				else if (texIndex == 3) texColor = texture(uTextures[3], TexCoords);
-				else if (texIndex == 4) texColor = texture(uTextures[4], TexCoords);
-				else if (texIndex == 5) texColor = texture(uTextures[5], TexCoords);
-				else if (texIndex == 6) texColor = texture(uTextures[6], TexCoords);
-				else if (texIndex == 7) texColor = texture(uTextures[7], TexCoords);
-				else if (texIndex == 8) texColor = texture(uTextures[8], TexCoords);
-				else if (texIndex == 9) texColor = texture(uTextures[9], TexCoords);
-				else if (texIndex == 10) texColor = texture(uTextures[10], TexCoords);
-				else if (texIndex == 11) texColor = texture(uTextures[11], TexCoords);
-				else if (texIndex == 12) texColor = texture(uTextures[12], TexCoords);
-				else if (texIndex == 13) texColor = texture(uTextures[13], TexCoords);
-				else if (texIndex == 14) texColor = texture(uTextures[14], TexCoords);
-				else if (texIndex == 15) texColor = texture(uTextures[15], TexCoords);
-				// Add more slots as needed, or use texture array indexing if supported
-    
-				FragColor = texColor * Color;
-			}
-			)";
+        void main() {
+            vec4 texColor = vec4(1.0);
+            int texIndex = int(TextureId + 0.5); // Add 0.5 for better float->int conversion
+            
+            // Clamp texture index to valid range
+            if(texIndex < 0 || texIndex >= 32) {
+                texIndex = 0; // Fallback to white texture
+            }
+            
+            // More comprehensive texture sampling
+            if (texIndex == 0) texColor = texture(uTextures[0], TexCoords);
+            else if (texIndex == 1) texColor = texture(uTextures[1], TexCoords);
+            else if (texIndex == 2) texColor = texture(uTextures[2], TexCoords);
+            else if (texIndex == 3) texColor = texture(uTextures[3], TexCoords);
+            else if (texIndex == 4) texColor = texture(uTextures[4], TexCoords);
+            else if (texIndex == 5) texColor = texture(uTextures[5], TexCoords);
+            else if (texIndex == 6) texColor = texture(uTextures[6], TexCoords);
+            else if (texIndex == 7) texColor = texture(uTextures[7], TexCoords);
+            else if (texIndex == 8) texColor = texture(uTextures[8], TexCoords);
+            else if (texIndex == 9) texColor = texture(uTextures[9], TexCoords);
+            else if (texIndex == 10) texColor = texture(uTextures[10], TexCoords);
+            else if (texIndex == 11) texColor = texture(uTextures[11], TexCoords);
+            else if (texIndex == 12) texColor = texture(uTextures[12], TexCoords);
+            else if (texIndex == 13) texColor = texture(uTextures[13], TexCoords);
+            else if (texIndex == 14) texColor = texture(uTextures[14], TexCoords);
+            else if (texIndex == 15) texColor = texture(uTextures[15], TexCoords);
+            else if (texIndex == 16) texColor = texture(uTextures[16], TexCoords);
+            else if (texIndex == 17) texColor = texture(uTextures[17], TexCoords);
+            else if (texIndex == 18) texColor = texture(uTextures[18], TexCoords);
+            else if (texIndex == 19) texColor = texture(uTextures[19], TexCoords);
+            else if (texIndex == 20) texColor = texture(uTextures[20], TexCoords);
+            else if (texIndex == 21) texColor = texture(uTextures[21], TexCoords);
+            else if (texIndex == 22) texColor = texture(uTextures[22], TexCoords);
+            else if (texIndex == 23) texColor = texture(uTextures[23], TexCoords);
+            else if (texIndex == 24) texColor = texture(uTextures[24], TexCoords);
+            else if (texIndex == 25) texColor = texture(uTextures[25], TexCoords);
+            else if (texIndex == 26) texColor = texture(uTextures[26], TexCoords);
+            else if (texIndex == 27) texColor = texture(uTextures[27], TexCoords);
+            else if (texIndex == 28) texColor = texture(uTextures[28], TexCoords);
+            else if (texIndex == 29) texColor = texture(uTextures[29], TexCoords);
+            else if (texIndex == 30) texColor = texture(uTextures[30], TexCoords);
+            else if (texIndex == 31) texColor = texture(uTextures[31], TexCoords);
+            else texColor = texture(uTextures[0], TexCoords); // Fallback
 
-	m_shader.Init(vertex_source, fragment_source);
+            FragColor = texColor * Color;
+        }
+    )";
+
+	m_shader.Init(vertexSource, fragmentSource);
 }
-
 
 f32 SpriteBatchRenderer::GetTextureIndex(GLuint texId)
 {
-	if(texId == 0.0f)
+	// Fix: Check for 0 texture ID correctly
+	if(texId == 0)
 	{
 		return 0.0f;
 	}
@@ -301,17 +327,44 @@ void SpriteBatchRenderer::Flush()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size() * sizeof(SpriteVertex), m_vertices.data());
 
-	// Bind textures
+	// Bind textures with validation
 	for(u32 i = 0; i < m_textureSlots.size(); ++i)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
-		glBindTexture(GL_TEXTURE_2D, m_textureSlots[i]);
+
+		// Validate texture before binding
+		GLuint texId = m_textureSlots[i];
+		if(texId != 0 && !glIsTexture(texId))
+		{
+			LOG_ERROR("Texture ID %d at slot %d is not a valid texture object!", texId, i);
+			// Fallback to white texture
+			texId = m_whiteTextureId;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, texId);
+
+		// Check for binding errors
+		GLenum error = glGetError();
+		if(error != GL_NO_ERROR)
+		{
+			LOG_ERROR("Error binding texture %d at slot %d: 0x%X", texId, i, error);
+		}
 	}
+
+	// Use shader
+	m_shader.Use();
 
 	// Draw
 	glBindVertexArray(m_VAO);
-	u32 sprite_count = static_cast<u32>(m_vertices.size()) / 4;
-	glDrawElements(GL_TRIANGLES, sprite_count * 6, GL_UNSIGNED_INT, 0);
+	u32 spriteCount = static_cast<u32>(m_vertices.size()) / 4;
+	glDrawElements(GL_TRIANGLES, spriteCount * 6, GL_UNSIGNED_INT, 0);
+
+	// Check for OpenGL errors
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR)
+	{
+		LOG_ERROR("OpenGL error in Flush: 0x%X", error);
+	}
 
 	m_renderStats.drawCalls++;
 	m_renderStats.verticesDrawn += static_cast<u32>(m_vertices.size());
@@ -320,6 +373,7 @@ void SpriteBatchRenderer::Flush()
 	m_vertices.clear();
 	m_textureSlots.clear();
 
-	m_textureSlots.push_back(m_whiteTexture.GetTextureID());
+	m_textureSlots.push_back(m_whiteTextureId);
 	m_currentTextureSlot = 1;
 }
+

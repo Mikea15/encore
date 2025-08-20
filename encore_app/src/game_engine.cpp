@@ -163,9 +163,7 @@ void GameEngine::HandleInput()
 		default: break;
 		}
 
-#if ENABLE_EDITOR
 		m_editor.HandleInput(event);
-#endif
 	}
 }
 

@@ -11,12 +11,6 @@
 
 #include "game_state.h"
 
-#ifdef _DEBUG
-#pragma comment(lib, "SDL2maind")
-#else
-#pragma comment(lib, "SDL2main")
-#endif
-
 bool WindowHandler::InitWindow(GameState& gameState)
 {
 	// Initialize SDL
@@ -27,10 +21,8 @@ bool WindowHandler::InitWindow(GameState& gameState)
 	}
 
 	// Create window with SDL renderer
-	gameState.window.pWindow = SDL_CreateWindow("Encore",
-		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-		gameState.window.width, gameState.window.height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	gameState.window.pWindow = SDL_CreateWindow("Encore", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		gameState.window.width, gameState.window.height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	if(!gameState.window.pWindow)
 	{
 		LOG_ERROR("Could not Create Window");
@@ -64,14 +56,6 @@ void WindowHandler::InitImGui()
 
 void WindowHandler::InitOpenGL(GameState& gameState)
 {
-	// Create GL Context
-	gameState.window.pGLContext = SDL_GL_CreateContext(gameState.window.pWindow);
-	ImGui_ImplSDL2_InitForOpenGL(gameState.window.pWindow, &gameState.window.pGLContext);
-
-	ImGui_ImplOpenGL3_Init("#version 130");
-
-	glewInit();
-
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -84,6 +68,25 @@ void WindowHandler::InitOpenGL(GameState& gameState)
 
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
+	// Create GL Context
+	gameState.window.pGLContext = SDL_GL_CreateContext(gameState.window.pWindow);
+	if(!gameState.window.pGLContext)
+	{
+		// Handle context creation failure
+		LOG_ERROR("Failed to create OpenGL context: %s\n", SDL_GetError());
+		return;
+	}
+
+	GLenum glewError = glewInit();
+	if(glewError != GLEW_OK)
+	{
+		LOG_ERROR("GLEW initialization failed: %s\n", glewGetErrorString(glewError));
+		return;
+	}
+
+	ImGui_ImplSDL2_InitForOpenGL(gameState.window.pWindow, &gameState.window.pGLContext);
+	ImGui_ImplOpenGL3_Init("#version 450");
 
 	SDL_SetWindowFullscreen(gameState.window.pWindow, false);
 	SDL_SetWindowResizable(gameState.window.pWindow, SDL_TRUE);

@@ -50,8 +50,8 @@ public:
 	{
 		PROFILE();
 
-		const float cameraSpeed = 500.0f;
-		if(m_cameraInput != Vec3(0.0f))
+		const float cameraSpeed = 100.0f;
+		
 		{
 			PROFILE_SCOPE("Editor Camera Update");
 

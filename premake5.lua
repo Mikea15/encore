@@ -4,17 +4,62 @@ workspace "encore"
     startproject "encore_app"
 
     -- Workspace-level settings
-    warnings "extra"
-    flags { "MultiProcessorCompile" }
+    flags { 
+        "MultiProcessorCompile"
+     }
     
     -- Output directories
     outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+
+    -- Version and build number management
+    local versionMajor = 1
+    local versionMinor = 0
+    local versionPatch = 0
+    local buildNumber = 0
+    
+    -- Read existing build number from file
+    local buildFile = "build_number.txt"
+    if os.isfile(buildFile) then
+        local file = io.open(buildFile, "r")
+        if file then
+            local content = file:read("*a")
+            file:close()
+            buildNumber = tonumber(content) or 0
+        end
+    end
+    
+    -- Increment build number
+    buildNumber = buildNumber + 1
+    
+    -- Write new build number back to file
+    local file = io.open(buildFile, "w")
+    if file then
+        file:write(tostring(buildNumber))
+        file:close()
+    end
+    
+    -- Create version string
+    local versionString = string.format("%d.%d.%d.%d", versionMajor, versionMinor, versionPatch, buildNumber)
+    local buildDate = os.date("%Y-%m-%d")
+    local buildTime = os.date("%H:%M:%S")
+    local buildTimestamp = os.date("%Y%m%d%H%M%S")
+    
+    print("Building version: " .. versionString .. " (Build #" .. buildNumber .. ")")
 
     -- Global defines
     defines
     {
         "GLM_FORCE_DEPTH_ZERO_TO_ONE",  -- Vulkan/DirectX depth convention
-        "GLM_FORCE_LEFT_HANDED"  -- Left-handed coordinate system
+        "GLM_FORCE_LEFT_HANDED",  -- Left-handed coordinate system
+        -- Version defines
+        "VERSION_MAJOR=" .. versionMajor,
+        "VERSION_MINOR=" .. versionMinor,
+        "VERSION_PATCH=" .. versionPatch,
+        "BUILD_NUMBER=" .. buildNumber,
+        "VERSION_STRING=\"" .. versionString .. "\"",
+        "BUILD_DATE=\"" .. buildDate .. "\"",
+        "BUILD_TIME=\"" .. buildTime .. "\"",
+        "BUILD_TIMESTAMP=\"" .. buildTimestamp .. "\""
     }
 
     -- vcpkg integration
@@ -216,25 +261,34 @@ newaction {
     end
 }
 
--- Format code using clang-format
 newaction {
-    trigger = "format",
-    description = "Format all source code using clang-format",
+    trigger = "resetbuild",
+    description = "Reset build number to 0",
     execute = function()
-        print("Formatting code...")
-        os.execute("clang-format -i -style=file encore_core/src/**/*.cpp encore_core/src/**/*.h")
-        os.execute("clang-format -i -style=file encore_app/src/**/*.cpp encore_app/src/**/*.h")
-        print("Code formatting complete!")
+        local file = io.open("build_number.txt", "w")
+        if file then
+            file:write("0")
+            file:close()
+            print("Build number reset to 0")
+        end
     end
 }
 
--- Run static analysis with clang-tidy
+-- Show version info
 newaction {
-    trigger = "analyze",
-    description = "Run static analysis with clang-tidy",
+    trigger = "version",
+    description = "Show current version information",
     execute = function()
-        print("Running static analysis...")
-        os.execute("clang-tidy encore_core/src/**/*.cpp encore_app/src/**/*.cpp")
-        print("Analysis complete!")
+        local buildNumber = 0
+        if os.isfile("build_number.txt") then
+            local file = io.open("build_number.txt", "r")
+            if file then
+                buildNumber = tonumber(file:read("*a")) or 0
+                file:close()
+            end
+        end
+        print("Version: 1.0.0." .. buildNumber)
+        print("Build Date: " .. os.date("%Y-%m-%d %H:%M:%S"))
     end
 }
+

@@ -10,14 +10,12 @@ GameEngine::GameEngine()
 	, m_renderingEngine()
 	, m_gameState()
 	, m_editor()
-{
-}
+{ }
 
 bool GameEngine::Run()
 {
 	InitGameState();
 	InitCoreSubsystems();
-	InitMemoryPools();
 	InitGame();
 
 	RegisterTasks();
@@ -33,7 +31,7 @@ bool GameEngine::Run()
 #ifdef USE_LPP
 		{
 			PROFILE_SCOPE("LPP_SyncPoint");
-			lppHandler.SyncPoint();
+			m_lppHandler.SyncPoint();
 		}
 #endif
 
@@ -56,7 +54,7 @@ bool GameEngine::Run()
 	m_renderingEngine.Shutdown(m_gameState);
 
 #ifdef USE_LPP
-	lppHandler.Clear();
+	m_lppHandler.Clear();
 #endif
 
 	m_window.ShutdownImGui();
@@ -66,6 +64,17 @@ bool GameEngine::Run()
 	return m_bIsRunning;
 }
 
+void GameEngine::InitGameState()
+{
+	m_gameState.arenas[AT_GLOBAL] = arena_create(KILOBYTES(24));
+	m_gameState.arenas[AT_COMPONENTS] = arena_create(MEGABYTES(50));
+	m_gameState.arenas[AT_FRAME] = arena_create(MEGABYTES(1));
+
+	// Default window settings.
+	m_gameState.window.width = 1280;
+	m_gameState.window.height = 720;
+}
+
 void GameEngine::InitCoreSubsystems()
 {
 	StringFactory::Init(&m_gameState.arenas[AT_GLOBAL], &m_gameState.arenas[AT_FRAME]);
@@ -73,14 +82,42 @@ void GameEngine::InitCoreSubsystems()
 #if ENC_DEBUG
 	frame_stats_init(g_frameStats, m_gameState.arenas[AT_GLOBAL]);
 #endif
-}
 
-void GameEngine::InitMemoryPools()
-{
 	Entity::Init(&m_gameState.arenas[AT_COMPONENTS]);
 	MoveComponent::Init(&m_gameState.arenas[AT_COMPONENTS]);
 	Sprite2DComponent::Init(&m_gameState.arenas[AT_COMPONENTS]);
 }
+
+void GameEngine::InitGame()
+{
+	// Init Window
+	if(!m_window.InitWindow(m_gameState))
+	{
+		LOG_ERROR("Could not Init Window");
+		return;
+	}
+
+	m_window.InitImGui();
+	m_window.InitOpenGL(m_gameState);
+
+#if !ENC_RELEASE
+	PROFILE_SET_THREAD_NAME("MainThread");
+#endif
+
+#ifdef USE_LPP
+	m_lppHandler.InitSynchedAgent();
+#endif
+
+	m_editor.Init(&m_gameState, &m_renderingEngine);
+
+	m_renderingEngine.Init(m_gameState);
+
+	// State
+	m_sandbox.Init();
+
+	m_bIsRunning = true;
+}
+
 
 void GameEngine::RegisterTasks()
 {
@@ -186,6 +223,9 @@ void GameEngine::Render()
 	PROFILE();
 	if (m_gameState.editor.bShowImGui)
 	{
+		m_renderingEngine.NewFrame_ImGui();
+		m_editor.RenderEditor();
+		m_renderingEngine.EndFrame_ImGui();
 		m_renderingEngine.RenderEditorFrame(m_gameState, m_editor.GetCamera());
 	}
 	else
@@ -200,46 +240,4 @@ void GameEngine::ShutdownGameState()
 	{
 		arena_destroy(&m_gameState.arenas[i]);
 	}
-}
-
-void GameEngine::InitGameState()
-{
-	m_gameState.arenas[AT_GLOBAL] = arena_create(KILOBYTES(24));
-	m_gameState.arenas[AT_COMPONENTS] = arena_create(MEGABYTES(50));
-	m_gameState.arenas[AT_FRAME] = arena_create(MEGABYTES(1));
-
-	// Default window settings.
-	m_gameState.window.width = 1280;
-	m_gameState.window.height = 720;
-}
-
-void GameEngine::InitGame()
-{
-	// Init Window
-	if (!m_window.InitWindow(m_gameState))
-	{
-		LOG_ERROR("Could not Init Window");
-		return;
-	}
-
-	m_window.InitImGui();
-	m_window.InitOpenGL(m_gameState);
-
-#if !ENC_RELEASE
-	PROFILE_SET_THREAD_NAME("MainThread");
-#endif
-
-#ifdef USE_LPP
-	LivePPHandler lppHandler;
-	lppHandler.InitSynchedAgent();
-#endif
-
-	m_editor.Init(&m_gameState);
-
-	m_renderingEngine.Init(m_gameState);
-
-	// State
-	m_sandbox.Init();
-
-	m_bIsRunning = true;
 }

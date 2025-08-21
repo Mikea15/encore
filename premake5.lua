@@ -127,6 +127,7 @@ project "encore_core"
         optimize "off"
         inlining "disabled"
         -- eventually if remove LivePP
+        editandcontinue "off"
         -- editandcontinue "on"  -- Hot reload support
 
     filter "configurations:Profile"
@@ -209,10 +210,12 @@ project "encore_app"
 
     -- Configuration specific settings
     filter "configurations:Debug"
-        defines { "ENC_DEBUG", "ENC_EDITOR", "ENC_IMGUI" }
+        defines { "ENC_DEBUG", "ENC_EDITOR", "ENC_IMGUI", "USE_LPP" }
         runtime "Debug"
         symbols "on"
         optimize "off"
+        editandcontinue "off"
+        linkoptions { "/FUNCTIONPADMIN" }
         links
         {
             "SDL2d",
@@ -224,12 +227,14 @@ project "encore_app"
         runtime "Release"
         symbols "on"
         optimize "speed"
+        editandcontinue "off"
 
     filter "configurations:Release"
         defines { "ENC_RELEASE" }
         runtime "Release"
         symbols "off"
         optimize "full"
+        editandcontinue "off"
 
     filter "configurations:Debug"
         postbuildcommands { '{COPY} "%{wks.location}assets" "%{cfg.targetdir}/assets"' }

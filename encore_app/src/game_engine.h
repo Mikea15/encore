@@ -1,10 +1,12 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "editor/editor.h"
+#include "globals.h"
 
+#include "editor/editor.h"
 #include "gfx/rendering_engine.h"
 #include "gfx/window_handler.h"
+#include "integrations/livepp_handler.h"
 #include "states/state_sandbox.h"
 #include "tasks/task_system.h"
 
@@ -15,9 +17,8 @@ public:
 	bool Run();
 
 private:
-	void InitCoreSubsystems();
-	void InitMemoryPools();
 	void InitGameState();
+	void InitCoreSubsystems();
 	void InitGame();
 
 	void RegisterTasks();
@@ -34,11 +35,13 @@ private:
 	TaskSchedulerSystem m_taskScheduler;
 	GameState m_gameState;
 
-
 	Editor m_editor;
 
-
 	SandboxState m_sandbox;
+
+#ifdef USE_LPP
+	LivePPHandler m_lppHandler;
+#endif
 
 	bool m_bIsRunning = false;
 };

@@ -27,6 +27,23 @@ public:
 
 	// Validation
 	bool IsValidTexture(GLuint textureId) const;
+	
+	struct GPUMemStats
+	{
+		GLint total;
+		GLint available;
+	};
+
+	GPUMemStats GetGPUMemoryUsage() const
+	{
+#ifdef GL_NVX_gpu_memory_info
+		GPUMemStats stats;
+		GLint totalMemory, availableMemory;
+		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &stats.total);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &stats.available);
+		return stats;
+#endif
+	}
 
 private:
 	struct TextureData

@@ -69,9 +69,6 @@
     <ClInclude Include="src\debug\framerate_widget.h">
       <Filter>encore_app\src\debug</Filter>
     </ClInclude>
-    <ClInclude Include="src\debug\memory_widget.h">
-      <Filter>encore_app\src\debug</Filter>
-    </ClInclude>
     <ClInclude Include="src\debug\renderer_widget.h">
       <Filter>encore_app\src\debug</Filter>
     </ClInclude>
@@ -97,9 +94,6 @@
       <Filter>encore_app\src\gfx</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\render_system.h">
-      <Filter>encore_app\src\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gfx\renderer_imgui.h">
       <Filter>encore_app\src\gfx</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\rendering_engine.h">
@@ -231,6 +225,10 @@
     <ClInclude Include="vendor\stb_image.h">
       <Filter>encore_app\vendor</Filter>
     </ClInclude>
+    <ClInclude Include="src\editor\widgets\gpu_stats_widget.h" />
+    <ClInclude Include="src\editor\editor_widget.h" />
+    <ClInclude Include="src\editor\widgets\menu_widget.h" />
+    <ClInclude Include="src\editor\widgets\memory_monitor_widget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\components\move_component.cpp">

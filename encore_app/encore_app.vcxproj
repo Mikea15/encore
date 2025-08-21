@@ -78,9 +78,9 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=5;VERSION_STRING="1.0.0.5";BUILD_DATE="2025-08-20";BUILD_TIME="23:14:03";BUILD_TIMESTAMP="20250820231403";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -95,7 +95,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;SDL2d.lib;SDL2maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows\lib;$(VCPKG_ROOT)\installed\x64-windows\debug\lib;..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/SUBSYSTEM:CONSOLE %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE /FUNCTIONPADMIN %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>IF EXIST "$(SolutionDir)assets"\ (xcopy /Q /E /Y /I "$(SolutionDir)assets" "..\bin\Debug-windows-x86_64\encore_app\assets" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)assets" "..\bin\Debug-windows-x86_64\encore_app\assets" &gt; nul)</Command>
@@ -105,7 +105,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=5;VERSION_STRING="1.0.0.5";BUILD_DATE="2025-08-20";BUILD_TIME="23:14:03";BUILD_TIMESTAMP="20250820231403";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
@@ -134,7 +134,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=5;VERSION_STRING="1.0.0.5";BUILD_DATE="2025-08-20";BUILD_TIME="23:14:03";BUILD_TIMESTAMP="20250820231403";ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
@@ -164,17 +164,19 @@
     <ClInclude Include="src\components\sprite2d_component.h" />
     <ClInclude Include="src\debug\extension_imgui.h" />
     <ClInclude Include="src\debug\framerate_widget.h" />
-    <ClInclude Include="src\debug\memory_widget.h" />
     <ClInclude Include="src\debug\renderer_widget.h" />
     <ClInclude Include="src\editor\editor.h" />
     <ClInclude Include="src\editor\editor_profiler.h" />
+    <ClInclude Include="src\editor\editor_widget.h" />
+    <ClInclude Include="src\editor\widgets\gpu_stats_widget.h" />
+    <ClInclude Include="src\editor\widgets\memory_monitor_widget.h" />
+    <ClInclude Include="src\editor\widgets\menu_widget.h" />
     <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\game_engine.h" />
     <ClInclude Include="src\game_state.h" />
     <ClInclude Include="src\gfx\camera_2d.h" />
     <ClInclude Include="src\gfx\frame_stats.h" />
     <ClInclude Include="src\gfx\render_system.h" />
-    <ClInclude Include="src\gfx\renderer_imgui.h" />
     <ClInclude Include="src\gfx\rendering_engine.h" />
     <ClInclude Include="src\gfx\shader.h" />
     <ClInclude Include="src\gfx\sprite.h" />

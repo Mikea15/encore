@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "globals.h"
 
 #include "editor/editor.h"
 #include "gfx/rendering_engine.h"

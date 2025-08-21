@@ -2,7 +2,7 @@
 
 #include "core/core_minimal.h"
 
-#include "editor/editor_profiler.h"
+#include "game_state.h"
 #include "sprite_renderer.h"
 
 struct Camera2D;
@@ -40,7 +40,6 @@ private:
 	void ClearFramebuffer(GameState& rGameState);
 
 private:
-	ProfilerWindow m_profilerWindow;
 	SpriteBatchRenderer m_spriteRenderer;
 	std::vector<RenderCommand> m_renderCommands;
 };

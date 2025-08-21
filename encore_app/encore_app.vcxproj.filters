@@ -78,9 +78,6 @@
     <ClInclude Include="src\editor\editor.h">
       <Filter>encore_app\src\editor</Filter>
     </ClInclude>
-    <ClInclude Include="src\editor\editor_profiler.h">
-      <Filter>encore_app\src\editor</Filter>
-    </ClInclude>
     <ClInclude Include="src\editor\editor_widget.h">
       <Filter>encore_app\src\editor</Filter>
     </ClInclude>
@@ -91,6 +88,9 @@
       <Filter>encore_app\src\editor\widgets</Filter>
     </ClInclude>
     <ClInclude Include="src\editor\widgets\menu_widget.h">
+      <Filter>encore_app\src\editor\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\widgets\profiler_widget.h">
       <Filter>encore_app\src\editor\widgets</Filter>
     </ClInclude>
     <ClInclude Include="src\entity\entity.h">
@@ -134,9 +134,6 @@
     </ClInclude>
     <ClInclude Include="src\gfx\window_handler.h">
       <Filter>encore_app\src\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\globals.h">
-      <Filter>encore_app\src</Filter>
     </ClInclude>
     <ClInclude Include="src\integrations\livepp_handler.h">
       <Filter>encore_app\src\integrations</Filter>

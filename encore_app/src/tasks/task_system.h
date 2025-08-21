@@ -4,6 +4,7 @@
 
 #include "task_node.h"
 #include "thread_pool.h"
+#include "profiler/profiler_section.h"
 
 
 class TaskSchedulerSystem

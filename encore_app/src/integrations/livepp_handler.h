@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/core_minimal.h"
-#include "globals.h"
 
 #ifdef USE_LPP
 #include "LivePP/API/x64/LPP_API_x64_CPP.h"

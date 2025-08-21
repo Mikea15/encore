@@ -1,9 +1,12 @@
 #include "game_engine.h"
 
+#include "editor/editor.h"
 #include "entity/entity.h"
+#include "game_state.h"
 #include "gfx/frame_stats.h"
 #include "imgui/backends/imgui_impl_sdl2.h"
 #include "profiler/profiler_section.h"
+#include "utils/string_factory.h"
 
 GameEngine::GameEngine()
 	: m_window()

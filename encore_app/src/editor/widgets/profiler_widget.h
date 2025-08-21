@@ -2,6 +2,8 @@
 
 #include "core/core_minimal.h"
 
+#include "editor/editor_widget.h"
+
 #include "game_state.h"
 #include "debug/extension_imgui.h"
 #include "imgui/imgui.h"
@@ -13,12 +15,18 @@
 #include <algorithm>
 #include <thread>
 
-
-class ProfilerWindow
+class ProfilerWidget : public EditorWidget
 {
 public:
-	void DrawProfilerFlameGraph(const GameState& gameState)
+	virtual void Run(GameState& rGameStates) override
 	{
+		if(!rGameStates.editor.bOpenProfiler)
+		{
+			return;
+		}
+
+		PROFILE_SCOPE("Profiler");
+
 		m_frameEntries.clear();
 
 		if(ImGui::Begin("Profiler"))

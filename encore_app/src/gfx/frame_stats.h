@@ -49,7 +49,7 @@ static void frame_stats_update(FrameStats& stats, float deltaTime)
 	const u32 index = stats.frameCount % stats.sampleCount;
 
 	// Add frametime sample
-	stats.pFrameTimes[index] = deltaTime * 1000.0f;
+	stats.pFrameTimes[index] = SEC_TO_MS(deltaTime);
 
 	// Add FPS sample
 	stats.pFramesPerSecond[index] = current_fps;

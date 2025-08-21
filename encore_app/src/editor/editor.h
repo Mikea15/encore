@@ -78,14 +78,14 @@ public:
 		{
 			PROFILE_SCOPE("Editor Camera Update");
 
-			m_cameraInput = glm::normalize(m_cameraInput);
-
 			m_camera.zoom += m_cameraInput.z * deltaTime;
 			m_camera.zoom = utils::Clamp(m_camera.zoom, 0.01f, 100.0f);
 
-			m_camera.cameraVelocity = glm::mix(m_camera.cameraVelocity,
+			m_camera.velocity = glm::mix(m_camera.velocity,
 				Vec2(m_cameraInput.x, m_cameraInput.y) * cameraSpeed,
-				m_camera.cameraDamping * deltaTime);
+				m_camera.damping * deltaTime);
+
+			m_camera.position += m_camera.velocity;
 		}
 	}
 

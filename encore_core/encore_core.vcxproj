@@ -74,7 +74,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=10;VERSION_STRING="1.0.0.10";BUILD_DATE="2025-08-21";BUILD_TIME="23:34:58";BUILD_TIMESTAMP="20250821233458";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -100,7 +100,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=10;VERSION_STRING="1.0.0.10";BUILD_DATE="2025-08-21";BUILD_TIME="23:34:58";BUILD_TIMESTAMP="20250821233458";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
@@ -131,7 +131,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=10;VERSION_STRING="1.0.0.10";BUILD_DATE="2025-08-21";BUILD_TIME="23:34:58";BUILD_TIMESTAMP="20250821233458";ENC_RELEASE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>

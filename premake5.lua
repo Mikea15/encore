@@ -223,11 +223,17 @@ project "encore_app"
         }
 
     filter "configurations:Profile"
-        defines { "ENC_PROFILE", "ENC_EDITOR", "ENC_IMGUI" }
+        defines { "ENC_PROFILE", "ENC_EDITOR", "ENC_IMGUI", "USE_LPP" }
         runtime "Release"
         symbols "on"
         optimize "speed"
         editandcontinue "off"
+        linkoptions { "/FUNCTIONPADMIN" }
+        links
+        {
+            "SDL2",
+            "SDL2main"
+        }
 
     filter "configurations:Release"
         defines { "ENC_RELEASE" }
@@ -235,6 +241,11 @@ project "encore_app"
         symbols "off"
         optimize "full"
         editandcontinue "off"
+        links
+        {
+            "SDL2",
+            "SDL2main"
+        }
 
     filter "configurations:Debug"
         postbuildcommands { '{COPY} "%{wks.location}assets" "%{cfg.targetdir}/assets"' }

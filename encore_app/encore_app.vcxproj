@@ -78,7 +78,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=10;VERSION_STRING="1.0.0.10";BUILD_DATE="2025-08-21";BUILD_TIME="23:34:58";BUILD_TIMESTAMP="20250821233458";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -105,7 +105,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=10;VERSION_STRING="1.0.0.10";BUILD_DATE="2025-08-21";BUILD_TIME="23:34:58";BUILD_TIMESTAMP="20250821233458";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
@@ -125,16 +125,16 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows\lib;$(VCPKG_ROOT)\installed\x64-windows\debug\lib;..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/SUBSYSTEM:CONSOLE %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/SUBSYSTEM:CONSOLE /FUNCTIONPADMIN %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=7;VERSION_STRING="1.0.0.7";BUILD_DATE="2025-08-21";BUILD_TIME="22:24:49";BUILD_TIMESTAMP="20250821222449";ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=10;VERSION_STRING="1.0.0.10";BUILD_DATE="2025-08-21";BUILD_TIME="23:34:58";BUILD_TIMESTAMP="20250821233458";ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
@@ -154,7 +154,7 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(VCPKG_ROOT)\installed\x64-windows\lib;$(VCPKG_ROOT)\installed\x64-windows\debug\lib;..\vcpkg_installed\x64-windows\lib;..\vcpkg_installed\x64-windows\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/SUBSYSTEM:CONSOLE %(AdditionalOptions)</AdditionalOptions>
     </Link>

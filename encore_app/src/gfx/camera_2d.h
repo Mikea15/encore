@@ -7,8 +7,8 @@ struct Camera2D
 	Vec2 position = { 0.0f, 0.0f };
 	f32 zoom = 1.0f;
 	f32 rotation = 0.0f;
-	Vec2 cameraVelocity = { 0.0f, 0.0f };
-	const float cameraDamping = 10.0f; // Higher = more responsive
+	Vec2 velocity = { 0.0f, 0.0f };
+	const float damping = 10.0f; // Higher = more responsive
 
 	Mat4 GetViewMatrix() const {
 		Mat4 transform = Mat4(1.0f);

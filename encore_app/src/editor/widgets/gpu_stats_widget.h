@@ -24,6 +24,7 @@ public:
 
 			ImGui::UsageProgressBar(str, fraction / 100.0f, ImVec2(0.0f, 15.0f));
 			ImGui::SameLine();  ImGui::Text("GPU Memory Usage");
+			ImGui::Text("Dedicated Memory: %lu MB", BYTES_TO_MB(stats.dedicated));
 		}
 		ImGui::End();
 	}

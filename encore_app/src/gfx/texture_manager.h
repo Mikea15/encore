@@ -32,15 +32,16 @@ public:
 	{
 		GLint total;
 		GLint available;
+		GLint dedicated;
 	};
 
 	GPUMemStats GetGPUMemoryUsage() const
 	{
 #ifdef GL_NVX_gpu_memory_info
 		GPUMemStats stats;
-		GLint totalMemory, availableMemory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &stats.total);
 		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &stats.available);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &stats.dedicated);
 		return stats;
 #endif
 	}

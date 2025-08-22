@@ -7,6 +7,6 @@
 class EditorWidget
 {
 public:
-	virtual ~EditorWidget() {}
+	virtual ~EditorWidget() = default;
 	virtual void Run(GameState& rGameState) = 0;
 };

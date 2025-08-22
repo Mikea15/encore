@@ -2,7 +2,6 @@
 
 #include "editor_widget.h"
 #include "game_state.h"
-#include "debug/framerate_widget.h"
 #include "gfx/camera_2d.h"
 #include "gfx/frame_stats.h"
 #include "gfx/rendering_engine.h"
@@ -11,7 +10,10 @@
 #include "widgets/gpu_stats_widget.h"
 #include "widgets/memory_monitor_widget.h"
 #include "widgets/menu_widget.h"
+#include "widgets/performance_monitor_mini_widget.h"
+#include "widgets/performance_monitor_widget.h"
 #include "widgets/profiler_widget.h"
+#include "widgets/scene_viewport_widget.h"
 
 void Editor::Init(GameState* pGameState, RenderingEngine* pRenderingEngine)
 {
@@ -20,10 +22,13 @@ void Editor::Init(GameState* pGameState, RenderingEngine* pRenderingEngine)
 	m_pRenderingEngine = pRenderingEngine;
 	Assert(m_pRenderingEngine);
 
+	m_editorWidgets.push_back(new SceneViewportWidget(pRenderingEngine));
 	m_editorWidgets.push_back(new MenuWidget());
 	m_editorWidgets.push_back(new MemoryMonitorWidget());
 	m_editorWidgets.push_back(new GpuStatsWidget());
 	m_editorWidgets.push_back(new ProfilerWidget());
+	m_editorWidgets.push_back(new PerformanceMonitorWidget());
+	m_editorWidgets.push_back(new PerformanceMonitorMiniWidget());
 }
 
 void Editor::Shutdown()
@@ -69,8 +74,6 @@ void Editor::Update(float deltaTime)
 {
 	PROFILE();
 
-	const float cameraSpeed = 100.0f;
-
 	{
 		PROFILE_SCOPE("Editor Camera Update");
 
@@ -78,96 +81,53 @@ void Editor::Update(float deltaTime)
 		m_camera.zoom = utils::Clamp(m_camera.zoom, 0.01f, 100.0f);
 
 		m_camera.velocity = glm::mix(m_camera.velocity,
-			Vec2(m_cameraInput.x, m_cameraInput.y) * cameraSpeed,
+			Vec2(m_cameraInput.x, m_cameraInput.y) * m_options.camSpeed,
 			m_camera.damping * deltaTime);
 
-		m_camera.position += m_camera.velocity;
+		m_camera.position += m_camera.velocity * deltaTime;
 	}
 }
 
 void Editor::RenderEditor()
 {
+	PROFILE();
 	Assert(m_pGameState);
 
-	// In editor mode: display the texture in ImGui
+	// Create a fullscreen dockspace
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+	ImGui::Begin("EditorDockspace", nullptr, window_flags);
+	ImGui::PopStyleVar(3);
+
+	// DockSpace
+	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
+	// Render all registered widgets
+	RenderWidgets();
+
+	// Rendering
+	// debug::DrawRendererStats(m_spriteRenderer);
+
+	// Demo window
+	if(m_pGameState->editor.bShowDemoWindow)
 	{
-		PROFILE_SCOPE("Render::ImGui Widgets");
-		if(!m_pGameState->editor.bShowImGui) return;
-
-		// Create a fullscreen dockspace
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->Pos);
-		ImGui::SetNextWindowSize(viewport->Size);
-		ImGui::SetNextWindowViewport(viewport->ID);
-
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-		window_flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-		ImGui::Begin("DockSpace Demo", nullptr, window_flags);
-		ImGui::PopStyleVar(3);
-
-		// DockSpace
-		ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-		ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
-
-		// Render all registered widgets
-		RenderWidgets();
-
-		// Bottom panel
-		if(ImGui::Begin("Console"))
-		{
-			PROFILE_SCOPE("Console");
-			ImGui::Text("Console Output");
-			ImGui::Separator();
-			ImGui::Text("Application running...");
-			ImGui::Text("Viewport mode: %s", m_pGameState->editor.bShowImGui ? "Editor" : "Fullscreen");
-			ImGui::Text("Scene rendering to texture: %dx%d", m_pGameState->framebufferWidth, m_pGameState->framebufferHeight);
-		}
-		ImGui::End();
-
-		// PerfPanel
-#if ENC_DEBUG
-		if(m_pGameState->editor.bOpenPerformanceMonitor)
-		{
-			debug::DrawFrameStats(*m_pGameState, g_frameStats);
-		}
-#endif
-
-		// Rendering
-		// debug::DrawRendererStats(m_spriteRenderer);
-
-		// Central viewport window - this displays the 3D scene
-		if(ImGui::Begin("Scene Viewport"))
-		{
-			PROFILE_SCOPE("Scene ViewPort");
-			ImVec2 content_region = ImGui::GetContentRegionAvail();
-			content_region.x = utils::Max(64.0f, content_region.x);
-			content_region.y = utils::Max(64.0f, content_region.y);
-
-			// Resize framebuffer if needed
-			m_pRenderingEngine->ResizeFramebuffer(*m_pGameState, (i32)content_region.x, (i32)content_region.y);
-
-			// Display the rendered scene texture
-			ImGui::Image((void*)(intptr_t)m_pGameState->colorTexture,
-				ImVec2((f32)m_pGameState->framebufferWidth, (f32)m_pGameState->framebufferHeight), ImVec2(0, 1), ImVec2(1, 0));
-
-		}
-		ImGui::End();
-
-		// Demo window
-		if(m_pGameState->editor.bShowDemoWindow)
-		{
-			ImGui::ShowDemoWindow(&m_pGameState->editor.bShowDemoWindow);
-		}
-
-		ImGui::End();
+		ImGui::ShowDemoWindow(&m_pGameState->editor.bShowDemoWindow);
 	}
+
+	ImGui::End();
 }
 
 void Editor::RenderWidgets()

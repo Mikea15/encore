@@ -25,6 +25,11 @@ public:
 	Camera2D& GetCamera() { return m_camera; }
 
 private:
+	struct Options
+	{
+		float camSpeed = 500;
+	} m_options;
+	
 	GameState* m_pGameState = nullptr;
 	RenderingEngine* m_pRenderingEngine = nullptr;
 

@@ -1,13 +1,11 @@
 
 #include "rendering_engine.h"
 
-#include "debug/framerate_widget.h"
 #include "debug/renderer_widget.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/backends/imgui_impl_sdl2.h"
 #include "profiler/profiler.h"
 #include "profiler/profiler_section.h"
-#include "utils/utils_math.h"
 
 RenderingEngine::RenderingEngine()
 	: m_spriteRenderer()

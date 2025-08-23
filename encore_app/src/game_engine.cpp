@@ -9,10 +9,15 @@
 #include "utils/string_factory.h"
 
 GameEngine::GameEngine()
-	: m_window()
-	, m_renderingEngine()
-	, m_gameState()
-	, m_editor()
+	: m_gameState()
+#if USE_LPP
+	  , m_lppHandler()
+#endif
+#if !ENC_RELEASE
+	  , m_runtimeMode((u8)RuntimeMode::Editor)
+#else
+	, m_runtimeMode((u8)RuntimeMode::Game)
+#endif
 { }
 
 bool GameEngine::Run()
@@ -199,6 +204,10 @@ void GameEngine::HandleInput()
 			{
 				m_bIsRunning = false;
 			}
+			if(event.key.keysym.sym == SDLK_TAB)
+			{
+				CycleRuntimeMode();
+			}
 			break;
 		default: break;
 		}
@@ -224,7 +233,7 @@ void GameEngine::Update(float deltaTime)
 void GameEngine::Render()
 {
 	PROFILE();
-	if (m_gameState.editor.bShowImGui)
+	if (IsEditorRuntimeMode())
 	{
 		m_renderingEngine.NewFrame_ImGui();
 		m_editor.RenderEditor();
@@ -243,4 +252,9 @@ void GameEngine::ShutdownGameState()
 	{
 		arena_destroy(&m_gameState.arenas[i]);
 	}
+}
+
+void GameEngine::CycleRuntimeMode()
+{
+	m_runtimeMode = ++m_runtimeMode % (u8)RuntimeMode::Count;
 }

@@ -4,6 +4,7 @@
 #include "game_state.h"
 #include "editor/editor_widget.h"
 #include "profiler/profiler.h"
+#include "profiler/profiler_section.h"
 
 
 class ConsoleWidget : public EditorWidget
@@ -17,7 +18,6 @@ public:
 			ImGui::Text("Console Output");
 			ImGui::Separator();
 			ImGui::Text("Application running...");
-			ImGui::Text("Viewport mode: %s", rGameStates.editor.bShowImGui ? "Editor" : "Fullscreen");
 			ImGui::Text("Scene rendering to texture: %dx%d", rGameStates.framebufferWidth, rGameStates.framebufferHeight);
 		}
 		ImGui::End();

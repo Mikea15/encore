@@ -13,9 +13,14 @@
 class MemoryMonitorWidget : public EditorWidget
 {
 public:
+	virtual void DrawMenu() override
+	{
+		ImGui::MenuItem("Memory Monitor", nullptr, m_pOpenPanel);
+	}
+
 	virtual void Run(GameState& rGameState) override
 	{
-		if(rGameState.editor.bOpenMemoryMonitor)
+		if(rGameState.widgets.bMemoryMonitor)
 		{
 			PROFILE_SCOPE("MemoryMonitor");
 

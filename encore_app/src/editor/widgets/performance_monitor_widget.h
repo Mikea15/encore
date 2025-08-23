@@ -8,6 +8,11 @@
 class PerformanceMonitorWidget : public EditorWidget
 {
 public:
+	virtual void DrawMenu() override
+	{
+		ImGui::MenuItem("Performance Monitor", nullptr, m_pOpenPanel);
+	}
+
 	virtual void Run(GameState& rGameStates) override
 	{
 		if (ImGui::Begin("Performance Monitor"))

@@ -3,17 +3,19 @@
 #include "editor_widget.h"
 #include "game_state.h"
 #include "gfx/camera_2d.h"
-#include "gfx/frame_stats.h"
 #include "gfx/rendering_engine.h"
 #include "gfx/types.h"
 #include "profiler/profiler_section.h"
 #include "widgets/gpu_stats_widget.h"
 #include "widgets/memory_monitor_widget.h"
-#include "widgets/menu_widget.h"
 #include "widgets/performance_monitor_mini_widget.h"
 #include "widgets/performance_monitor_widget.h"
 #include "widgets/profiler_widget.h"
 #include "widgets/scene_viewport_widget.h"
+
+#define ADD_WIDGET_WITH_OPTION(T, M, B)		\
+	m_editorWidgets.push_back(new T());		\
+	m_editorWidgets.back()->WithMenu(M, B)
 
 void Editor::Init(GameState* pGameState, RenderingEngine* pRenderingEngine)
 {
@@ -23,12 +25,22 @@ void Editor::Init(GameState* pGameState, RenderingEngine* pRenderingEngine)
 	Assert(m_pRenderingEngine);
 
 	m_editorWidgets.push_back(new SceneViewportWidget(pRenderingEngine));
-	m_editorWidgets.push_back(new MenuWidget());
-	m_editorWidgets.push_back(new MemoryMonitorWidget());
+
 	m_editorWidgets.push_back(new GpuStatsWidget());
-	m_editorWidgets.push_back(new ProfilerWidget());
-	m_editorWidgets.push_back(new PerformanceMonitorWidget());
+
+	ADD_WIDGET_WITH_OPTION(MemoryMonitorWidget, "Windows", &m_pGameState->widgets.bMemoryMonitor);
+	ADD_WIDGET_WITH_OPTION(ProfilerWidget, "Windows", &m_pGameState->widgets.bProfiler);
+	ADD_WIDGET_WITH_OPTION(PerformanceMonitorWidget, "Windows", &m_pGameState->widgets.bPerformanceMonitor);
+
 	m_editorWidgets.push_back(new PerformanceMonitorMiniWidget());
+
+	for (u32 i = 0; i < m_editorWidgets.size(); i++)
+	{
+		if (!m_editorWidgets[i]->GetMenu().empty())
+		{
+			m_menuToWidgetIndex[m_editorWidgets[i]->GetMenu()].push_back(i);
+		}
+	}
 }
 
 void Editor::Shutdown()
@@ -43,17 +55,6 @@ void Editor::Shutdown()
 void Editor::HandleInput(const SDL_Event& event)
 {
 	m_cameraInput = {};
-
-	switch(event.type)
-	{
-	case SDL_KEYDOWN:
-		if(event.key.keysym.sym == SDLK_TAB)
-		{
-			m_pGameState->editor.bShowImGui = !m_pGameState->editor.bShowImGui;
-		}
-		break;
-	default: break;
-	}
 
 	const u8* keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -115,19 +116,44 @@ void Editor::RenderEditor()
 	ImGuiID dockSpaceId = ImGui::GetID("MainDockSpace");
 	ImGui::DockSpace(dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
 
+	if(ImGui::BeginMenuBar())
+	{
+		for (const auto& menuIndex : m_menuToWidgetIndex)
+		{
+			if (ImGui::BeginMenu(menuIndex.first.c_str()))
+			{
+				for (u32 i = 0; i < menuIndex.second.size(); i++)
+				{
+					m_editorWidgets[i]->DrawMenu();
+				}
+
+				ImGui::EndMenu();
+			}
+		}
+
+		if(ImGui::BeginMenu("Help"))
+		{
+			ImGui::MenuItem("Toggle In-Game ImGui", nullptr, &m_pGameState->bShowInGameImGui);
+			ImGui::MenuItem("Demo Window", nullptr, &m_pGameState->widgets.bDemoWindow);
+
+			ImGui::Text("TAB: Toggle Editor Mode");
+			ImGui::Text("ESC: Exit application");
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
 	// Render all registered widgets
 	RenderWidgets();
 
-	// Rendering
-	// debug::DrawRendererStats(m_spriteRenderer);
-
 	// Demo window
-	if(m_pGameState->editor.bShowDemoWindow)
+	if(m_pGameState->widgets.bDemoWindow)
 	{
-		ImGui::ShowDemoWindow(&m_pGameState->editor.bShowDemoWindow);
+		ImGui::ShowDemoWindow(&m_pGameState->widgets.bDemoWindow);
 	}
 
 	ImGui::End();
+	//~ DockSpace
 }
 
 void Editor::RenderWidgets()

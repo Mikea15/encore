@@ -33,14 +33,13 @@ struct GameState
 	} window;
 
 	// Editor Tools
-	struct Editor
+	struct
 	{
-		bool bOpenProfiler = true;
-		bool bOpenPerformanceMonitor = true;
-		bool bOpenMemoryMonitor = true;
-		bool bShowImGui = true;
-		bool bShowDemoWindow = false;
-	} editor;
+		bool bProfiler = true;
+		bool bPerformanceMonitor = true;
+		bool bMemoryMonitor = true;
+		bool bDemoWindow = false;
+	} widgets;
 
 	// Rendering
 	GLuint framebuffer = 0;

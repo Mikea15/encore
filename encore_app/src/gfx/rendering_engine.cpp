@@ -30,6 +30,9 @@ void RenderingEngine::RenderFrame(GameState& rGameState, Camera2D& camera)
 {
 	PROFILE();
 
+	SDL_GetWindowSize(rGameState.window.pWindow, &rGameState.window.width, &rGameState.window.height);
+	ResizeFramebuffer(rGameState, rGameState.window.width, rGameState.window.height);
+
 	// Always render the scene once to the framebuffer
 	RenderScene(rGameState, camera);
 
@@ -110,13 +113,6 @@ void RenderingEngine::ResizeFramebuffer(GameState& rGameState, i32 width, i32 he
 void RenderingEngine::RenderScene(GameState& rGameState, Camera2D& camera)
 {
 	PROFILE();
-
-	// In full screen mode, determine the proper size for the framebuffer
-	if(!rGameState.editor.bShowImGui)
-	{
-		SDL_GetWindowSize(rGameState.window.pWindow, &rGameState.window.width, &rGameState.window.height);
-		ResizeFramebuffer(rGameState, rGameState.window.width, rGameState.window.height);
-	}
 
 	// Always render to framebuffer first
 	glBindFramebuffer(GL_FRAMEBUFFER, rGameState.framebuffer);

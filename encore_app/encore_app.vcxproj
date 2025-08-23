@@ -169,7 +169,6 @@
     <ClInclude Include="src\editor\widgets\console_widget.h" />
     <ClInclude Include="src\editor\widgets\gpu_stats_widget.h" />
     <ClInclude Include="src\editor\widgets\memory_monitor_widget.h" />
-    <ClInclude Include="src\editor\widgets\menu_widget.h" />
     <ClInclude Include="src\editor\widgets\performance_monitor_mini_widget.h" />
     <ClInclude Include="src\editor\widgets\performance_monitor_widget.h" />
     <ClInclude Include="src\editor\widgets\profiler_widget.h" />

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <unordered_map>
+
 #include "core/core_minimal.h"
 
 #include <SDL2/SDL_events.h>
@@ -37,6 +40,7 @@ private:
 	Vec3 m_cameraInput = {};
 
 	std::vector<EditorWidget*> m_editorWidgets;
+	std::unordered_map<std::string, std::vector<u32>> m_menuToWidgetIndex;
 };
 
 

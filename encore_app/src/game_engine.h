@@ -9,6 +9,14 @@
 #include "states/state_sandbox.h"
 #include "tasks/task_system.h"
 
+enum class RuntimeMode : u8
+{
+	Game,
+	Editor,
+
+	Count
+};
+
 class GameEngine
 {
 public:
@@ -28,6 +36,12 @@ private:
 
 	void ShutdownGameState();
 
+	void CycleRuntimeMode();
+
+	RuntimeMode GetRuntimeMode() const { return (RuntimeMode) m_runtimeMode; }
+	bool IsEditorRuntimeMode() const { return GetRuntimeMode() == RuntimeMode::Editor; }
+	bool IsGameRuntimeMode() const { return GetRuntimeMode() == RuntimeMode::Game; }
+
 private:
 	WindowHandler m_window;
 	RenderingEngine m_renderingEngine;
@@ -38,9 +52,11 @@ private:
 
 	SandboxState m_sandbox;
 
-#ifdef USE_LPP
+#if USE_LPP
 	LivePPHandler m_lppHandler;
 #endif
+
+	u8 m_runtimeMode;
 
 	bool m_bIsRunning = false;
 };

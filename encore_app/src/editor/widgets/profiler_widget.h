@@ -18,9 +18,14 @@
 class ProfilerWidget : public EditorWidget
 {
 public:
+	virtual void DrawMenu() override
+	{
+		ImGui::MenuItem("Profiler", nullptr, m_pOpenPanel);
+	}
+
 	virtual void Run(GameState& rGameStates) override
 	{
-		if(!rGameStates.editor.bOpenProfiler)
+		if(!rGameStates.widgets.bProfiler)
 		{
 			return;
 		}

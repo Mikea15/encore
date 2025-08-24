@@ -4,46 +4,43 @@
 
 Spritesheet::Spritesheet()
 	: m_tileWidth(0)
-	  , m_tileHeight(0)
-	  , m_columns(0)
-	  , m_rows(0)
+	, m_tileHeight(0)
+	, m_columns(0)
+	, m_rows(0)
+	, m_textureWidth(0.0f)
+	, m_textureHeight(0.0f)
+{ }
+
+Spritesheet::Spritesheet(GLuint textureId, u32 tileWidth, u32 tileHeight, f32 textureWidth, f32 textureHeight)
+	: m_texture(textureId)
+	, m_tileWidth(tileWidth)
+	, m_tileHeight(tileHeight)
+	, m_textureWidth(textureWidth)
+	, m_textureHeight(textureHeight)
 {
+	Assert(tileWidth > 0 && tileHeight > 0);
+	Assert(textureWidth > 0.0f && textureHeight > 0.0f);
+
+	m_columns = static_cast<u32>(textureWidth / (f32)tileWidth);
+	m_rows = static_cast<u32>(textureHeight / (f32)tileHeight);
 }
 
-Spritesheet::Spritesheet(const Texture& texture, u32 tileWidth, u32 tileHeight)
-	: m_texture(texture)
-	  , m_tileWidth(tileWidth)
-	  , m_tileHeight(tileHeight)
+bool Spritesheet::Initialize(GLuint textureId, u32 tileWidth, u32 tileHeight, f32 textureWidth, f32 textureHeight)
 {
-	if (texture.GetWidth() > 0 && texture.GetHeight() > 0)
-	{
-		m_columns = texture.GetWidth() / tileWidth;
-		m_rows = texture.GetHeight() / tileHeight;
-	}
-}
+	Assert(tileWidth > 0 && tileHeight > 0);
 
-Spritesheet::~Spritesheet()
-{
-	// Texture cleanup is handled by the Texture class destructor
-}
+	Assert(tileWidth > 0 && tileHeight > 0);
+	Assert(textureWidth > 0.0f && textureHeight > 0.0f);
 
-bool Spritesheet::Initialize(const Texture& texture, u32 tileWidth, u32 tileHeight)
-{
-	if (texture.GetWidth() == 0 || texture.GetHeight() == 0 || tileWidth == 0 || tileHeight == 0)
-	{
-		LOG_ERROR("Invalid texture or tile dimensions");
-		return false;
-	}
-
-	m_texture = texture;
+	m_texture = textureId;
 	m_tileWidth = tileWidth;
 	m_tileHeight = tileHeight;
-	m_columns = texture.GetWidth() / tileWidth;
-	m_rows = texture.GetHeight() / tileHeight;
+	m_textureWidth = textureWidth;
+	m_textureHeight = textureHeight;
+	m_columns = static_cast<u32>(textureWidth / (f32)tileWidth);
+	m_rows = static_cast<u32>(textureHeight / (f32)tileHeight);
 
-	LOG_INFO("Initialized spritesheet: %dx%d tiles (%dx%d pixels each)",
-	         m_columns, m_rows, m_tileWidth, m_tileHeight);
-
+	LOG_INFO("Initialized spritesheet: %dx%d tiles (%dx%d pixels each)", m_columns, m_rows, m_tileWidth, m_tileHeight);
 	return true;
 }
 
@@ -51,8 +48,7 @@ SpriteFrame Spritesheet::GetTile(u32 column, u32 row) const
 {
 	if (column >= m_columns || row >= m_rows)
 	{
-		LOG_ERROR("Tile coordinates out of bounds: (%d,%d) max: (%d,%d)",
-		          column, row, m_columns-1, m_rows-1);
+		LOG_ERROR("Tile coordinates out of bounds: (%d,%d) max: (%d,%d)", column, row, m_columns-1, m_rows-1);
 		return SpriteFrame(0.0f, 0.0f, 1.0f, 1.0f);
 	}
 
@@ -61,8 +57,8 @@ SpriteFrame Spritesheet::GetTile(u32 column, u32 row) const
 	return SpriteFrame(u1, v1, u2, v2);
 }
 
-void Spritesheet::AddAnimation(const std::string& name, const std::vector<u32>& frameIndices,
-                               float frameDuration, bool loop)
+void Spritesheet::AddAnimation(const std::string& name, const std::vector<u32>& frameIndices, float frameDuration,
+                               bool loop)
 {
 	Animation animation(name, loop);
 
@@ -146,6 +142,16 @@ const Animation* Spritesheet::GetAnimation(const std::string& name) const
 	return (it != m_animations.end()) ? &(*it) : nullptr;
 }
 
+void Spritesheet::Bind(u32 textureUnit) const
+{
+	glBindTexture(GL_TEXTURE_2D + textureUnit, m_texture);
+}
+
+void Spritesheet::Unbind() const
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 u32 Spritesheet::GetTileIndex(u32 column, u32 row) const
 {
 	return row * m_columns + column;
@@ -160,11 +166,8 @@ SpriteFrame Spritesheet::GetFrameFromIndex(u32 index) const
 
 void Spritesheet::CalculateUV(u32 column, u32 row, float& u1, float& v1, float& u2, float& v2) const
 {
-	float texWidth = static_cast<float>(m_texture.GetWidth());
-	float texHeight = static_cast<float>(m_texture.GetHeight());
-
-	u1 = (column * m_tileWidth) / texWidth;
-	v1 = (row * m_tileHeight) / texHeight;
-	u2 = ((column + 1) * m_tileWidth) / texWidth;
-	v2 = ((row + 1) * m_tileHeight) / texHeight;
+	u1 = static_cast<f32>(column * m_tileWidth) / m_textureWidth;
+	u2 = static_cast<f32>((column + 1) * m_tileWidth) / m_textureWidth;
+	v1 = static_cast<f32>(row * m_tileHeight) / m_textureHeight;
+	v2 = static_cast<f32>((row + 1) * m_tileHeight) / m_textureHeight;
 }

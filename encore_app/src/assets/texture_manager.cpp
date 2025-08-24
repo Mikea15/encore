@@ -35,8 +35,8 @@ GLuint TextureManager::CreateTexture(const u8* pData, u32 width, u32 height, u8 
 	// Set texture parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	const GLenum dataFormat = GetTextureFormat(channels);
 
@@ -77,7 +77,7 @@ GLuint TextureManager::CreateTexture(const u8* pData, u32 width, u32 height, u8 
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// Store texture info
-	m_pTextures[texId] = { width, height, channels, "manual_create" };
+	m_pTextures[texId] = { width, height, channels, "::create_texture" };
 
 	LOG_INFO("Successfully created texture %d", texId);
 	return texId;
@@ -85,16 +85,15 @@ GLuint TextureManager::CreateTexture(const u8* pData, u32 width, u32 height, u8 
 
 GLuint TextureManager::LoadFromFile(const char* pFilePath, bool bFlipVertically)
 {
-	LOG_INFO("Loading texture from: '%s'", pFilePath);
+	LOG_INFO("LoadFromFile: '%s'", pFilePath);
 
 	stbi_set_flip_vertically_on_load(bFlipVertically);
 
 	i32 width, height, channels;
 	u8* pData = stbi_load(pFilePath, &width, &height, &channels, 0);
-
 	if(!pData)
 	{
-		LOG_ERROR("stbi_load failed for '%s': %s", pFilePath, stbi_failure_reason());
+		LOG_ERROR("LoadFromFile: failed for '%s': %s", pFilePath, stbi_failure_reason());
 		return 0;
 	}
 
@@ -108,7 +107,7 @@ GLuint TextureManager::LoadFromFile(const char* pFilePath, bool bFlipVertically)
 	{
 		// Update file path for debugging
 		m_pTextures[textureId].m_filePath = pFilePath;
-		LOG_INFO("Successfully loaded texture %d from '%s'", textureId, pFilePath);
+		LOG_INFO("Successfully loaded texture '%d' from '%s'", textureId, pFilePath);
 	}
 
 	return textureId;
@@ -120,28 +119,9 @@ Spritesheet TextureManager::LoadSpritesheet(const char* pFilePath, u32 tileWidth
 	if (textureId == 0)
 	{
 		LOG_ERROR("Failed to load texture for spritesheet: '%s'", pFilePath);
-		return Spritesheet();
+		return {};
 	}
-
-	// Get texture info
-	u32 width, height;
-	u8 channels;
-	if (!GetTextureInfo(textureId, width, height, channels))
-	{
-		LOG_ERROR("Failed to get texture info for spritesheet");
-		return Spritesheet();
-	}
-
-	// Create texture object
-	Texture texture(textureId, width, height, channels);
-
-	// Create and return spritesheet
-	Spritesheet spritesheet(texture, tileWidth, tileHeight);
-
-	LOG_INFO("Created spritesheet from '%s': %dx%d tiles", pFilePath,
-			 spritesheet.GetColumns(), spritesheet.GetRows());
-
-	return spritesheet;
+	return CreateSpritesheet(textureId, tileWidth, tileHeight);
 }
 
 Spritesheet TextureManager::CreateSpritesheet(GLuint textureId, u32 tileWidth, u32 tileHeight)
@@ -149,7 +129,7 @@ Spritesheet TextureManager::CreateSpritesheet(GLuint textureId, u32 tileWidth, u
 	if (!IsValidTexture(textureId))
 	{
 		LOG_ERROR("Invalid texture ID: %d", textureId);
-		return Spritesheet();
+		return {};
 	}
 
 	u32 width, height;
@@ -157,11 +137,10 @@ Spritesheet TextureManager::CreateSpritesheet(GLuint textureId, u32 tileWidth, u
 	if (!GetTextureInfo(textureId, width, height, channels))
 	{
 		LOG_ERROR("Failed to get texture info for spritesheet");
-		return Spritesheet();
+		return {};
 	}
 
-	Texture texture(textureId, width, height, channels);
-	return Spritesheet(texture, tileWidth, tileHeight);
+	return Spritesheet(textureId, tileWidth, tileHeight, (f32)width, (f32)height);
 }
 
 void TextureManager::DeleteTexture(GLuint textureId)

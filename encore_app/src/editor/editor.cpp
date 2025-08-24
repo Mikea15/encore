@@ -12,6 +12,7 @@
 #include "widgets/performance_monitor_widget.h"
 #include "widgets/profiler_widget.h"
 #include "widgets/scene_viewport_widget.h"
+#include "widgets/texture_manager_widget.h"
 
 #define ADD_WIDGET_WITH_OPTION(T, M, B)		\
 	m_editorWidgets.push_back(new T());		\
@@ -33,6 +34,7 @@ void Editor::Init(GameState* pGameState, RenderingEngine* pRenderingEngine)
 	ADD_WIDGET_WITH_OPTION(PerformanceMonitorWidget, "Windows", &m_pGameState->widgets.bPerformanceMonitor);
 
 	m_editorWidgets.push_back(new PerformanceMonitorMiniWidget());
+	m_editorWidgets.push_back(new TextureManagerWidget());
 
 	for (u32 i = 0; i < m_editorWidgets.size(); i++)
 	{

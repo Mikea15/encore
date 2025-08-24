@@ -1,7 +1,6 @@
 #include "sprite_renderer.h"
 
-#include "texture.h"
-#include "texture_manager.h"
+#include "assets/texture_manager.h"
 
 void SpriteBatchRenderer::Init()
 {
@@ -11,7 +10,7 @@ void SpriteBatchRenderer::Init()
 	m_vertices.reserve(MAX_VERTICES);
 	m_textureSlots.reserve(MAX_TEXTURES);
 
-	u8 white[4] = { 255, 255, 255, 255 };
+	u8 white[4] = {255, 255, 255, 255};
 	m_whiteTextureId = TextureManager::GetInstance().CreateTexture(white, 1, 1, 4);
 }
 
@@ -19,9 +18,9 @@ void SpriteBatchRenderer::Clear()
 {
 	m_shader.Clear();
 
-	if(m_VAO) { glDeleteVertexArrays(1, &m_VAO); }
-	if(m_VBO) { glDeleteBuffers(1, &m_VBO); }
-	if(m_EBO) { glDeleteBuffers(1, &m_EBO); }
+	if (m_VAO) { glDeleteVertexArrays(1, &m_VAO); }
+	if (m_VBO) { glDeleteBuffers(1, &m_VBO); }
+	if (m_EBO) { glDeleteBuffers(1, &m_EBO); }
 }
 
 void SpriteBatchRenderer::Begin(const Camera2D& cam, f32 viewportWidth, f32 viewportHeight)
@@ -45,7 +44,7 @@ void SpriteBatchRenderer::Begin(const Camera2D& cam, f32 viewportWidth, f32 view
 
 	// Set up texture samplers
 	i32 samplers[MAX_TEXTURES];
-	for(i32 i = 0; i < MAX_TEXTURES; ++i)
+	for (i32 i = 0; i < MAX_TEXTURES; ++i)
 	{
 		samplers[i] = i;
 	}
@@ -56,17 +55,8 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 {
 	f32 textureIndex = GetTextureIndex(sprite.texId);
 
-	// Debug: Log texture usage
-	static bool debugOnce = true;
-	if(debugOnce && sprite.texId != 0)
-	{
-		LOG_INFO("Drawing sprite with texture ID: %d, index: %f", sprite.texId, textureIndex);
-		debugOnce = false;
-	}
-
 	// Check if we need to flush (too many sprites or textures)
-	if(m_vertices.size() + 4 > MAX_VERTICES ||
-		(textureIndex == -1.0f && m_currentTextureSlot >= MAX_TEXTURES))
+	if (m_vertices.size() + 4 > MAX_VERTICES || (textureIndex == -1.0f && m_currentTextureSlot >= MAX_TEXTURES))
 	{
 		Flush();
 
@@ -84,19 +74,19 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 
 	// Calculate corner positions
 	Vec2 corners[4] = {
-		{ -halfSize.x, -halfSize.y }, // Bottom-left
-		{ halfSize.x, -halfSize.y },  // Bottom-right
-		{ halfSize.x,  halfSize.y },  // Top-right
-		{ -halfSize.x,  halfSize.y }  // Top-left
+		{-halfSize.x, -halfSize.y}, // Bottom-left
+		{halfSize.x, -halfSize.y}, // Bottom-right
+		{halfSize.x, halfSize.y}, // Top-right
+		{-halfSize.x, halfSize.y} // Top-left
 	};
 
 	// Apply rotation if needed
-	if(rotation != 0.0f)
+	if (rotation != 0.0f)
 	{
 		f32 rCos = cos(glm::radians(rotation));
 		f32 rSin = sin(glm::radians(rotation));
 
-		for(i8 i = 0; i < 4; ++i)
+		for (i8 i = 0; i < 4; ++i)
 		{
 			f32 x = corners[i].x;
 			f32 y = corners[i].y;
@@ -106,29 +96,28 @@ void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const
 	}
 
 	// Translate to world position
-	for(i8 i = 0; i < 4; ++i)
+	for (i8 i = 0; i < 4; ++i)
 	{
 		corners[i] += position;
 	}
 
 	// UV coordinates
 	Vec2 uvs[4] = {
-		{ sprite.uvMin.x, sprite.uvMin.y }, // Bottom-left
-		{ sprite.uvMax.x, sprite.uvMin.y }, // Bottom-right
-		{ sprite.uvMax.x, sprite.uvMax.y }, // Top-right
-		{ sprite.uvMin.x, sprite.uvMax.y }  // Top-left
+		{sprite.uvMin.x, sprite.uvMin.y}, // Bottom-left
+		{sprite.uvMax.x, sprite.uvMin.y}, // Bottom-right
+		{sprite.uvMax.x, sprite.uvMax.y}, // Top-right
+		{sprite.uvMin.x, sprite.uvMax.y} // Top-left
 	};
 
 	// Add vertices to batch
-	for(i8 i = 0; i < 4; ++i)
+	for (i8 i = 0; i < 4; ++i)
 	{
-		m_vertices.emplace_back(SpriteVertex{ corners[i], uvs[i], sprite.color, textureIndex });
+		m_vertices.emplace_back(SpriteVertex{corners[i], uvs[i], sprite.color, textureIndex});
 	}
 
 	m_renderStats.spritesDrawn++;
 }
 
-// PERF: Move Semantics Here?
 void SpriteBatchRenderer::DrawSprite(Vec2 position, Vec2 size, GLuint texture, Vec4 color)
 {
 	Sprite sprite(position, size, texture);
@@ -136,13 +125,107 @@ void SpriteBatchRenderer::DrawSprite(Vec2 position, Vec2 size, GLuint texture, V
 	DrawSprite(position, sprite.rotation, sprite);
 }
 
-// PERF: Move Semantics Here?
 void SpriteBatchRenderer::DrawRotatedSprite(Vec2 position, Vec2 size, f32 rotation, GLuint texture, Vec4 color)
 {
-	Sprite sprite(position, size, texture);
-	sprite.rotation = rotation;
-	sprite.color = color;
-	DrawSprite(position, sprite.rotation, sprite);
+}
+
+void SpriteBatchRenderer::DrawSprite(const Vec2& position, float rotation, const SpriteFrame& frame,
+                                     GLuint textureId, const Vec2& size, const Vec4& color)
+{
+	f32 textureIndex = GetTextureIndex(textureId);
+
+	// Check if we need to flush
+	if (m_vertices.size() + 4 > MAX_VERTICES ||
+		(textureIndex == -1.0f && m_currentTextureSlot >= MAX_TEXTURES))
+	{
+		Flush();
+
+		// Restart batch
+		m_vertices.clear();
+		m_textureSlots.clear();
+		m_textureSlots.push_back(m_whiteTextureId);
+		m_currentTextureSlot = 1;
+
+		textureIndex = GetTextureIndex(textureId);
+	}
+
+	// Create quad vertices
+	Vec2 halfSize = size * 0.5f;
+
+	// Calculate corner positions
+	Vec2 corners[4] = {
+		{-halfSize.x, -halfSize.y}, // Bottom-left
+		{halfSize.x, -halfSize.y}, // Bottom-right
+		{halfSize.x, halfSize.y}, // Top-right
+		{-halfSize.x, halfSize.y} // Top-left
+	};
+
+	// Apply rotation if needed
+	if (rotation != 0.0f)
+	{
+		f32 rCos = cos(glm::radians(rotation));
+		f32 rSin = sin(glm::radians(rotation));
+
+		for (i8 i = 0; i < 4; ++i)
+		{
+			f32 x = corners[i].x;
+			f32 y = corners[i].y;
+			corners[i].x = x * rCos - y * rSin;
+			corners[i].y = x * rSin + y * rCos;
+		}
+	}
+
+	// Translate to world position
+	for (i8 i = 0; i < 4; ++i)
+	{
+		corners[i] += position;
+	}
+
+	// UV coordinates from SpriteFrame
+	Vec2 uvs[4] = {
+		{frame.u1, frame.v2}, // Bottom-left (note: v2 for bottom in OpenGL)
+		{frame.u2, frame.v2}, // Bottom-right
+		{frame.u2, frame.v1}, // Top-right
+		{frame.u1, frame.v1} // Top-left
+	};
+
+	// Add vertices to batch
+	for (i8 i = 0; i < 4; ++i)
+	{
+		m_vertices.emplace_back(SpriteVertex{corners[i], uvs[i], color, textureIndex});
+	}
+
+	m_renderStats.spritesDrawn++;
+}
+
+void SpriteBatchRenderer::DrawTile(const Vec2& position, const Spritesheet& spritesheet,
+                                   u32 column, u32 row, const Vec2& size, const Vec4& color)
+{
+	SpriteFrame frame = spritesheet.GetTile(column, row);
+	GLuint textureId = spritesheet.GetTextureId();
+
+	DrawSprite(position, 0.0f, frame, textureId, size, color);
+}
+
+void SpriteBatchRenderer::DrawTile(const Vec2& position, const Spritesheet& spritesheet,
+                                   u32 tileIndex, const Vec2& size, const Vec4& color)
+{
+	u32 column = tileIndex % spritesheet.GetColumns();
+	u32 row = tileIndex / spritesheet.GetColumns();
+
+	DrawTile(position, spritesheet, column, row, size, color);
+}
+
+void SpriteBatchRenderer::DrawAnimatedSprite(const Vec2& position, float rotation,
+                                             const AnimatedSprite& animatedSprite,
+                                             const Vec2& size, const Vec4& color)
+{
+	const SpriteFrame& frame = animatedSprite.GetCurrentFrame();
+	GLuint textureId = animatedSprite.GetTextureID();
+	if (textureId != 0)
+	{
+		DrawSprite(position, rotation, frame, textureId, size, color);
+	}
 }
 
 void SpriteBatchRenderer::End()
@@ -166,7 +249,7 @@ void SpriteBatchRenderer::CreateBuffers()
 	std::vector<GLuint> indices;
 	indices.reserve(MAX_INDICES);
 
-	for(u32 i = 0; i < MAX_SPRITES; ++i)
+	for (u32 i = 0; i < MAX_SPRITES; ++i)
 	{
 		GLuint base = i * 4;
 
@@ -240,12 +323,12 @@ void SpriteBatchRenderer::CreateShader()
         void main() {
             vec4 texColor = vec4(1.0);
             int texIndex = int(TextureId + 0.5); // Add 0.5 for better float->int conversion
-            
+
             // Clamp texture index to valid range
             if(texIndex < 0 || texIndex >= 32) {
                 texIndex = 0; // Fallback to white texture
             }
-            
+
             // More comprehensive texture sampling
             if (texIndex == 0) texColor = texture(uTextures[0], TexCoords);
             else if (texIndex == 1) texColor = texture(uTextures[1], TexCoords);
@@ -291,22 +374,22 @@ void SpriteBatchRenderer::CreateShader()
 f32 SpriteBatchRenderer::GetTextureIndex(GLuint texId)
 {
 	// Fix: Check for 0 texture ID correctly
-	if(texId == 0)
+	if (texId == 0)
 	{
 		return 0.0f;
 	}
 
 	// Check if texture is already in batch
-	for(u32 i = 0; i < m_textureSlots.size(); ++i)
+	for (u32 i = 0; i < m_textureSlots.size(); ++i)
 	{
-		if(m_textureSlots[i] == texId)
+		if (m_textureSlots[i] == texId)
 		{
 			return static_cast<f32>(i);
 		}
 	}
 
 	// Add new texture if we have space
-	if(m_currentTextureSlot < MAX_TEXTURES)
+	if (m_currentTextureSlot < MAX_TEXTURES)
 	{
 		m_textureSlots.push_back(texId);
 		return static_cast<f32>(m_currentTextureSlot++);
@@ -318,7 +401,7 @@ f32 SpriteBatchRenderer::GetTextureIndex(GLuint texId)
 
 void SpriteBatchRenderer::Flush()
 {
-	if(m_vertices.empty())
+	if (m_vertices.empty())
 	{
 		return;
 	}
@@ -328,13 +411,13 @@ void SpriteBatchRenderer::Flush()
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size() * sizeof(SpriteVertex), m_vertices.data());
 
 	// Bind textures with validation
-	for(u32 i = 0; i < m_textureSlots.size(); ++i)
+	for (u32 i = 0; i < m_textureSlots.size(); ++i)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 
 		// Validate texture before binding
 		GLuint texId = m_textureSlots[i];
-		if(texId != 0 && !glIsTexture(texId))
+		if (texId != 0 && !glIsTexture(texId))
 		{
 			LOG_ERROR("Texture ID %d at slot %d is not a valid texture object!", texId, i);
 			// Fallback to white texture
@@ -345,7 +428,7 @@ void SpriteBatchRenderer::Flush()
 
 		// Check for binding errors
 		GLenum error = glGetError();
-		if(error != GL_NO_ERROR)
+		if (error != GL_NO_ERROR)
 		{
 			LOG_ERROR("Error binding texture %d at slot %d: 0x%X", texId, i, error);
 		}
@@ -361,7 +444,7 @@ void SpriteBatchRenderer::Flush()
 
 	// Check for OpenGL errors
 	GLenum error = glGetError();
-	if(error != GL_NO_ERROR)
+	if (error != GL_NO_ERROR)
 	{
 		LOG_ERROR("OpenGL error in Flush: 0x%X", error);
 	}
@@ -376,4 +459,3 @@ void SpriteBatchRenderer::Flush()
 	m_textureSlots.push_back(m_whiteTextureId);
 	m_currentTextureSlot = 1;
 }
-

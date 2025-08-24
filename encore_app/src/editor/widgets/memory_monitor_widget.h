@@ -58,6 +58,7 @@ public:
 				{
 					DrawPoolUsageWidget("Move Component", MoveComponent::GetPool());
 					DrawPoolUsageWidget("Sprite2D Component", Sprite2DComponent::GetPool());
+					DrawPoolUsageWidget("AnimatedSprite Component", AnimatedSpriteComponent::GetPool());
 				}
 			}
 			ImGui::End();

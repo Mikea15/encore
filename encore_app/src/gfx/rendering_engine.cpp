@@ -1,15 +1,17 @@
-
 #include "rendering_engine.h"
 
+#include "assets/texture_manager.h"
 #include "debug/renderer_widget.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "imgui/backends/imgui_impl_sdl2.h"
 #include "profiler/profiler.h"
 #include "profiler/profiler_section.h"
+#include "utils/utils_path.h"
 
 RenderingEngine::RenderingEngine()
 	: m_spriteRenderer()
-{ }
+{
+}
 
 void RenderingEngine::Init(GameState& rGameState)
 {
@@ -102,7 +104,7 @@ void RenderingEngine::ClearRenderCommands()
 
 void RenderingEngine::ResizeFramebuffer(GameState& rGameState, i32 width, i32 height)
 {
-	if(width != rGameState.framebufferWidth || height != rGameState.framebufferHeight)
+	if (width != rGameState.framebufferWidth || height != rGameState.framebufferHeight)
 	{
 		rGameState.framebufferWidth = width;
 		rGameState.framebufferHeight = height;
@@ -129,12 +131,12 @@ void RenderingEngine::RenderScene(GameState& rGameState, Camera2D& camera)
 	m_spriteRenderer.Begin(camera, (f32)rGameState.framebufferWidth, (f32)rGameState.framebufferHeight);
 
 	// Draw background
-	m_spriteRenderer.DrawSprite({ 0, 0 }, { 2000, 2000 }, 0, { 0.1f, 0.1f, 0.2f, 1.0f });
+	m_spriteRenderer.DrawSprite({0, 0}, {2000, 2000}, 0, {0.1f, 0.1f, 0.2f, 1.0f});
 
 	// Draw all sprites
-	for(const RenderCommand& cmd : m_renderCommands)
+	for (const RenderCommand& cmd : m_renderCommands)
 	{
-		m_spriteRenderer.DrawSprite(cmd.position, cmd.rotation, cmd.sprite);
+		m_spriteRenderer.DrawSprite(cmd.position, cmd.rotation, cmd.frame, cmd.textureId, Vec2(64, 64), Vec4(1));
 	}
 
 	// Draw UI elements (these don't move with camera)
@@ -159,8 +161,8 @@ void RenderingEngine::BlitFramebufferToScreen(GameState& rGameState)
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 	glBlitFramebuffer(
-		0, 0, rGameState.framebufferWidth, rGameState.framebufferHeight,  // src rect
-		0, 0, rGameState.window.width, rGameState.window.height,  // dst rect
+		0, 0, rGameState.framebufferWidth, rGameState.framebufferHeight, // src rect
+		0, 0, rGameState.window.width, rGameState.window.height, // dst rect
 		GL_COLOR_BUFFER_BIT, GL_LINEAR
 	);
 
@@ -171,7 +173,7 @@ void RenderingEngine::CreateFramebuffer(GameState& rGameState)
 {
 	PROFILE();
 	// Delete existing framebuffer if it exists
-	if(rGameState.framebuffer)
+	if (rGameState.framebuffer)
 	{
 		glDeleteFramebuffers(1, &rGameState.framebuffer);
 		glDeleteTextures(1, &rGameState.colorTexture);
@@ -185,7 +187,8 @@ void RenderingEngine::CreateFramebuffer(GameState& rGameState)
 	// Create color texture
 	glGenTextures(1, &rGameState.colorTexture);
 	glBindTexture(GL_TEXTURE_2D, rGameState.colorTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rGameState.framebufferWidth, rGameState.framebufferHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, rGameState.framebufferWidth, rGameState.framebufferHeight, 0, GL_RGB,
+	             GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rGameState.colorTexture, 0);
@@ -193,13 +196,14 @@ void RenderingEngine::CreateFramebuffer(GameState& rGameState)
 	// Create depth texture
 	glGenTextures(1, &rGameState.depthTexture);
 	glBindTexture(GL_TEXTURE_2D, rGameState.depthTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, rGameState.framebufferWidth, rGameState.framebufferHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, rGameState.framebufferWidth, rGameState.framebufferHeight, 0,
+	             GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, rGameState.depthTexture, 0);
 
 	// Check framebuffer completeness
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		LOG_ERROR("Framebuffer not complete!");
 	}
@@ -209,7 +213,7 @@ void RenderingEngine::CreateFramebuffer(GameState& rGameState)
 
 void RenderingEngine::ClearFramebuffer(GameState& rGameState)
 {
-	if(rGameState.framebuffer)
+	if (rGameState.framebuffer)
 	{
 		glDeleteFramebuffers(1, &rGameState.framebuffer);
 		glDeleteTextures(1, &rGameState.colorTexture);

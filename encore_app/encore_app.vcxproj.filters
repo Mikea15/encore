@@ -7,6 +7,9 @@
     <Filter Include="encore_app\src">
       <UniqueIdentifier>{18F736EF-04C5-2AF5-ED58-9B1BD9C5065A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="encore_app\src\assets">
+      <UniqueIdentifier>{1A679EAD-86D3-59A8-4FC7-F105BBF27B10}</UniqueIdentifier>
+    </Filter>
     <Filter Include="encore_app\src\components">
       <UniqueIdentifier>{4D61DE85-B923-1210-02D4-A09C6ED5EAED}</UniqueIdentifier>
     </Filter>
@@ -60,6 +63,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\assets\animated_sprite.h">
+      <Filter>encore_app\src\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\assets\sprite_sheet.h">
+      <Filter>encore_app\src\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\assets\texture_manager.h">
+      <Filter>encore_app\src\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\animated_sprite_component.h">
+      <Filter>encore_app\src\components</Filter>
+    </ClInclude>
     <ClInclude Include="src\components\move_component.h">
       <Filter>encore_app\src\components</Filter>
     </ClInclude>
@@ -67,9 +82,6 @@
       <Filter>encore_app\src\components</Filter>
     </ClInclude>
     <ClInclude Include="src\debug\extension_imgui.h">
-      <Filter>encore_app\src\debug</Filter>
-    </ClInclude>
-    <ClInclude Include="src\debug\framerate_widget.h">
       <Filter>encore_app\src\debug</Filter>
     </ClInclude>
     <ClInclude Include="src\debug\renderer_widget.h">
@@ -81,16 +93,28 @@
     <ClInclude Include="src\editor\editor_widget.h">
       <Filter>encore_app\src\editor</Filter>
     </ClInclude>
+    <ClInclude Include="src\editor\widgets\console_widget.h">
+      <Filter>encore_app\src\editor\widgets</Filter>
+    </ClInclude>
     <ClInclude Include="src\editor\widgets\gpu_stats_widget.h">
       <Filter>encore_app\src\editor\widgets</Filter>
     </ClInclude>
     <ClInclude Include="src\editor\widgets\memory_monitor_widget.h">
       <Filter>encore_app\src\editor\widgets</Filter>
     </ClInclude>
-    <ClInclude Include="src\editor\widgets\menu_widget.h">
+    <ClInclude Include="src\editor\widgets\performance_monitor_mini_widget.h">
+      <Filter>encore_app\src\editor\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\widgets\performance_monitor_widget.h">
       <Filter>encore_app\src\editor\widgets</Filter>
     </ClInclude>
     <ClInclude Include="src\editor\widgets\profiler_widget.h">
+      <Filter>encore_app\src\editor\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\widgets\scene_viewport_widget.h">
+      <Filter>encore_app\src\editor\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\widgets\texture_manager_widget.h">
       <Filter>encore_app\src\editor\widgets</Filter>
     </ClInclude>
     <ClInclude Include="src\entity\entity.h">
@@ -121,12 +145,6 @@
       <Filter>encore_app\src\gfx</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\sprite_renderer.h">
-      <Filter>encore_app\src\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gfx\texture.h">
-      <Filter>encore_app\src\gfx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gfx\texture_manager.h">
       <Filter>encore_app\src\gfx</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\types.h">
@@ -239,6 +257,18 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\assets\animated_sprite.cpp">
+      <Filter>encore_app\src\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\assets\sprite_sheet.cpp">
+      <Filter>encore_app\src\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\assets\texture_manager.cpp">
+      <Filter>encore_app\src\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\components\animated_sprite_component.cpp">
+      <Filter>encore_app\src\components</Filter>
+    </ClCompile>
     <ClCompile Include="src\components\move_component.cpp">
       <Filter>encore_app\src\components</Filter>
     </ClCompile>
@@ -267,12 +297,6 @@
       <Filter>encore_app\src\gfx</Filter>
     </ClCompile>
     <ClCompile Include="src\gfx\sprite_renderer.cpp">
-      <Filter>encore_app\src\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gfx\texture.cpp">
-      <Filter>encore_app\src\gfx</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gfx\texture_manager.cpp">
       <Filter>encore_app\src\gfx</Filter>
     </ClCompile>
     <ClCompile Include="src\gfx\window_handler.cpp">

@@ -9,6 +9,8 @@ struct Camera2D;
 
 struct RenderCommand
 {
+	SpriteFrame frame;
+	GLuint textureId;
 	Sprite sprite;
 	Vec2 position;
 	f32 rotation;
@@ -42,4 +44,7 @@ private:
 private:
 	SpriteBatchRenderer m_spriteRenderer;
 	std::vector<RenderCommand> m_renderCommands;
+
+	Spritesheet m_tileset;
+	AnimatedSprite m_animSprite;
 };

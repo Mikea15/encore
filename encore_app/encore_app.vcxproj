@@ -78,7 +78,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=11;VERSION_STRING="1.0.0.11";BUILD_DATE="2025-08-21";BUILD_TIME="23:57:00";BUILD_TIMESTAMP="20250821235700";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=15;VERSION_STRING="1.0.0.15";BUILD_DATE="2025-08-24";BUILD_TIME="23:44:47";BUILD_TIMESTAMP="20250824234447";ENC_DEBUG;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -105,7 +105,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=11;VERSION_STRING="1.0.0.11";BUILD_DATE="2025-08-21";BUILD_TIME="23:57:00";BUILD_TIMESTAMP="20250821235700";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=15;VERSION_STRING="1.0.0.15";BUILD_DATE="2025-08-24";BUILD_TIME="23:44:47";BUILD_TIMESTAMP="20250824234447";ENC_PROFILE;ENC_EDITOR;ENC_IMGUI;USE_LPP;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
@@ -134,7 +134,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=11;VERSION_STRING="1.0.0.11";BUILD_DATE="2025-08-21";BUILD_TIME="23:57:00";BUILD_TIMESTAMP="20250821235700";ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLM_FORCE_DEPTH_ZERO_TO_ONE;GLM_FORCE_LEFT_HANDED;VERSION_MAJOR=1;VERSION_MINOR=0;VERSION_PATCH=0;BUILD_NUMBER=15;VERSION_STRING="1.0.0.15";BUILD_DATE="2025-08-24";BUILD_TIME="23:44:47";BUILD_TIMESTAMP="20250824234447";ENC_RELEASE;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;vendor;..\encore_core\src;$(VCPKG_ROOT)\installed\x64-windows\include;..\vcpkg_installed\x64-windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
@@ -160,6 +160,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\assets\animated_sprite.h" />
+    <ClInclude Include="src\assets\sprite_sheet.h" />
+    <ClInclude Include="src\assets\texture_manager.h" />
+    <ClInclude Include="src\components\animated_sprite_component.h" />
     <ClInclude Include="src\components\move_component.h" />
     <ClInclude Include="src\components\sprite2d_component.h" />
     <ClInclude Include="src\debug\extension_imgui.h" />
@@ -173,6 +177,7 @@
     <ClInclude Include="src\editor\widgets\performance_monitor_widget.h" />
     <ClInclude Include="src\editor\widgets\profiler_widget.h" />
     <ClInclude Include="src\editor\widgets\scene_viewport_widget.h" />
+    <ClInclude Include="src\editor\widgets\texture_manager_widget.h" />
     <ClInclude Include="src\entity\entity.h" />
     <ClInclude Include="src\game_engine.h" />
     <ClInclude Include="src\game_state.h" />
@@ -183,8 +188,6 @@
     <ClInclude Include="src\gfx\shader.h" />
     <ClInclude Include="src\gfx\sprite.h" />
     <ClInclude Include="src\gfx\sprite_renderer.h" />
-    <ClInclude Include="src\gfx\texture.h" />
-    <ClInclude Include="src\gfx\texture_manager.h" />
     <ClInclude Include="src\gfx\types.h" />
     <ClInclude Include="src\gfx\window_handler.h" />
     <ClInclude Include="src\integrations\livepp_handler.h" />
@@ -223,6 +226,10 @@
     <ClInclude Include="vendor\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\assets\animated_sprite.cpp" />
+    <ClCompile Include="src\assets\sprite_sheet.cpp" />
+    <ClCompile Include="src\assets\texture_manager.cpp" />
+    <ClCompile Include="src\components\animated_sprite_component.cpp" />
     <ClCompile Include="src\components\move_component.cpp" />
     <ClCompile Include="src\components\sprite2d_component.cpp" />
     <ClCompile Include="src\editor\editor.cpp" />
@@ -233,8 +240,6 @@
     <ClCompile Include="src\gfx\shader.cpp" />
     <ClCompile Include="src\gfx\sprite.cpp" />
     <ClCompile Include="src\gfx\sprite_renderer.cpp" />
-    <ClCompile Include="src\gfx\texture.cpp" />
-    <ClCompile Include="src\gfx\texture_manager.cpp" />
     <ClCompile Include="src\gfx\window_handler.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\profiler\profiler.cpp" />

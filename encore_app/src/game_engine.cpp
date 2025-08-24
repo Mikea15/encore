@@ -36,7 +36,7 @@ bool GameEngine::Run()
 	{
 		PROFILE_FRAME_START_ALL_THREADS();
 
-#ifdef USE_LPP
+#if USE_LPP
 		{
 			PROFILE_SCOPE("LPP_SyncPoint");
 			m_lppHandler.SyncPoint();
@@ -87,13 +87,11 @@ void GameEngine::InitCoreSubsystems()
 {
 	StringFactory::Init(&m_gameState.arenas[AT_GLOBAL], &m_gameState.arenas[AT_FRAME]);
 
-#if ENC_DEBUG
 	frame_stats_init(g_frameStats, m_gameState.arenas[AT_GLOBAL]);
-#endif
 
 	Entity::Init(&m_gameState.arenas[AT_COMPONENTS]);
 	MoveComponent::Init(&m_gameState.arenas[AT_COMPONENTS]);
-	Sprite2DComponent::Init(&m_gameState.arenas[AT_COMPONENTS]);
+	AnimatedSpriteComponent::Init(&m_gameState.arenas[AT_COMPONENTS]);
 }
 
 void GameEngine::InitGame()
@@ -112,7 +110,7 @@ void GameEngine::InitGame()
 	PROFILE_SET_THREAD_NAME("MainThread");
 #endif
 
-#ifdef USE_LPP
+#if USE_LPP
 	m_lppHandler.InitSynchedAgent();
 #endif
 
@@ -139,18 +137,20 @@ void GameEngine::RegisterTasks()
 		AssertMsg(pMovePool, "Call MoveComponent::InitPool() first");
 		for(MoveComponent& moveComp : *pMovePool)
 		{
-			moveComp.Update(deltaTime);
+			// moveComp.Update(deltaTime);
 		}
 		});
 
 	moveTask->AddDependency(clearRenderTask);
 
-	auto pushRenderTask = m_taskScheduler.CreateTask("Sprite2DComponent Pool", [this](float deltaTime) {
-		Pool<Sprite2DComponent>* pSpritePool = Sprite2DComponent::GetPool();
-		AssertMsg(pSpritePool, "Call MoveComponent::InitPool() first");
+	auto pushRenderTask = m_taskScheduler.CreateTask("AnimatedSpriteComponent Pool", [this](float deltaTime) {
+		Pool<AnimatedSpriteComponent>* pAnimSpritePool = AnimatedSpriteComponent::GetPool();
+		AssertMsg(pAnimSpritePool, "Call MoveComponent::InitPool() first");
 		RenderCommand cmd;
-		for(Sprite2DComponent& comp : *pSpritePool)
+		for(AnimatedSpriteComponent& comp : *pAnimSpritePool)
 		{
+			comp.GetSpriteNonConst().Update(deltaTime);
+
 			// Get the entity this component belongs to
 			Entity* pEntity = Entity::GetPool()->Get(comp.GetEntityId());
 			if(!pEntity) continue;
@@ -158,7 +158,9 @@ void GameEngine::RegisterTasks()
 			MoveComponent* pMoveComp = pEntity->GetMoveComponent();
 			if(!pMoveComp) continue;
 
-			cmd.sprite = comp.GetSprite();
+			cmd.frame = comp.GetSprite().GetCurrentFrame();
+			cmd.textureId = comp.GetSprite().GetTextureID();
+
 			cmd.position = pMoveComp->GetPosition();
 			cmd.rotation = pMoveComp->GetRotation();
 			m_renderingEngine.PushRenderCommand(cmd);
@@ -220,9 +222,7 @@ void GameEngine::Update(float deltaTime)
 {
 	PROFILE();
 
-#if ENC_DEBUG
 	frame_stats_update(g_frameStats, deltaTime);
-#endif
 
 	// TASK_GRAPH
 	m_taskScheduler.ExecuteTaskGraph(deltaTime);

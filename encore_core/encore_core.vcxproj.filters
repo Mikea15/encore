@@ -27,6 +27,9 @@
     <ClInclude Include="src\core\core_minimal.h">
       <Filter>encore_core\src\core</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\core_path.h">
+      <Filter>encore_core\src\core</Filter>
+    </ClInclude>
     <ClInclude Include="src\core\core_platform.h">
       <Filter>encore_core\src\core</Filter>
     </ClInclude>

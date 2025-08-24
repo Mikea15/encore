@@ -3,7 +3,6 @@
 #include "core/core_minimal.h"
 #include "memory/base_arena.h"
 
-#if ENC_DEBUG
 inline struct FrameStats
 {
 	f32* pFrameTimes = nullptr;
@@ -64,5 +63,5 @@ static void frame_stats_update(FrameStats& stats, float deltaTime)
 		stats.framesOneSec = 0;
 	}
 }
-#endif
+
 

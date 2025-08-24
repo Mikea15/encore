@@ -2,11 +2,8 @@
 
 #include "core/core_minimal.h"
 
-#ifdef USE_LPP
+#if USE_LPP
 #include "LivePP/API/x64/LPP_API_x64_CPP.h"
-#endif
-
-#ifdef USE_LPP
 
 #define ABS_PATH_TO_LPP L"C:/Work/encore/app/vendor/LivePP"
 #define REL_PATH_TO_LPP L"vendor/LivePP"

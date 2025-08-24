@@ -22,6 +22,7 @@ public:
 	{}
 
 	const AnimatedSprite& GetSprite() const { return m_sprite; }
+	AnimatedSprite& GetSpriteNonConst() { return m_sprite; }
 	u32 GetEntityId() const { return m_entityId; }
 
 private:

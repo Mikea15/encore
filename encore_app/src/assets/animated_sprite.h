@@ -2,7 +2,6 @@
 
 #include "core/core_minimal.h"
 
-
 #include <string>
 
 #include "sprite_sheet.h"
@@ -49,7 +48,7 @@ public:
 	const Spritesheet* GetSpritesheet() const { return m_spritesheet; }
 	GLuint GetTextureID() const
 	{
-		return m_spritesheet ? m_spritesheet->GetTexture().GetTextureID() : 0;
+		return m_spritesheet ? m_spritesheet->GetTextureId() : 0;
 	}
 
 	struct FrameData

@@ -53,6 +53,16 @@ public:
 #endif
 	}
 
+	struct TexManagerStats
+	{
+		u32 loadedTextures;
+	} stats;
+
+	TexManagerStats GetStats() const
+	{
+		return { (u32) m_pTextures.size() };
+	}
+
 private:
 	struct TextureData
 	{

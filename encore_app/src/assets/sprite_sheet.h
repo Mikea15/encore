@@ -4,20 +4,19 @@
 
 #include <string>
 #include <vector>
-
-#include "texture.h"
-
+#include <GL/glew.h>
 
 struct SpriteFrame
 {
-	float u1, v1; // Top-left UV coordinates
-	float u2, v2; // Bottom-right UV coordinates
-	float duration; // Duration in seconds (for animation)
+	f32 u1, v1; // Top-left UV coordinates
+	f32 u2, v2; // Bottom-right UV coordinates
+	f32 duration; // Duration in seconds (for animation)
 
+	SpriteFrame() = default;
 	SpriteFrame(float _u1, float _v1, float _u2, float _v2, float _duration = 0.1f)
 		: u1(_u1), v1(_v1), u2(_u2), v2(_v2), duration(_duration)
-	{
-	}
+	{ }
+
 };
 
 struct Animation
@@ -36,16 +35,12 @@ class Spritesheet
 {
 public:
 	Spritesheet();
-	Spritesheet(const Texture& texture, u32 tileWidth, u32 tileHeight);
-	~Spritesheet();
+	Spritesheet(GLuint textureId, u32 tileWidth, u32 tileHeight, f32 textureWidth, f32 textureHeight);
 
-	// Initialize spritesheet with uniform grid
-	bool Initialize(const Texture& texture, u32 tileWidth, u32 tileHeight);
+	bool Initialize(GLuint textureId, u32 tileWidth, u32 tileHeight, f32 textureWidth, f32 textureHeight);
 
-	// Get specific tile by column/row (for level painting)
 	SpriteFrame GetTile(u32 column, u32 row) const;
 
-	// Animation management
 	void AddAnimation(const std::string& name, const std::vector<u32>& frameIndices,
 	                  float frameDuration = 0.1f, bool loop = true);
 	void AddAnimation(const std::string& name, u32 startCol, u32 startRow,
@@ -54,15 +49,14 @@ public:
 	// Get animation by name
 	const Animation* GetAnimation(const std::string& name) const;
 
-	// Utility functions
 	u32 GetColumns() const { return m_columns; }
 	u32 GetRows() const { return m_rows; }
 	u32 GetTileWidth() const { return m_tileWidth; }
 	u32 GetTileHeight() const { return m_tileHeight; }
 
-	const Texture& GetTexture() const { return m_texture; }
-	void Bind(u32 textureUnit = 0) const { m_texture.Bind(textureUnit); }
-	void Unbind() const { m_texture.Unbind(); }
+	GLuint GetTextureId() const { return m_texture; }
+	void Bind(u32 textureUnit = 0) const;
+	void Unbind() const;
 
 	// Convert 2D coordinates to 1D index
 	u32 GetTileIndex(u32 column, u32 row) const;
@@ -71,11 +65,13 @@ public:
 	SpriteFrame GetFrameFromIndex(u32 index) const;
 
 private:
-	Texture m_texture;
+	GLuint m_texture;
 	u32 m_tileWidth;
 	u32 m_tileHeight;
 	u32 m_columns;
 	u32 m_rows;
+	f32 m_textureWidth;
+	f32 m_textureHeight;
 
 	std::vector<Animation> m_animations;
 

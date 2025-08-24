@@ -5,7 +5,6 @@
 #include "camera_2d.h"
 #include "entity/entity.h"
 #include "shader.h"
-#include "texture.h"
 #include "types.h"
 
 #include <vector>
@@ -34,11 +33,26 @@ public:
 	void Clear();
 
 	void Begin(const Camera2D& cam, f32 viewportWidth, f32 viewportHeight);
+
 	void DrawSprite(const Vec2& position, float rotation, const Sprite& sprite);
 	// PERF: Move Semantics Here?
-	void DrawSprite(Vec2 position, Vec2 size, GLuint texture = 0, Vec4 color = Vec4(1, 1, 1, 1));
+	void DrawSprite(Vec2 position, Vec2 size, GLuint texture = 0, Vec4 color = Vec4(1));
 	// PERF: Move Semantics Here?
-	void DrawRotatedSprite(Vec2 position, Vec2 size, f32 rotation, GLuint texture = 0, Vec4 color = Vec4(1, 1, 1, 1));
+	void DrawRotatedSprite(Vec2 position, Vec2 size, f32 rotation, GLuint texture = 0, Vec4 color = Vec4(1));
+
+	void DrawSprite(const Vec2& position, float rotation, const SpriteFrame& frame, GLuint textureId,
+				const Vec2& size, const Vec4& color = Vec4(1.0f));
+
+	void DrawTile(const Vec2& position, const Spritesheet& spritesheet, u32 column, u32 row,
+				  const Vec2& size, const Vec4& color = Vec4(1.0f));
+
+	void DrawAnimatedSprite(const Vec2& position, float rotation, const AnimatedSprite& animatedSprite,
+						   const Vec2& size, const Vec4& color = Vec4(1.0f));
+
+	// Convenience overloads
+	void DrawTile(const Vec2& position, const Spritesheet& spritesheet, u32 tileIndex,
+				  const Vec2& size, const Vec4& color = Vec4(1.0f));
+
 	void End();
 
 	const Stats& GetStats() const { return m_renderStats; }

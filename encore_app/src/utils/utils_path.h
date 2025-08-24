@@ -22,4 +22,9 @@ namespace utils {
 		}
 		return "N/A";
 	}
+
+	static const char* GetPath(const char* path)
+	{
+		return StringFactory::Format("%s%s", ASSET_PATH, path);
+	}
 };

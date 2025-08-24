@@ -114,6 +114,56 @@ GLuint TextureManager::LoadFromFile(const char* pFilePath, bool bFlipVertically)
 	return textureId;
 }
 
+Spritesheet TextureManager::LoadSpritesheet(const char* pFilePath, u32 tileWidth, u32 tileHeight, bool bFlipVertically)
+{
+	GLuint textureId = LoadFromFile(pFilePath, bFlipVertically);
+	if (textureId == 0)
+	{
+		LOG_ERROR("Failed to load texture for spritesheet: '%s'", pFilePath);
+		return Spritesheet();
+	}
+
+	// Get texture info
+	u32 width, height;
+	u8 channels;
+	if (!GetTextureInfo(textureId, width, height, channels))
+	{
+		LOG_ERROR("Failed to get texture info for spritesheet");
+		return Spritesheet();
+	}
+
+	// Create texture object
+	Texture texture(textureId, width, height, channels);
+
+	// Create and return spritesheet
+	Spritesheet spritesheet(texture, tileWidth, tileHeight);
+
+	LOG_INFO("Created spritesheet from '%s': %dx%d tiles", pFilePath,
+			 spritesheet.GetColumns(), spritesheet.GetRows());
+
+	return spritesheet;
+}
+
+Spritesheet TextureManager::CreateSpritesheet(GLuint textureId, u32 tileWidth, u32 tileHeight)
+{
+	if (!IsValidTexture(textureId))
+	{
+		LOG_ERROR("Invalid texture ID: %d", textureId);
+		return Spritesheet();
+	}
+
+	u32 width, height;
+	u8 channels;
+	if (!GetTextureInfo(textureId, width, height, channels))
+	{
+		LOG_ERROR("Failed to get texture info for spritesheet");
+		return Spritesheet();
+	}
+
+	Texture texture(textureId, width, height, channels);
+	return Spritesheet(texture, tileWidth, tileHeight);
+}
+
 void TextureManager::DeleteTexture(GLuint textureId)
 {
 	auto it = m_pTextures.find(textureId);

@@ -11,10 +11,24 @@ public:
 	Texture();
 	Texture(GLuint texId, u32 width, u32 height, u8 channels);
 
-	// ~Texture() = delete; 
+	Texture(const Texture& other)
+		: m_textureID(other.m_textureID)
+		, m_width(other.m_width)
+		, m_height(other.m_height)
+		, m_channels(other.m_channels)
+	{}
 
-	Texture(Texture&& rOther) noexcept;
-	Texture& operator=(Texture&& rOther) noexcept;
+	Texture& operator=(const Texture& other)
+	{
+		if (this != &other)
+		{
+			m_textureID = other.m_textureID;
+			m_width = other.m_width;
+			m_height = other.m_height;
+			m_channels = other.m_channels;
+		}
+		return *this;
+	}
 
 	void Bind(u32 textureUnit = 0) const;
 	void Unbind() const;

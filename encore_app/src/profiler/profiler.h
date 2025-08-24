@@ -5,14 +5,13 @@
 
 #include "profiler_types.h"
 
-#include <iomanip>
 #include <thread>
 #include <unordered_map>
 #include <mutex>
 
 class Profiler
 {
-	DECLARE_SINGLETON(Profiler)
+	DECLARE_SINGLETON(Profiler);
 
 public:
 

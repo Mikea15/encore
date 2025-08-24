@@ -13,7 +13,7 @@ public: \
     ClassName& operator=(const ClassName&) = delete; \
 private: \
     ClassName() = default; \
-    ~ClassName() = default;
+    ~ClassName() = default
 
 template<typename T>
 class Singleton

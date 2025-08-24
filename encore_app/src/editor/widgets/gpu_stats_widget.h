@@ -1,9 +1,10 @@
 #include "core/core_minimal.h"
 
 #include "editor/editor_widget.h"
-#include <gfx/texture_manager.h>
 #include <utils/string_factory.h>
 #include <debug/extension_imgui.h>
+
+#include "assets/texture_manager.h"
 
 class GpuStatsWidget : public EditorWidget
 {

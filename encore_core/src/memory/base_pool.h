@@ -263,7 +263,7 @@ private:
     static Type* Alloc(Args&&... args) { return pool.Alloc(std::forward<Args>(args)...); }	\
     static void Free(Type* pItem) { pool.Free(pItem); }										\
     static void Free(u32 id) { pool.Free(id); }												\
-    static bool Init(Arena* pArena);
+    static bool Init(Arena* pArena)
 
 #define IMPLEMENT_POOL(Type, Cap) 															\
     Pool<Type> Type::pool; 																	\
